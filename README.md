@@ -34,7 +34,7 @@ Ref: https://golang.org/doc/install/source#environment
 The following command will create a chef-load executable file for linux amd64 in the current working directory.
 
 ```
-ENV GOOS=linux GOARCH=amd64 go build github.com/jeremiahsnapp/chef-load
+env GOOS=linux GOARCH=amd64 go build github.com/jeremiahsnapp/chef-load
 ```
 
 #### Chef API client
