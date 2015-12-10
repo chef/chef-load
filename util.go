@@ -11,6 +11,21 @@ import (
 	"github.com/go-chef/chef"
 )
 
+func getApiClient(clientName, privateKeyPath, chefServerUrl string) chef.Client {
+	privateKey := getPrivateKey(privateKeyPath)
+
+	client, err := chef.NewClient(&chef.Config{
+		Name:    clientName,
+		Key:     privateKey,
+		BaseURL: chefServerUrl,
+		SkipSSL: true,
+	})
+	if err != nil {
+		fmt.Println("Issue setting up client:", err)
+	}
+	return *client
+}
+
 func getStatusCode(err error) int {
 	errFields := strings.Fields(err.Error())
 	statusCode, _ := strconv.Atoi(errFields[len(errFields)-1])

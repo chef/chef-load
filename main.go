@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-
-	"github.com/go-chef/chef"
 )
 
 const AppVersion = "0.1.0"
@@ -71,19 +69,4 @@ func main() {
 	for i := 0; i < numNodes; i++ {
 		<-quit // Wait to be told to exit.
 	}
-}
-
-func getApiClient(clientName, privateKeyPath, chefServerUrl string) chef.Client {
-	privateKey := getPrivateKey(privateKeyPath)
-
-	client, err := chef.NewClient(&chef.Config{
-		Name:    clientName,
-		Key:     privateKey,
-		BaseURL: chefServerUrl,
-		SkipSSL: true,
-	})
-	if err != nil {
-		fmt.Println("Issue setting up client:", err)
-	}
-	return *client
 }
