@@ -61,6 +61,14 @@ func main() {
 		config.Runs, _ = strconv.Atoi(*fRuns)
 	}
 
+	// Early exit if we can't read the client_key, avoiding a messy stacktrace
+	f, err := os.Open(config.ClientKey)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not read client key %v:\n\t%v\n", config.ClientKey, err)
+		os.Exit(1)
+	}
+	f.Close()
+
 	numNodes := config.Nodes
 	for i := 0; i < numNodes; i++ {
 		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
