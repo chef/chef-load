@@ -3,9 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"time"
-
 	"github.com/go-chef/chef"
+	"time"
 )
 
 func chefClientRun(nodeClient chef.Client, nodeName string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
@@ -77,6 +76,9 @@ func chefClientRun(nodeClient chef.Client, nodeName string, runList []string, ge
 	}
 
 	time.Sleep(time.Duration(sleepDuration) * time.Second)
+
+	// Ensure that what we post at the end of the run is different from previous runs
+	node.AutomaticAttributes["ohai_time"] = time.Now().Unix()
 
 	_, err = nodeClient.Nodes.Put(node)
 	if err != nil {
