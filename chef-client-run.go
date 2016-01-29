@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"time"
-
 	"github.com/go-chef/chef"
+	"math/rand"
+	"time"
 )
 
 func chefClientRun(nodeClient chef.Client, nodeName string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
@@ -77,6 +77,13 @@ func chefClientRun(nodeClient chef.Client, nodeName string, runList []string, ge
 	}
 
 	time.Sleep(time.Duration(sleepDuration) * time.Second)
+
+	// Ensure that what we post at the end of the run is different frm previous nodes
+	node.AutomaticAttributes["cache-buster"] = fmt.Sprintf("%d-%d-%d-%d",
+		rand.Intn(1000),
+		rand.Intn(1000),
+		rand.Intn(1000),
+		rand.Intn(1000))
 
 	_, err = nodeClient.Nodes.Put(node)
 	if err != nil {
