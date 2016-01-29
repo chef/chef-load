@@ -78,7 +78,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, runList []string, ge
 
 	time.Sleep(time.Duration(sleepDuration) * time.Second)
 
-	// Ensure that what we post at the end of the run is different frm previous nodes
+	// Ensure that what we post at the end of the run is different from previous runs
 	node.AutomaticAttributes["cache-buster"] = fmt.Sprintf("%d-%d-%d-%d",
 		rand.Intn(1000),
 		rand.Intn(1000),
