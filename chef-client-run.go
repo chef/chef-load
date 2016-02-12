@@ -4,28 +4,58 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+	"os"
 
 	"github.com/go-chef/chef"
 )
 
-func chefClientRun(nodeClient chef.Client, nodeName string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
+
+func newChefNode(nodeName, nodeJsonFile string) (node chef.Node) {
+	node = chef.Node{
+		Name:                nodeName,
+		Environment:         "_default",
+		ChefType:            "node",
+		JsonClass:           "Chef::Node",
+		RunList:             []string{},
+		AutomaticAttributes: map[string]interface{}{},
+		NormalAttributes:    map[string]interface{}{},
+		DefaultAttributes:   map[string]interface{}{},
+		OverrideAttributes:  map[string]interface{}{},
+	}
+	if nodeJsonFile != "" {
+		file, err := os.Open(nodeJsonFile)
+		if err != nil {
+			fmt.Println("Couldn't open node JSON file ", nodeJsonFile, ": ", err)
+			return
+		}
+		defer file.Close()
+
+		var json_node chef.Node
+
+		err = json.NewDecoder(file).Decode(&json_node)
+		if err != nil {
+			fmt.Println("Couldn't decode node JSON file ", nodeJsonFile, ": ", err)
+			return
+		}
+
+		node.AutomaticAttributes 	= json_node.AutomaticAttributes
+		node.NormalAttributes 		= json_node.NormalAttributes
+		node.DefaultAttributes 		= json_node.DefaultAttributes
+		node.OverrideAttributes 	= json_node.OverrideAttributes
+	}
+
+	return
+}
+
+func chefClientRun(nodeClient chef.Client, nodeName string, nodeJsonFile string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
 	node, err := nodeClient.Nodes.Get(nodeName)
+	fmt.Println(node)
 	if err != nil {
 		statusCode := getStatusCode(err)
 		if statusCode == 404 {
 			// Create a Node object
 			// TODO: should have a constructor for this
-			node = chef.Node{
-				Name:                nodeName,
-				Environment:         "_default",
-				ChefType:            "node",
-				JsonClass:           "Chef::Node",
-				RunList:             []string{},
-				AutomaticAttributes: map[string]interface{}{},
-				NormalAttributes:    map[string]interface{}{},
-				DefaultAttributes:   map[string]interface{}{},
-				OverrideAttributes:  map[string]interface{}{},
-			}
+			node = newChefNode(nodeName, nodeJsonFile)
 
 			_, err = nodeClient.Nodes.Post(node)
 			if err != nil {

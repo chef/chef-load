@@ -13,6 +13,7 @@ type chefLoadConfig struct {
 	ClientKey         string
 	Nodes             int
 	NodeNamePrefix    string
+	NodeJsonFile      string
 	Interval          int
 	Splay             int
 	Runs              int
@@ -54,6 +55,10 @@ client_key = "/path/to/CLIENT_NAME.pem"
 # This enables running multiple instances of the chef-load tool without affecting each others' nodes
 # For example, a value of "chef-load" will result in nodes named "chef-load-0", "chef-load-1", ...
 # node_name_prefix = "chef-load"
+
+# Node data will be loaded from this file. Set this to test uploading large amount of data.
+# Leave this unset to use empty objects
+# node_json_file = "/path/to/node.json"
 
 # interval = 1800     # Interval between a node's chef-client runs, in seconds
 
@@ -117,6 +122,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 	config := chefLoadConfig{
 		Nodes:          10,
 		NodeNamePrefix: "chef-load",
+		NodeJsonFile: "",
 
 		Interval: 1800,
 		Splay:    300,
