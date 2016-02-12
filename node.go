@@ -46,7 +46,7 @@ func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef
 	default:
 		getCookbooks = true
 	}
-	chefClientRun(nodeClient, nodeName, config.RunList, getCookbooks, config.ApiGetRequests, config.SleepDuration)
+	chefClientRun(nodeClient, nodeName, config.NodeJsonFile, config.RunList, getCookbooks, config.ApiGetRequests, config.SleepDuration)
 	fmt.Println(nodeName, "Finished")
 	if config.Runs == 0 || (config.Runs > 1 && run < config.Runs) {
 		fmt.Printf("%v Sleeping %v seconds\n", nodeName, config.Interval)
