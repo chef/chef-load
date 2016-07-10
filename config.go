@@ -75,6 +75,7 @@ client_key = "/path/to/CLIENT_NAME.pem"
 # ohai_json_file = "/path/to/ohai.json"
 
 # interval = 1800     # Interval between a node's chef-client runs, in seconds
+# splay = 300         # A random number between zero and splay that is added to interval, in seconds
 
 # runs = 0            # Number of chef-client runs each node should make, 0 value will make infinite runs
 

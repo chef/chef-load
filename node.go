@@ -2,12 +2,21 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/go-chef/chef"
 )
 
 func startNode(nodeName string, config chefLoadConfig) {
+	if config.Splay > 0 {
+		s1 := rand.NewSource(time.Now().UnixNano())
+		r1 := rand.New(s1)
+		splay := r1.Intn(config.Splay)
+		fmt.Printf("%v Sleeping %v seconds\n", nodeName, splay)
+		time.Sleep(time.Duration(splay) * time.Second)
+	}
+
 	nodeClient := getApiClient(nodeName, config.ClientKey, config.ChefServerUrl)
 
 	switch config.Runs {
@@ -43,7 +52,14 @@ func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef
 	chefClientRun(nodeClient, nodeName, config.OhaiJsonFile, config.RunList, getCookbooks, config.ApiGetRequests, config.SleepDuration)
 	fmt.Println(nodeName, "Finished")
 	if config.Runs == 0 || (config.Runs > 1 && run < config.Runs) {
-		fmt.Printf("%v Sleeping %v seconds\n", nodeName, config.Interval)
-		time.Sleep(time.Duration(config.Interval) * time.Second)
+		splay := 0
+		if config.Splay > 0 {
+			s1 := rand.NewSource(time.Now().UnixNano())
+			r1 := rand.New(s1)
+			splay = r1.Intn(config.Splay)
+		}
+		delay := config.Interval + splay
+		fmt.Printf("%v Sleeping %v seconds\n", nodeName, delay)
+		time.Sleep(time.Duration(delay) * time.Second)
 	}
 }
