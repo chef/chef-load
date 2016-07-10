@@ -102,7 +102,7 @@ client_key = "/path/to/CLIENT_NAME.pem"
 # "https://chef.example.com/organizations/orgname/search/node?q=*%253A*&sort=X_CHEF_id_CHEF_X%20asc&start=0"
 # or
 # "search/node?q=*%253A*&sort=X_CHEF_id_CHEF_X%20asc&start=0"
-# 
+#
 # api_get_requests = [ ]
 
 # sleep_duration happens between the chef-client getting its cookbooks and it making the final API requests
