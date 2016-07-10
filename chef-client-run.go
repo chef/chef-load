@@ -3,14 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 	"os"
+	"time"
 
 	"github.com/go-chef/chef"
 )
 
-
-func newChefNode(nodeName, nodeJsonFile string) (node chef.Node) {
+func newChefNode(nodeName, ohaiJsonFile string) (node chef.Node) {
 	node = chef.Node{
 		Name:                nodeName,
 		Environment:         "_default",
@@ -22,40 +21,35 @@ func newChefNode(nodeName, nodeJsonFile string) (node chef.Node) {
 		DefaultAttributes:   map[string]interface{}{},
 		OverrideAttributes:  map[string]interface{}{},
 	}
-	if nodeJsonFile != "" {
-		file, err := os.Open(nodeJsonFile)
+	if ohaiJsonFile != "" {
+		file, err := os.Open(ohaiJsonFile)
 		if err != nil {
-			fmt.Println("Couldn't open node JSON file ", nodeJsonFile, ": ", err)
+			fmt.Println("Couldn't open ohai JSON file ", ohaiJsonFile, ": ", err)
 			return
 		}
 		defer file.Close()
 
-		var json_node chef.Node
+		ohai_json := map[string]interface{}{}
 
-		err = json.NewDecoder(file).Decode(&json_node)
+		err = json.NewDecoder(file).Decode(&ohai_json)
 		if err != nil {
-			fmt.Println("Couldn't decode node JSON file ", nodeJsonFile, ": ", err)
+			fmt.Println("Couldn't decode ohai JSON file ", ohaiJsonFile, ": ", err)
 			return
 		}
-
-		node.AutomaticAttributes 	= json_node.AutomaticAttributes
-		node.NormalAttributes 		= json_node.NormalAttributes
-		node.DefaultAttributes 		= json_node.DefaultAttributes
-		node.OverrideAttributes 	= json_node.OverrideAttributes
+		node.AutomaticAttributes = ohai_json
 	}
 
 	return
 }
 
-func chefClientRun(nodeClient chef.Client, nodeName string, nodeJsonFile string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
+func chefClientRun(nodeClient chef.Client, nodeName string, ohaiJsonFile string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
 	node, err := nodeClient.Nodes.Get(nodeName)
-	fmt.Println(node)
 	if err != nil {
 		statusCode := getStatusCode(err)
 		if statusCode == 404 {
 			// Create a Node object
 			// TODO: should have a constructor for this
-			node = newChefNode(nodeName, nodeJsonFile)
+			node = newChefNode(nodeName, ohaiJsonFile)
 
 			_, err = nodeClient.Nodes.Post(node)
 			if err != nil {
