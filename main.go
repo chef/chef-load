@@ -69,7 +69,16 @@ func main() {
 	}
 	f.Close()
 
+	sem := make(chan int, config.BootstrapNodesConcurrency)
+
 	numNodes := config.Nodes
+	for i := 0; i < numNodes; i++ {
+		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
+		go setupChefLoad(nodeName, *config, sem)
+	}
+	for i := 0; i < numNodes; i++ {
+		<-quit // Wait to be told to exit.
+	}
 	for i := 0; i < numNodes; i++ {
 		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
 		go startNode(nodeName, *config)

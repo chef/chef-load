@@ -8,12 +8,6 @@ import (
 )
 
 func startNode(nodeName string, config chefLoadConfig) {
-	adminClient := getApiClient(config.ClientName, config.ClientKey, config.ChefServerUrl)
-
-	adminClient.Clients.Delete(nodeName)
-	adminClient.Nodes.Delete(nodeName)
-	createClient(adminClient, nodeName, getPublicKey(config.ClientKey))
-
 	nodeClient := getApiClient(nodeName, config.ClientKey, config.ChefServerUrl)
 
 	switch config.Runs {

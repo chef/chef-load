@@ -26,6 +26,25 @@ func getApiClient(clientName, privateKeyPath, chefServerUrl string) chef.Client 
 	return *client
 }
 
+func setupChefLoad(nodeName string, config chefLoadConfig, sem chan int) {
+	sem <- 1
+	adminClient := getApiClient(config.ClientName, config.ClientKey, config.ChefServerUrl)
+
+	// TODO add error handling here
+	fmt.Println(nodeName, "Bootstrapping")
+	err := adminClient.Nodes.Delete(nodeName)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = adminClient.Clients.Delete(nodeName)
+	if err != nil {
+		fmt.Println(err)
+	}
+	createClient(adminClient, nodeName, getPublicKey(config.ClientKey))
+	<-sem
+	quit <- 1
+}
+
 func createClient(adminClient chef.Client, clientName, publicKey string) {
 	apiClient := chef.ApiClient{
 		Name:       clientName,

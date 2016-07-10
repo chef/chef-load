@@ -11,6 +11,7 @@ type chefLoadConfig struct {
 	ChefServerUrl     string
 	ClientName        string
 	ClientKey         string
+	BootstrapNodesConcurrency int
 	Nodes             int
 	NodeNamePrefix    string
 	OhaiJsonFile      string
@@ -47,6 +48,18 @@ chef_server_url = "https://HOSTNAME_or_IP/organizations/ORG_NAME/"
 #
 client_name = "CLIENT_NAME"
 client_key = "/path/to/CLIENT_NAME.pem"
+
+# chef-load only uses the API client defined above when bootstrapping all nodes.
+# The bootstrap process makes the following API requests for each node.
+# 1. Delete the node
+# 2. Delete the node's client
+# 3. Create a new client for the node
+#
+# It is important for the bootstrap process to complete successfully for each node otherwise there
+# is no chance for the node's chef-client run to make successful API requests.
+# To ensure success the first thing chef-load does is bootstrap all nodes.
+#
+# bootstrap_nodes_concurrency = 20
 
 # Number of nodes making chef-client runs
 # nodes = 10
@@ -121,6 +134,8 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 	// Initialize default configuration values
 	config := chefLoadConfig{
+		BootstrapNodesConcurrency: 20,
+
 		Nodes:          10,
 		NodeNamePrefix: "chef-load",
 
