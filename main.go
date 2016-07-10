@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-const AppVersion = "0.1.1"
+const AppVersion = "0.2.0"
 
 var quit = make(chan int)
 
