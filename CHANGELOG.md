@@ -1,5 +1,13 @@
 # chef-load Change Log
 
+## 0.2.0 (2016-07-10)
+
+* Add splay
+* Add bootstrap nodes concurrency
+* Use ohai json file for automatic attributes ([juozasg](https://github.com/juozasg))
+* Update ohai_time in node's automatic attributes ([stevendanna](https://github.com/stevendanna))
+* Fail early if config.ClientKey isn't readable ([stevendanna](https://github.com/stevendanna))
+
 ## 0.1.1 (2015-12-10)
 
 * Make Interval work when Runs is set to 0
