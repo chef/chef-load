@@ -1,5 +1,9 @@
 # chef-load Change Log
 
+## 0.3.0 (2016-07-11)
+
+* Add API requests to /reports endpoint
+
 ## 0.2.0 (2016-07-10)
 
 * Add splay
