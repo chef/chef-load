@@ -7,9 +7,16 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chef/chef"
 )
+
+func timestamp() string {
+	now := time.Now().UTC()
+	layout := "2006-01-02 15:04:05 -0700"
+	return now.Format(layout)
+}
 
 func getApiClient(clientName, privateKeyPath, chefServerUrl string) chef.Client {
 	privateKey := getPrivateKey(privateKeyPath)
