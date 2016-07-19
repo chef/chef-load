@@ -7,7 +7,7 @@
 ## 0.2.0 (2016-07-10)
 
 * Add splay
-* Add bootstrap nodes concurrency
+* Add bootstrap_nodes_concurrency throttle setting
 * Use ohai json file for automatic attributes ([juozasg](https://github.com/juozasg))
 * Update ohai_time in node's automatic attributes ([stevendanna](https://github.com/stevendanna))
 * Fail early if config.ClientKey isn't readable ([stevendanna](https://github.com/stevendanna))
