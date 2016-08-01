@@ -1,6 +1,6 @@
 ## Description
 
-chef-load is a tool written in Go that simulates load on a [Chef Server](https://www.chef.io/chef/) from a configured number of nodes.
+chef-load is a tool written in Go that simulates load on a [Chef Server](https://www.chef.io/chef/) and/or [Chef Automate](https://www.chef.io/chef://www.chef.io/automate/) from a configured number of nodes.
 
 It is designed to be easy to use yet powerfully flexible and accurate in its simulation of the chef-client run.
 
@@ -10,10 +10,10 @@ It works well at this point but there is always room for improvement so please p
 
 #### Build the chef-load executable
 
-To build chef-load you must have Go installed.  
+To build chef-load you must have Go installed.
 Ref: https://golang.org/dl/
 
-Setup a GOPATH if you haven't already.  
+Setup a GOPATH if you haven't already.
 Ref: https://golang.org/doc/install#testing
 
 ```
@@ -27,8 +27,8 @@ Get and install chef-load
 go get github.com/jeremiahsnapp/chef-load
 ```
 
-It is easy to cross-compile chef-load for other platforms.  
-Options for $GOOS and $GOARCH are listed in the following link.  
+It is easy to cross-compile chef-load for other platforms.
+Options for $GOOS and $GOARCH are listed in the following link.
 Ref: https://golang.org/doc/install/source#environment
 
 The following command will create a chef-load executable file for linux amd64 in the current working directory.
@@ -49,6 +49,11 @@ to use the [knife-acl plugin](https://github.com/chef/knife-acl) to create a new
 Chef Server, add the regular user or client to that group and then give the group the create
 permission on the clients container.
 
+#### Automate Data Collector Token
+
+The Chef Automate Data Collector is often run on different machines than the Chef Server, as such it needs
+to be configured with it's own "data_collector_url" and "data_collector_token" (used for authorization).
+
 ## Usage
 
 Print help.
@@ -57,7 +62,7 @@ Print help.
 chef-load --help
 ```
 
-Generate a chef-load configuration file.  
+Generate a chef-load configuration file.
 The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and documents a lot of the flexibility of chef-load so please read it.
 
 ```
@@ -66,8 +71,8 @@ chef-load --sample-config > chef-load.conf
 
 Configure at least "chef_server_url", "client_name" and "client_key" in chef-load.conf.
 
-You can set the number of nodes and chef-client runs as command line options.  
-This is useful for quickly testing the chef-load configuration.  
+You can set the number of nodes and chef-client runs as command line options.
+This is useful for quickly testing the chef-load configuration.
 
 The following will make one node perform two chef-client runs.
 
@@ -79,4 +84,10 @@ Run chef-load using only the configuration file.
 
 ```
 chef-load --config chef-load.conf
+```
+
+Run chef-load with Data Collector enabled.
+
+```
+chef-load --config chef-load.conf --data-collector
 ```
