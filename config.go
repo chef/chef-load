@@ -8,20 +8,22 @@ import (
 )
 
 type chefLoadConfig struct {
-	ChefServerUrl     string
-	ClientName        string
-	ClientKey         string
+	ChefServerUrl             string
+	ClientName                string
+	ClientKey                 string
 	BootstrapNodesConcurrency int
-	Nodes             int
-	NodeNamePrefix    string
-	OhaiJsonFile      string
-	Interval          int
-	Splay             int
-	Runs              int
-	RunList           []string
-	DownloadCookbooks string
-	ApiGetRequests    []string
-	SleepDuration     int
+	Nodes                     int
+	NodeNamePrefix            string
+	OhaiJsonFile              string
+	Interval                  int
+	Splay                     int
+	Runs                      int
+	RunList                   []string
+	DownloadCookbooks         string
+	ApiGetRequests            []string
+	SleepDuration             int
+	DataCollectorUrl          string
+	DataCollectorToken        string
 }
 
 func printSampleConfig() {
@@ -122,6 +124,12 @@ client_key = "/path/to/CLIENT_NAME.pem"
 # sleep_duration happens between the chef-client getting its cookbooks and it making the final API requests
 # to report it has finished its run. The intent is to enable a more accurate simulation of API requests.
 # sleep_duration = 0
+
+# The URL to the Chef Automate Visibility Data Collector URL
+# data_collector_url = "http://automate.example.org/data-collector/v0"
+#
+# The Authorization token for Chef Automate Visibility
+# data_collector_token = "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506"
 `
 	fmt.Print(sampleConfig)
 }
