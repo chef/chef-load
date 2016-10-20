@@ -49,7 +49,7 @@ func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef
 	default:
 		getCookbooks = true
 	}
-	chefClientRun(nodeClient, nodeName, config.OhaiJsonFile, config.ChefEnvironment, config.RunList, getCookbooks, config.ApiGetRequests, config.SleepDuration)
+	chefClientRun(nodeClient, nodeName, getCookbooks, config)
 	fmt.Println(nodeName, "Finished")
 	if config.Runs == 0 || (config.Runs > 1 && run < config.Runs) {
 		splay := 0

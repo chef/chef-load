@@ -43,7 +43,13 @@ func newChefNode(nodeName, chefEnvironment, ohaiJsonFile string) (node chef.Node
 	return
 }
 
-func chefClientRun(nodeClient chef.Client, nodeName string, ohaiJsonFile string, chefEnvironment string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
+func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, config chefLoadConfig) {
+	ohaiJsonFile := config.OhaiJsonFile
+	chefEnvironment := config.ChefEnvironment
+	runList := config.RunList
+	apiGetRequests := config.ApiGetRequests
+	sleepDuration := config.SleepDuration
+
 	node, err := nodeClient.Nodes.Get(nodeName)
 	if err != nil {
 		statusCode := getStatusCode(err)
