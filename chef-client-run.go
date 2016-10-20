@@ -10,10 +10,10 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func newChefNode(nodeName, ohaiJsonFile string) (node chef.Node) {
+func newChefNode(nodeName, chefEnvironment, ohaiJsonFile string) (node chef.Node) {
 	node = chef.Node{
 		Name:                nodeName,
-		Environment:         "_default",
+		Environment:         chefEnvironment,
 		ChefType:            "node",
 		JsonClass:           "Chef::Node",
 		RunList:             []string{},
@@ -43,14 +43,14 @@ func newChefNode(nodeName, ohaiJsonFile string) (node chef.Node) {
 	return
 }
 
-func chefClientRun(nodeClient chef.Client, nodeName string, ohaiJsonFile string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
+func chefClientRun(nodeClient chef.Client, nodeName string, ohaiJsonFile string, chefEnvironment string, runList []string, getCookbooks bool, apiGetRequests []string, sleepDuration int) {
 	node, err := nodeClient.Nodes.Get(nodeName)
 	if err != nil {
 		statusCode := getStatusCode(err)
 		if statusCode == 404 {
 			// Create a Node object
 			// TODO: should have a constructor for this
-			node = newChefNode(nodeName, ohaiJsonFile)
+			node = newChefNode(nodeName, chefEnvironment, ohaiJsonFile)
 
 			_, err = nodeClient.Nodes.Post(node)
 			if err != nil {
@@ -60,6 +60,8 @@ func chefClientRun(nodeClient chef.Client, nodeName string, ohaiJsonFile string,
 			fmt.Println("Couldn't get node: ", err)
 		}
 	}
+
+	nodeClient.Environments.Get(chefEnvironment)
 
 	run_uuid := uuid.NewV4()
 	start_time := timestamp()
@@ -97,7 +99,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, ohaiJsonFile string,
 	var cookbooks map[string]json.RawMessage
 
 	err = func(cookbooks *map[string]json.RawMessage) error {
-		req, err := nodeClient.NewRequest("POST", "environments/_default/cookbook_versions", data)
+		req, err := nodeClient.NewRequest("POST", "environments/"+chefEnvironment+"/cookbook_versions", data)
 		res, err := nodeClient.Do(req, nil)
 		if err != nil {
 			// can't print res here if it is nil

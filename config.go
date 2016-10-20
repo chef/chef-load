@@ -18,6 +18,7 @@ type chefLoadConfig struct {
 	Interval          int
 	Splay             int
 	Runs              int
+	ChefEnvironment   string
 	RunList           []string
 	DownloadCookbooks string
 	ApiGetRequests    []string
@@ -78,6 +79,8 @@ client_key = "/path/to/CLIENT_NAME.pem"
 # splay = 300         # A random number between zero and splay that is added to interval, in seconds
 
 # runs = 0            # Number of chef-client runs each node should make, 0 value will make infinite runs
+
+# chef_environment = "_default"     # Chef environment used by each node
 
 # run_list = [ ]      # run_list used by each node, a list of strings
 
@@ -147,6 +150,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 		Runs: 0,
 
+		ChefEnvironment:   "_default",
 		RunList:           make([]string, 0),
 		DownloadCookbooks: "never",
 		SleepDuration:     0,
