@@ -82,7 +82,10 @@ client_key = "/path/to/CLIENT_NAME.pem"
 
 # chef_environment = "_default"     # Chef environment used by each node
 
-# run_list = [ ]      # run_list used by each node, a list of strings
+# run_list is the run list used by each node. It should be a list of strings.
+# For example: run_list = [ "role[role_name]", "recipe_name", "recipe[different_recipe_name@1.0.0]" ]
+# The default value is an empty run_list.
+# run_list = [ ]
 
 # download_cookbooks controls which chef-client run downloads cookbook files.
 # Options are: "never", "first" (first chef-client run only), "always"

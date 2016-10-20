@@ -46,7 +46,7 @@ func newChefNode(nodeName, chefEnvironment, ohaiJsonFile string) (node chef.Node
 func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, config chefLoadConfig) {
 	ohaiJsonFile := config.OhaiJsonFile
 	chefEnvironment := config.ChefEnvironment
-	runList := config.RunList
+	runList := parseRunList(config.RunList)
 	apiGetRequests := config.ApiGetRequests
 	sleepDuration := config.SleepDuration
 
@@ -96,30 +96,15 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 		return res.StatusCode
 	}()
 
-	rl := map[string][]string{"run_list": runList}
-	data, err := chef.JSONReader(rl)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// Expand run_list
+	expandedRunList := runList.expand(&nodeClient, chefEnvironment)
 
-	var cookbooks map[string]json.RawMessage
+	// Calculate cookbook dependencies
+	ckbks := solveRunListDependencies(&nodeClient, expandedRunList, chefEnvironment)
 
-	err = func(cookbooks *map[string]json.RawMessage) error {
-		req, err := nodeClient.NewRequest("POST", "environments/"+chefEnvironment+"/cookbook_versions", data)
-		res, err := nodeClient.Do(req, nil)
-		if err != nil {
-			// can't print res here if it is nil
-			// fmt.Println(res.StatusCode)
-			fmt.Println(err)
-			return err
-		}
-		defer res.Body.Close()
-
-		return json.NewDecoder(res.Body).Decode(cookbooks)
-	}(&cookbooks)
-
+	// Download cookbooks
 	if getCookbooks {
-		downloadCookbooks(&nodeClient, cookbooks)
+		downloadCookbooks(&nodeClient, ckbks)
 	}
 
 	for _, apiGetRequest := range apiGetRequests {
