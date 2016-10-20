@@ -8,21 +8,21 @@ import (
 )
 
 type chefLoadConfig struct {
-	ChefServerUrl     string
-	ClientName        string
-	ClientKey         string
+	ChefServerUrl             string
+	ClientName                string
+	ClientKey                 string
 	BootstrapNodesConcurrency int
-	Nodes             int
-	NodeNamePrefix    string
-	OhaiJsonFile      string
-	Interval          int
-	Splay             int
-	Runs              int
-	ChefEnvironment   string
-	RunList           []string
-	DownloadCookbooks string
-	ApiGetRequests    []string
-	SleepDuration     int
+	Nodes                     int
+	NodeNamePrefix            string
+	OhaiJsonFile              string
+	Interval                  int
+	Splay                     int
+	Runs                      int
+	ChefEnvironment           string
+	RunList                   []string
+	DownloadCookbooks         string
+	ApiGetRequests            []string
+	SleepDuration             int
 }
 
 func printSampleConfig() {
