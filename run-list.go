@@ -75,9 +75,9 @@ func solveRunListDependencies(nodeClient *chef.Client, expandedRunList []string,
 	}
 	defer res.Body.Close()
 
-	var cookbooks map[string]json.RawMessage
-	json.NewDecoder(res.Body).Decode(&cookbooks)
-	return cookbooks
+	var ckbks cookbooks
+	json.NewDecoder(res.Body).Decode(&ckbks)
+	return ckbks
 }
 
 func parseRunList(unparsedRunList []string) runList {

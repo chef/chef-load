@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/go-chef/chef"
@@ -30,6 +29,8 @@ type cookbook struct {
 	Templates    []cookbookFile `json:"templates"`
 }
 
+type cookbooks map[string]cookbook
+
 func getCookbookFile(nodeClient *chef.Client, cookbookFile string) {
 	req, err := nodeClient.NewRequest("GET", cookbookFile, nil)
 	res, err := nodeClient.Do(req, nil)
@@ -41,11 +42,8 @@ func getCookbookFile(nodeClient *chef.Client, cookbookFile string) {
 	defer res.Body.Close()
 }
 
-func downloadCookbooks(nodeClient *chef.Client, cookbooks map[string]json.RawMessage) {
-	for _, v := range cookbooks {
-		var cookbook cookbook
-		json.Unmarshal(v, &cookbook)
-
+func downloadCookbooks(nodeClient *chef.Client, ckbks cookbooks) {
+	for _, cookbook := range ckbks {
 		for _, cookbookFile := range cookbook.Attributes {
 			getCookbookFile(nodeClient, cookbookFile.URL)
 		}
