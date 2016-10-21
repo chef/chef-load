@@ -35,7 +35,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	nodeClient.Environments.Get(chefEnvironment)
 
 	// Notify Reporting of run start
-	reportsStatusCode := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
+	var reportsStatusCode int
+	if config.EnableReporting {
+		reportsStatusCode = reportingRunStart(nodeClient, nodeName, runUUID, startTime)
+	}
 
 	// Expand run_list
 	expandedRunList := runList.expand(&nodeClient, chefEnvironment)
@@ -66,7 +69,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	}
 
 	// Notify Reporting of run end
-	if reportsStatusCode == 201 {
+	if config.EnableReporting && reportsStatusCode == 201 {
 		reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
 	}
 }

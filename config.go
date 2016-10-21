@@ -23,6 +23,7 @@ type chefLoadConfig struct {
 	DownloadCookbooks         string
 	ApiGetRequests            []string
 	SleepDuration             int
+	EnableReporting           bool
 }
 
 func printSampleConfig() {
@@ -128,6 +129,9 @@ client_key = "/path/to/CLIENT_NAME.pem"
 # sleep_duration happens between the chef-client getting its cookbooks and it making the final API requests
 # to report it has finished its run. The intent is to enable a more accurate simulation of API requests.
 # sleep_duration = 0
+
+# Send data to the Chef server's Reporting service
+# enable_reporting = false
 `
 	fmt.Print(sampleConfig)
 }
@@ -157,6 +161,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		RunList:           make([]string, 0),
 		DownloadCookbooks: "never",
 		SleepDuration:     0,
+		EnableReporting:   false,
 	}
 
 	if err = toml.NewDecoder(f).Decode(&config); err != nil {
