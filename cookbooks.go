@@ -31,8 +31,8 @@ type cookbook struct {
 
 type cookbooks map[string]cookbook
 
-func getCookbookFile(nodeClient *chef.Client, cookbookFile string) {
-	req, err := nodeClient.NewRequest("GET", cookbookFile, nil)
+func (ckbkFile cookbookFile) download(nodeClient *chef.Client) {
+	req, err := nodeClient.NewRequest("GET", ckbkFile.URL, nil)
 	res, err := nodeClient.Do(req, nil)
 	if err != nil {
 		fmt.Println(err)
@@ -42,34 +42,38 @@ func getCookbookFile(nodeClient *chef.Client, cookbookFile string) {
 	defer res.Body.Close()
 }
 
-func downloadCookbooks(nodeClient *chef.Client, ckbks cookbooks) {
-	for _, cookbook := range ckbks {
-		for _, cookbookFile := range cookbook.Attributes {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.Definitions {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.Files {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.Libraries {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.Providers {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.Recipes {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.Resources {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.RootFiles {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
-		for _, cookbookFile := range cookbook.Templates {
-			getCookbookFile(nodeClient, cookbookFile.URL)
-		}
+func (ckbk cookbook) download(nodeClient *chef.Client) {
+	for _, ckbkFile := range ckbk.Attributes {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.Definitions {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.Files {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.Libraries {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.Providers {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.Recipes {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.Resources {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.RootFiles {
+		ckbkFile.download(nodeClient)
+	}
+	for _, ckbkFile := range ckbk.Templates {
+		ckbkFile.download(nodeClient)
+	}
+}
+
+func (ckbks cookbooks) download(nodeClient *chef.Client) {
+	for _, ckbk := range ckbks {
+		ckbk.download(nodeClient)
 	}
 }

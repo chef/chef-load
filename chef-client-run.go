@@ -104,7 +104,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 
 	// Download cookbooks
 	if getCookbooks {
-		downloadCookbooks(&nodeClient, ckbks)
+		ckbks.download(&nodeClient)
 	}
 
 	for _, apiGetRequest := range apiGetRequests {
