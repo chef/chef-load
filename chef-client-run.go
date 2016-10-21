@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-chef/chef"
@@ -14,7 +16,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	apiGetRequests := config.ApiGetRequests
 	sleepDuration := config.SleepDuration
 	runUUID := uuid.NewV4()
+	nodeUUID := uuid.NewV3(uuid.NamespaceDNS, nodeName)
 	startTime := time.Now().UTC()
+	chefServerURL := config.ChefServerUrl
+	url, _ := url.ParseRequestURI(chefServerURL)
+	orgName := strings.Split(url.Path, "/")[2]
 
 	node, err := nodeClient.Nodes.Get(nodeName)
 	if err != nil {
@@ -38,6 +44,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	var reportsStatusCode int
 	if config.EnableReporting {
 		reportsStatusCode = reportingRunStart(nodeClient, nodeName, runUUID, startTime)
+	}
+
+	// Notify Data Collector of run start
+	if config.EnableChefClientDataCollector {
+		dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 	}
 
 	// Expand run_list
@@ -71,5 +82,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	// Notify Reporting of run end
 	if config.EnableReporting && reportsStatusCode == 201 {
 		reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
+	}
+
+	// Notify Data Collector of run end
+	if config.EnableChefClientDataCollector {
+		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, config)
 	}
 }

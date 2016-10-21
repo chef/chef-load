@@ -1,6 +1,6 @@
 ## Description
 
-chef-load is a tool written in Go that simulates load on a [Chef Server](https://www.chef.io/chef/) from a configured number of nodes.
+chef-load is a tool written in Go that simulates load on a [Chef Server](https://www.chef.io/chef/) and/or [Chef Automate](https://www.chef.io/chef://www.chef.io/automate/) from a configured number of nodes.
 
 It is designed to be easy to use yet powerfully flexible and accurate in its simulation of the chef-client run.
 

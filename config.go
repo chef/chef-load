@@ -8,26 +8,38 @@ import (
 )
 
 type chefLoadConfig struct {
-	ChefServerUrl             string
-	ClientName                string
-	ClientKey                 string
-	BootstrapNodesConcurrency int
-	Nodes                     int
-	NodeNamePrefix            string
-	OhaiJsonFile              string
-	Interval                  int
-	Splay                     int
-	Runs                      int
-	ChefEnvironment           string
-	RunList                   []string
-	DownloadCookbooks         string
-	ApiGetRequests            []string
-	SleepDuration             int
-	EnableReporting           bool
+	DataCollectorURL              string `toml:"data_collector_url"`
+	DataCollectorToken            string
+	EnableChefClientDataCollector bool
+	ChefServerUrl                 string
+	ClientName                    string
+	ClientKey                     string
+	BootstrapNodesConcurrency     int
+	Nodes                         int
+	NodeNamePrefix                string
+	OhaiJsonFile                  string
+	Interval                      int
+	Splay                         int
+	Runs                          int
+	ChefEnvironment               string
+	RunList                       []string
+	DownloadCookbooks             string
+	ApiGetRequests                []string
+	SleepDuration                 int
+	EnableReporting               bool
 }
 
 func printSampleConfig() {
-	sampleConfig := `# The URL of the Chef Server including the organization name
+	sampleConfig := `# The URL to the Chef Automate Visibility Data Collector URL
+# data_collector_url = "https://automate.example.org/data-collector/v0/"
+#
+# The Authorization token for Chef Automate Visibility
+# data_collector_token = "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506"
+#
+# Send data to the Chef Automate Visibility Data Collector
+# enable_chef_client_data_collector = false
+
+# The URL of the Chef Server including the organization name
 chef_server_url = "https://HOSTNAME_or_IP/organizations/ORG_NAME/"
 
 # Before a node's first chef-client run chef-load uses the API client defined by client_name
@@ -146,6 +158,10 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 	// Initialize default configuration values
 	config := chefLoadConfig{
+		DataCollectorURL:              "http://automate.example.org/data-collector/v0",
+		DataCollectorToken:            "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
+		EnableChefClientDataCollector: false,
+
 		BootstrapNodesConcurrency: 20,
 
 		Nodes:          10,
