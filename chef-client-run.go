@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 func newChefNode(nodeName, chefEnvironment, ohaiJsonFile string) (node chef.Node) {
@@ -49,6 +49,8 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 	runList := parseRunList(config.RunList)
 	apiGetRequests := config.ApiGetRequests
 	sleepDuration := config.SleepDuration
+	runUUID := uuid.NewV4()
+	startTime := time.Now().UTC()
 
 	node, err := nodeClient.Nodes.Get(nodeName)
 	if err != nil {
@@ -69,32 +71,8 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 
 	nodeClient.Environments.Get(chefEnvironment)
 
-	run_uuid := uuid.NewV4()
-	start_time := timestamp()
-
-	reportsStatusCode := func() int {
-		startRunBody := map[string]interface{}{
-			"action":     "start",
-			"run_id":     run_uuid,
-			"start_time": start_time,
-		}
-		data, err := chef.JSONReader(startRunBody)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		req, err := nodeClient.NewRequest("POST", "reports/nodes/"+nodeName+"/runs", data)
-		req.Header.Set("X-Ops-Reporting-Protocol-Version", "0.1.0")
-		res, err := nodeClient.Do(req, nil)
-		if err != nil && res.StatusCode != 404 {
-			// can't print res here if it is nil
-			// fmt.Println(res.StatusCode)
-			fmt.Println(err)
-			return res.StatusCode
-		}
-		defer res.Body.Close()
-		return res.StatusCode
-	}()
+	// Notify Reporting of run start
+	reportsStatusCode := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
 
 	// Expand run_list
 	expandedRunList := runList.expand(&nodeClient, chefEnvironment)
@@ -126,42 +104,16 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 	node.RunList = runList.toStringSlice()
 
 	// Ensure that what we post at the end of the run is different from previous runs
-	node.AutomaticAttributes["ohai_time"] = time.Now().Unix()
+	endTime := time.Now().UTC()
+	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
 	_, err = nodeClient.Nodes.Put(node)
 	if err != nil {
 		fmt.Println("Couldn't update node: ", err)
 	}
 
+	// Notify Reporting of run end
 	if reportsStatusCode == 201 {
-		err = func() error {
-			end_time := timestamp()
-			endRunBody := map[string]interface{}{
-				"action":          "end",
-				"data":            map[string]interface{}{},
-				"end_time":        end_time,
-				"resources":       []interface{}{},
-				"run_list":        "[]",
-				"start_time":      start_time,
-				"status":          "success",
-				"total_res_count": "0",
-			}
-			data, err := chef.JSONReader(endRunBody)
-			if err != nil {
-				fmt.Println(err)
-			}
-
-			req, err := nodeClient.NewRequest("POST", "reports/nodes/"+nodeName+"/runs/"+run_uuid.String(), data)
-			req.Header.Set("X-Ops-Reporting-Protocol-Version", "0.1.0")
-			res, err := nodeClient.Do(req, nil)
-			if err != nil {
-				// can't print res here if it is nil
-				// fmt.Println(res.StatusCode)
-				fmt.Println(err)
-				return err
-			}
-			defer res.Body.Close()
-			return err
-		}()
+		reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
 	}
 }
