@@ -128,6 +128,7 @@ client_key = "/path/to/CLIENT_NAME.pem"
 
 # sleep_duration happens between the chef-client getting its cookbooks and it making the final API requests
 # to report it has finished its run. The intent is to enable a more accurate simulation of API requests.
+# sleep_duration is measured in seconds
 # sleep_duration = 0
 
 # Send data to the Chef server's Reporting service
