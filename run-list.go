@@ -30,6 +30,18 @@ func (rl runList) shift() (runListItem, runList) {
 	return rli, rl
 }
 
+func (rl runList) toStringSlice() []string {
+	var stringSlice []string
+	for _, rli := range rl {
+		if rli.version == "" {
+			stringSlice = append(stringSlice, rli.itemType+"["+rli.name+"]")
+		} else {
+			stringSlice = append(stringSlice, rli.itemType+"["+rli.name+"@"+rli.version+"]")
+		}
+	}
+	return stringSlice
+}
+
 func (rl runList) expand(nodeClient *chef.Client, chefEnvironment string) []string {
 	recipes := []string{}
 	appliedRoles := map[string]bool{}

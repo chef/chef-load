@@ -123,6 +123,8 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 
 	time.Sleep(time.Duration(sleepDuration) * time.Second)
 
+	node.RunList = runList.toStringSlice()
+
 	// Ensure that what we post at the end of the run is different from previous runs
 	node.AutomaticAttributes["ohai_time"] = time.Now().Unix()
 
