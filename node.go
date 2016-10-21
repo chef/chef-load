@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/go-chef/chef"
@@ -19,20 +21,25 @@ func startNode(nodeName string, config chefLoadConfig) {
 
 	nodeClient := getAPIClient(nodeName, config.ClientKey, config.ChefServerUrl)
 
+	ohaiJSON := map[string]interface{}{}
+	if config.OhaiJsonFile != "" {
+		ohaiJSON = parseOhai(config.OhaiJsonFile)
+	}
+
 	switch config.Runs {
 	case 0:
 		for run := 1; true; run++ {
-			manageChefClientRun(nodeName, config, nodeClient, run)
+			manageChefClientRun(nodeName, config, nodeClient, ohaiJSON, run)
 		}
 	default:
 		for run := 1; run <= config.Runs; run++ {
-			manageChefClientRun(nodeName, config, nodeClient, run)
+			manageChefClientRun(nodeName, config, nodeClient, ohaiJSON, run)
 		}
 	}
 	quit <- 1
 }
 
-func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef.Client, run int) {
+func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef.Client, ohaiJSON map[string]interface{}, run int) {
 	fmt.Println(nodeName, "Started")
 	var getCookbooks bool
 	switch config.DownloadCookbooks {
@@ -49,7 +56,7 @@ func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef
 	default:
 		getCookbooks = true
 	}
-	chefClientRun(nodeClient, nodeName, getCookbooks, config)
+	chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, config)
 	fmt.Println(nodeName, "Finished")
 	if config.Runs == 0 || (config.Runs > 1 && run < config.Runs) {
 		splay := 0
@@ -62,4 +69,22 @@ func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef
 		fmt.Printf("%v Sleeping %v seconds\n", nodeName, delay)
 		time.Sleep(time.Duration(delay) * time.Second)
 	}
+}
+
+func parseOhai(ohaiJSONFile string) map[string]interface{} {
+	ohaiJSON := map[string]interface{}{}
+
+	file, err := os.Open(ohaiJSONFile)
+	if err != nil {
+		fmt.Println("Couldn't open ohai JSON file ", ohaiJSONFile, ": ", err)
+		return ohaiJSON
+	}
+	defer file.Close()
+
+	err = json.NewDecoder(file).Decode(&ohaiJSON)
+	if err != nil {
+		fmt.Println("Couldn't decode ohai JSON file ", ohaiJSONFile, ": ", err)
+		return ohaiJSON
+	}
+	return ohaiJSON
 }

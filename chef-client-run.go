@@ -1,16 +1,14 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/go-chef/chef"
 	uuid "github.com/satori/go.uuid"
 )
 
-func newChefNode(nodeName, chefEnvironment, ohaiJSONFile string) (node chef.Node) {
+func newChefNode(nodeName, chefEnvironment string) (node chef.Node) {
 	node = chef.Node{
 		Name:                nodeName,
 		Environment:         chefEnvironment,
@@ -22,29 +20,10 @@ func newChefNode(nodeName, chefEnvironment, ohaiJSONFile string) (node chef.Node
 		DefaultAttributes:   map[string]interface{}{},
 		OverrideAttributes:  map[string]interface{}{},
 	}
-	if ohaiJSONFile != "" {
-		file, err := os.Open(ohaiJSONFile)
-		if err != nil {
-			fmt.Println("Couldn't open ohai JSON file ", ohaiJSONFile, ": ", err)
-			return
-		}
-		defer file.Close()
-
-		ohaiJSON := map[string]interface{}{}
-
-		err = json.NewDecoder(file).Decode(&ohaiJSON)
-		if err != nil {
-			fmt.Println("Couldn't decode ohai JSON file ", ohaiJSONFile, ": ", err)
-			return
-		}
-		node.AutomaticAttributes = ohaiJSON
-	}
-
 	return
 }
 
-func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, config chefLoadConfig) {
-	ohaiJSONFile := config.OhaiJsonFile
+func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, config chefLoadConfig) {
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
 	apiGetRequests := config.ApiGetRequests
@@ -58,12 +37,14 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 		if statusCode == 404 {
 			// Create a Node object
 			// TODO: should have a constructor for this
-			node = newChefNode(nodeName, chefEnvironment, ohaiJSONFile)
+			node = newChefNode(nodeName, chefEnvironment)
 
 			_, err = nodeClient.Nodes.Post(node)
 			if err != nil {
 				fmt.Println("Couldn't create node. ", err)
 			}
+			// mimic the real chef-client by setting the automatic attributes after creating the node object
+			node.AutomaticAttributes = ohaiJSON
 		} else {
 			fmt.Println("Couldn't get node: ", err)
 		}
