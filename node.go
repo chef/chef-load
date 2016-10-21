@@ -17,7 +17,7 @@ func startNode(nodeName string, config chefLoadConfig) {
 		time.Sleep(time.Duration(splay) * time.Second)
 	}
 
-	nodeClient := getApiClient(nodeName, config.ClientKey, config.ChefServerUrl)
+	nodeClient := getAPIClient(nodeName, config.ClientKey, config.ChefServerUrl)
 
 	switch config.Runs {
 	case 0:

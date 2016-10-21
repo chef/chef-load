@@ -11,13 +11,13 @@ import (
 	"github.com/go-chef/chef"
 )
 
-func getApiClient(clientName, privateKeyPath, chefServerUrl string) chef.Client {
+func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client {
 	privateKey := getPrivateKey(privateKeyPath)
 
 	client, err := chef.NewClient(&chef.Config{
 		Name:    clientName,
 		Key:     privateKey,
-		BaseURL: chefServerUrl,
+		BaseURL: chefServerURL,
 		SkipSSL: true,
 	})
 	if err != nil {
@@ -28,7 +28,7 @@ func getApiClient(clientName, privateKeyPath, chefServerUrl string) chef.Client 
 
 func setupChefLoad(nodeName string, config chefLoadConfig, sem chan int) {
 	sem <- 1
-	adminClient := getApiClient(config.ClientName, config.ClientKey, config.ChefServerUrl)
+	adminClient := getAPIClient(config.ClientName, config.ClientKey, config.ChefServerUrl)
 
 	// TODO add error handling here
 	fmt.Println(nodeName, "Bootstrapping")

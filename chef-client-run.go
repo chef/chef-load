@@ -10,7 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func newChefNode(nodeName, chefEnvironment, ohaiJsonFile string) (node chef.Node) {
+func newChefNode(nodeName, chefEnvironment, ohaiJSONFile string) (node chef.Node) {
 	node = chef.Node{
 		Name:                nodeName,
 		Environment:         chefEnvironment,
@@ -22,29 +22,29 @@ func newChefNode(nodeName, chefEnvironment, ohaiJsonFile string) (node chef.Node
 		DefaultAttributes:   map[string]interface{}{},
 		OverrideAttributes:  map[string]interface{}{},
 	}
-	if ohaiJsonFile != "" {
-		file, err := os.Open(ohaiJsonFile)
+	if ohaiJSONFile != "" {
+		file, err := os.Open(ohaiJSONFile)
 		if err != nil {
-			fmt.Println("Couldn't open ohai JSON file ", ohaiJsonFile, ": ", err)
+			fmt.Println("Couldn't open ohai JSON file ", ohaiJSONFile, ": ", err)
 			return
 		}
 		defer file.Close()
 
-		ohai_json := map[string]interface{}{}
+		ohaiJSON := map[string]interface{}{}
 
-		err = json.NewDecoder(file).Decode(&ohai_json)
+		err = json.NewDecoder(file).Decode(&ohaiJSON)
 		if err != nil {
-			fmt.Println("Couldn't decode ohai JSON file ", ohaiJsonFile, ": ", err)
+			fmt.Println("Couldn't decode ohai JSON file ", ohaiJSONFile, ": ", err)
 			return
 		}
-		node.AutomaticAttributes = ohai_json
+		node.AutomaticAttributes = ohaiJSON
 	}
 
 	return
 }
 
 func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, config chefLoadConfig) {
-	ohaiJsonFile := config.OhaiJsonFile
+	ohaiJSONFile := config.OhaiJsonFile
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
 	apiGetRequests := config.ApiGetRequests
@@ -58,7 +58,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, c
 		if statusCode == 404 {
 			// Create a Node object
 			// TODO: should have a constructor for this
-			node = newChefNode(nodeName, chefEnvironment, ohaiJsonFile)
+			node = newChefNode(nodeName, chefEnvironment, ohaiJSONFile)
 
 			_, err = nodeClient.Nodes.Post(node)
 			if err != nil {
