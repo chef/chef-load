@@ -8,21 +8,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func newChefNode(nodeName, chefEnvironment string) (node chef.Node) {
-	node = chef.Node{
-		Name:                nodeName,
-		Environment:         chefEnvironment,
-		ChefType:            "node",
-		JsonClass:           "Chef::Node",
-		RunList:             []string{},
-		AutomaticAttributes: map[string]interface{}{},
-		NormalAttributes:    map[string]interface{}{},
-		DefaultAttributes:   map[string]interface{}{},
-		OverrideAttributes:  map[string]interface{}{},
-	}
-	return
-}
-
 func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, config chefLoadConfig) {
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
@@ -35,10 +20,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	if err != nil {
 		statusCode := getStatusCode(err)
 		if statusCode == 404 {
-			// Create a Node object
-			// TODO: should have a constructor for this
-			node = newChefNode(nodeName, chefEnvironment)
-
+			node = chef.Node{Name: nodeName, Environment: chefEnvironment}
 			_, err = nodeClient.Nodes.Post(node)
 			if err != nil {
 				fmt.Println("Couldn't create node. ", err)
