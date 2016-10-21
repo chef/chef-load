@@ -49,17 +49,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	}
 
 	for _, apiGetRequest := range apiGetRequests {
-		req, _ := nodeClient.NewRequest("GET", apiGetRequest, nil) //, data)
-		res, err := nodeClient.Do(req, nil)
-		if err != nil {
-			// can't print res here if it is nil
-			// fmt.Println(res.StatusCode)
-			// TODO: should this be handled better than just skipping over it?
-			fmt.Println(err)
-			continue
-		}
-		defer res.Body.Close()
-		// res.Body.Close()
+		apiRequest(nodeClient, "GET", apiGetRequest, nil)
 	}
 
 	time.Sleep(time.Duration(sleepDuration) * time.Second)

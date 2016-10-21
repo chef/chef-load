@@ -4,12 +4,28 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/go-chef/chef"
 )
+
+func apiRequest(nodeClient chef.Client, method, url string, data io.Reader) (*http.Response, error) {
+	req, _ := nodeClient.NewRequest("GET", url, data)
+	res, err := nodeClient.Do(req, nil)
+	if err != nil {
+		// can't print res here if it is nil
+		// fmt.Println(res.StatusCode)
+		// TODO: should this be handled better than just skipping over it?
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+	// res.Body.Close()
+	return res, err
+}
 
 func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client {
 	privateKey := getPrivateKey(privateKeyPath)
