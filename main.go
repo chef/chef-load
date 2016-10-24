@@ -62,23 +62,27 @@ func main() {
 		config.Runs, _ = strconv.Atoi(*fRuns)
 	}
 
-	// Early exit if we can't read the client_key, avoiding a messy stacktrace
-	f, err := os.Open(config.ClientKey)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not read client key %v:\n\t%v\n", config.ClientKey, err)
-		os.Exit(1)
+	if config.Mode == "chef-client" {
+		// Early exit if we can't read the client_key, avoiding a messy stacktrace
+		f, err := os.Open(config.ClientKey)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Could not read client key %v:\n\t%v\n", config.ClientKey, err)
+			os.Exit(1)
+		}
+		f.Close()
 	}
-	f.Close()
 
 	sem := make(chan int, config.BootstrapNodesConcurrency)
 
 	numNodes := config.Nodes
-	for i := 0; i < numNodes; i++ {
-		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-		go setupChefLoad(nodeName, *config, sem)
-	}
-	for i := 0; i < numNodes; i++ {
-		<-quit // Wait to be told to exit.
+	if config.Mode == "chef-client" {
+		for i := 0; i < numNodes; i++ {
+			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
+			go setupChefLoad(nodeName, *config, sem)
+		}
+		for i := 0; i < numNodes; i++ {
+			<-quit // Wait to be told to exit.
+		}
 	}
 	for i := 0; i < numNodes; i++ {
 		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)

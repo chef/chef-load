@@ -8,9 +8,11 @@ import (
 )
 
 type chefLoadConfig struct {
+	Mode                          string
 	DataCollectorURL              string `toml:"data_collector_url"`
 	DataCollectorToken            string
 	EnableChefClientDataCollector bool
+	SleepDuration                 int
 	ChefServerURL                 string `toml:"chef_server_url"`
 	ClientName                    string
 	ClientKey                     string
@@ -25,19 +27,39 @@ type chefLoadConfig struct {
 	RunList                       []string
 	DownloadCookbooks             string
 	APIGetRequests                []string `toml:"api_get_requests"`
-	SleepDuration                 int
 	EnableReporting               bool
 }
 
 func printSampleConfig() {
-	sampleConfig := `# The URL to the Chef Automate Visibility Data Collector URL
+	sampleConfig := `# Select the mode chef-load should operate in.
+#
+# Available modes are:
+#
+# chef-client - simulate a chef-client run's API requests optionally including Chef Reporting
+#               and Automate's Visibility API requests
+#
+# data-collector - simulate only the API requests that a chef-client sends to
+#                  an Automate server's data-collector endpoint. The benefit of
+#                  this mode is it applies load to an Automate server without requiring
+#                  a Chef Server.
+mode = "chef-client"
+
+# The URL to the Chef Automate Visibility Data Collector URL
 # data_collector_url = "https://automate.example.org/data-collector/v0/"
 #
 # The Authorization token for Chef Automate Visibility
 # data_collector_token = "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506"
 #
-# Send data to the Chef Automate Visibility Data Collector
+# Send data to the Chef Automate Visibility Data Collector when the mode is "chef-client"
 # enable_chef_client_data_collector = false
+
+# When the mode is "chef-client" the sleep_duration happens between the chef-client
+# getting its cookbooks and it making the final API requests to report it has finished its run.
+# When the mode is "data-collector" the sleep_duration happens between the data-collector's run_start
+# and its run_converge messages.
+# In both cases the intent is to enable a more accurate simulation of API requests.
+# sleep_duration is measured in seconds
+# sleep_duration = 0
 
 # The URL of the Chef Server including the organization name
 chef_server_url = "https://chef.example.com/organizations/demo/"
@@ -60,8 +82,8 @@ chef_server_url = "https://chef.example.com/organizations/demo/"
 # client to that group and then give the group the create permission on the clients container.
 # Ref: https://github.com/chef/knife-acl
 #
-client_name = "CLIENT_NAME"
-client_key = "/path/to/CLIENT_NAME.pem"
+# client_name = "CLIENT_NAME"
+# client_key = "/path/to/CLIENT_NAME.pem"
 
 # chef-load only uses the API client defined above when bootstrapping all nodes.
 # The bootstrap process makes the following API requests for each node.
@@ -138,11 +160,6 @@ client_key = "/path/to/CLIENT_NAME.pem"
 #
 # api_get_requests = [ ]
 
-# sleep_duration happens between the chef-client getting its cookbooks and it making the final API requests
-# to report it has finished its run. The intent is to enable a more accurate simulation of API requests.
-# sleep_duration is measured in seconds
-# sleep_duration = 0
-
 # Send data to the Chef server's Reporting service
 # enable_reporting = false
 `
@@ -158,9 +175,13 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 	// Initialize default configuration values
 	config := chefLoadConfig{
+		Mode: "chef-client",
+
 		DataCollectorURL:              "http://automate.example.org/data-collector/v0",
 		DataCollectorToken:            "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
 		EnableChefClientDataCollector: false,
+
+		SleepDuration: 0,
 
 		ChefServerURL: "https://chef.example.com/organizations/demo/",
 
@@ -179,7 +200,6 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		ChefEnvironment:   "_default",
 		RunList:           make([]string, 0),
 		DownloadCookbooks: "never",
-		SleepDuration:     0,
 		EnableReporting:   false,
 	}
 

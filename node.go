@@ -19,7 +19,10 @@ func startNode(nodeName string, config chefLoadConfig) {
 		time.Sleep(time.Duration(splay) * time.Second)
 	}
 
-	nodeClient := getAPIClient(nodeName, config.ClientKey, config.ChefServerURL)
+	var nodeClient chef.Client
+	if config.Mode == "chef-client" {
+		nodeClient = getAPIClient(nodeName, config.ClientKey, config.ChefServerURL)
+	}
 
 	ohaiJSON := map[string]interface{}{}
 	if config.OhaiJSONFile != "" {
