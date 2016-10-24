@@ -49,6 +49,11 @@ to use the [knife-acl plugin](https://github.com/chef/knife-acl) to create a new
 Chef Server, add the regular user or client to that group and then give the group the create
 permission on the clients container.
 
+## Upgrading chef-load
+
+Sometimes a new version of chef-load has breaking changes in the configuration file. The easiest way to handle this might
+be to create a new config file and copy/paste modified settings from the old file.
+
 ## Usage
 
 Print help.
