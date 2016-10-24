@@ -89,7 +89,7 @@ func (dcc *DataCollectorClient) Update(body map[string]interface{}) error {
 
 func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) error {
 	msgBody := map[string]interface{}{
-		"chef_server_fqdn": config.ChefServerUrl,
+		"chef_server_fqdn": config.ChefServerURL,
 		"entity_uuid":      nodeUUID.String(),
 		"id":               runUUID.String(),
 		"message_version":  "1.0.0",
@@ -137,7 +137,7 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 	}
 
 	msgBody := map[string]interface{}{
-		"chef_server_fqdn":       config.ChefServerUrl,
+		"chef_server_fqdn":       config.ChefServerURL,
 		"entity_uuid":            nodeUUID.String(),
 		"id":                     runUUID.String(),
 		"message_version":        "1.0.0",

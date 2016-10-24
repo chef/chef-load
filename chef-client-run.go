@@ -13,12 +13,12 @@ import (
 func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, config chefLoadConfig) {
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
-	apiGetRequests := config.ApiGetRequests
+	apiGetRequests := config.APIGetRequests
 	sleepDuration := config.SleepDuration
 	runUUID := uuid.NewV4()
 	nodeUUID := uuid.NewV3(uuid.NamespaceDNS, nodeName)
 	startTime := time.Now().UTC()
-	chefServerURL := config.ChefServerUrl
+	chefServerURL := config.ChefServerURL
 	url, _ := url.ParseRequestURI(chefServerURL)
 	orgName := strings.Split(url.Path, "/")[2]
 

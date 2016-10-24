@@ -44,7 +44,7 @@ func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client 
 
 func setupChefLoad(nodeName string, config chefLoadConfig, sem chan int) {
 	sem <- 1
-	adminClient := getAPIClient(config.ClientName, config.ClientKey, config.ChefServerUrl)
+	adminClient := getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
 
 	// TODO add error handling here
 	fmt.Println(nodeName, "Bootstrapping")

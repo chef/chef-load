@@ -11,20 +11,20 @@ type chefLoadConfig struct {
 	DataCollectorURL              string `toml:"data_collector_url"`
 	DataCollectorToken            string
 	EnableChefClientDataCollector bool
-	ChefServerUrl                 string
+	ChefServerURL                 string `toml:"chef_server_url"`
 	ClientName                    string
 	ClientKey                     string
 	BootstrapNodesConcurrency     int
 	Nodes                         int
 	NodeNamePrefix                string
-	OhaiJsonFile                  string
+	OhaiJSONFile                  string `toml:"ohai_json_file"`
 	Interval                      int
 	Splay                         int
 	Runs                          int
 	ChefEnvironment               string
 	RunList                       []string
 	DownloadCookbooks             string
-	ApiGetRequests                []string
+	APIGetRequests                []string `toml:"api_get_requests"`
 	SleepDuration                 int
 	EnableReporting               bool
 }
@@ -167,7 +167,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		Nodes:          10,
 		NodeNamePrefix: "chef-load",
 
-		OhaiJsonFile: "",
+		OhaiJSONFile: "",
 
 		Interval: 1800,
 		Splay:    300,
