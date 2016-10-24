@@ -1,5 +1,13 @@
 # chef-load Change Log
 
+## 0.4.0 (2016-10-24)
+
+* Add option to set the node's chef_environment
+* Improve run_list handling and cookbook dependency solving
+* Add enable_reporting config option
+* Add ability to apply load to an Automate server's data-collector API endpoint
+* Add a mode option to choose between "chef-client" and "data-collector" modes
+
 ## 0.3.0 (2016-07-11)
 
 * Add API requests to /reports endpoint
