@@ -40,7 +40,7 @@ func printSampleConfig() {
 # enable_chef_client_data_collector = false
 
 # The URL of the Chef Server including the organization name
-chef_server_url = "https://HOSTNAME_or_IP/organizations/ORG_NAME/"
+chef_server_url = "https://chef.example.com/organizations/demo/"
 
 # Before a node's first chef-client run chef-load uses the API client defined by client_name
 # and client_key to delete the node and its corresponding client.
@@ -161,6 +161,8 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		DataCollectorURL:              "http://automate.example.org/data-collector/v0",
 		DataCollectorToken:            "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
 		EnableChefClientDataCollector: false,
+
+		ChefServerURL: "https://chef.example.com/organizations/demo/",
 
 		BootstrapNodesConcurrency: 20,
 
