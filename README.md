@@ -8,7 +8,13 @@ It works well at this point but there is always room for improvement so please p
 
 ## Requirements
 
-#### Build the chef-load executable
+#### Download prebuilt binary
+
+Prebuilt chef-load binary files are available on chef-load's "Releases" page.
+
+https://github.com/jeremiahsnapp/chef-load/releases
+
+#### OR build the chef-load executable
 
 To build chef-load you must have Go installed.  
 Ref: https://golang.org/dl/
