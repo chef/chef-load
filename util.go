@@ -23,7 +23,10 @@ func apiRequest(nodeClient chef.Client, method, url string, data io.Reader) (*ht
 		fmt.Println(err)
 	}
 	defer res.Body.Close()
-	// res.Body.Close()
+
+	if res.StatusCode == 200 {
+		ioutil.ReadAll(res.Body)
+	}
 	return res, err
 }
 
