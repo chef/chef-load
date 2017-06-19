@@ -89,16 +89,16 @@ func (dcc *DataCollectorClient) Update(body map[string]interface{}) error {
 
 func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) error {
 	msgBody := map[string]interface{}{
-		"chef_server_fqdn": config.ChefServerURL,
-		"entity_uuid":      nodeUUID.String(),
-		"id":               runUUID.String(),
-		"message_version":  "1.1.0",
-		"message_type":     "run_start",
-		"node_name":        nodeName,
-		"organization":     orgName,
-		"run_id":           runUUID.String(),
-		"source":           "chef_client",
-		"start_time":       startTime.Format(iso8601DateTime),
+		"chef_server_fqdn":  config.ChefServerURL,
+		"entity_uuid":       nodeUUID.String(),
+		"id":                runUUID.String(),
+		"message_version":   "1.1.0",
+		"message_type":      "run_start",
+		"node_name":         nodeName,
+		"organization_name": orgName,
+		"run_id":            runUUID.String(),
+		"source":            "chef_client",
+		"start_time":        startTime.Format(iso8601DateTime),
 	}
 
 	client, err := NewDataCollectorClient(&DataCollectorConfig{
@@ -143,7 +143,7 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		"message_version":        "1.1.0",
 		"message_type":           "run_converge",
 		"node_name":              nodeName,
-		"organization":           orgName,
+		"organization_name":      orgName,
 		"run_id":                 runUUID.String(),
 		"source":                 "chef_client",
 		"start_time":             startTime.Format(iso8601DateTime),
