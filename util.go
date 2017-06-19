@@ -2,11 +2,13 @@ package main
 
 import (
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -113,4 +115,22 @@ func getPublicKey(privateKeyPath string) string {
 		Bytes: PubASN1,
 	}))
 	return publicKey
+}
+
+func parseJSONFile(jsonFile string) map[string]interface{} {
+	jsonContent := map[string]interface{}{}
+
+	file, err := os.Open(jsonFile)
+	if err != nil {
+		fmt.Println("Couldn't open ohai JSON file ", jsonFile, ": ", err)
+		return jsonContent
+	}
+	defer file.Close()
+
+	err = json.NewDecoder(file).Decode(&jsonContent)
+	if err != nil {
+		fmt.Println("Couldn't decode ohai JSON file ", jsonFile, ": ", err)
+		return jsonContent
+	}
+	return jsonContent
 }

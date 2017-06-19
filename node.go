@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/go-chef/chef"
@@ -26,7 +24,7 @@ func startNode(nodeName string, config chefLoadConfig) {
 
 	ohaiJSON := map[string]interface{}{}
 	if config.OhaiJSONFile != "" {
-		ohaiJSON = parseOhai(config.OhaiJSONFile)
+		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
 	}
 
 	switch config.Runs {
@@ -72,22 +70,4 @@ func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef
 		fmt.Printf("%v Sleeping %v seconds\n", nodeName, delay)
 		time.Sleep(time.Duration(delay) * time.Second)
 	}
-}
-
-func parseOhai(ohaiJSONFile string) map[string]interface{} {
-	ohaiJSON := map[string]interface{}{}
-
-	file, err := os.Open(ohaiJSONFile)
-	if err != nil {
-		fmt.Println("Couldn't open ohai JSON file ", ohaiJSONFile, ": ", err)
-		return ohaiJSON
-	}
-	defer file.Close()
-
-	err = json.NewDecoder(file).Decode(&ohaiJSON)
-	if err != nil {
-		fmt.Println("Couldn't decode ohai JSON file ", ohaiJSONFile, ": ", err)
-		return ohaiJSON
-	}
-	return ohaiJSON
 }
