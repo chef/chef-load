@@ -171,3 +171,26 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 
 	return res
 }
+
+func dataCollectorComplianceReport(nodeName string, chefEnvironment string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}, config chefLoadConfig) error {
+	msgBody := complianceJSON
+	msgBody["node_name"] = nodeName
+	msgBody["environment"] = chefEnvironment
+	msgBody["report_uuid"] = reportUUID
+	msgBody["node_uuid"] = nodeUUID
+	msgBody["end_time"] = endTime
+
+	client, err := NewDataCollectorClient(&DataCollectorConfig{
+		Token:   config.DataCollectorToken,
+		URL:     config.DataCollectorURL,
+		SkipSSL: true,
+	})
+
+	if err != nil {
+		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
+	}
+
+	res := client.Update(msgBody)
+
+	return res
+}

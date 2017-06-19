@@ -34,20 +34,25 @@ func startNode(nodeName string, config chefLoadConfig) {
 		resourcesJSON = convergeStatusJSON["resources"].([]interface{})
 	}
 
+	complianceJSON := map[string]interface{}{}
+	if config.ComplianceStatusJSONFile != "" {
+		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
+	}
+
 	switch config.Runs {
 	case 0:
 		for run := 1; true; run++ {
-			manageChefClientRun(nodeName, config, nodeClient, ohaiJSON, resourcesJSON, run)
+			manageChefClientRun(nodeName, config, nodeClient, ohaiJSON, resourcesJSON, complianceJSON, run)
 		}
 	default:
 		for run := 1; run <= config.Runs; run++ {
-			manageChefClientRun(nodeName, config, nodeClient, ohaiJSON, resourcesJSON, run)
+			manageChefClientRun(nodeName, config, nodeClient, ohaiJSON, resourcesJSON, complianceJSON, run)
 		}
 	}
 	quit <- 1
 }
 
-func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef.Client, ohaiJSON map[string]interface{}, resourcesJSON []interface{}, run int) {
+func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef.Client, ohaiJSON map[string]interface{}, resourcesJSON []interface{}, complianceJSON map[string]interface{}, run int) {
 	fmt.Println(nodeName, "Started")
 	var getCookbooks bool
 	switch config.DownloadCookbooks {
@@ -64,7 +69,7 @@ func manageChefClientRun(nodeName string, config chefLoadConfig, nodeClient chef
 	default:
 		getCookbooks = true
 	}
-	chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, resourcesJSON, config)
+	chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, resourcesJSON, complianceJSON, config)
 	fmt.Println(nodeName, "Finished")
 	if config.Runs == 0 || (config.Runs > 1 && run < config.Runs) {
 		splay := 0
