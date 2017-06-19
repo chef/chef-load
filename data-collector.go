@@ -116,7 +116,7 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 	return res
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, config chefLoadConfig) error {
+func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, resourcesJSON []interface{}, config chefLoadConfig) error {
 	var expandedRunListItems []expandedRunListItem
 	for _, runListItem := range expandedRunList {
 		erli := expandedRunListItem{
@@ -152,7 +152,7 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		"run_list":               runList.toStringSlice(),
 		"expanded_run_list":      expandedRunListMap,
 		"node":                   node,
-		"resources":              []interface{}{},
+		"resources":              resourcesJSON,
 		"total_resource_count":   0,
 		"updated_resource_count": 0,
 	}

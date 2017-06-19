@@ -12,6 +12,7 @@ type chefLoadConfig struct {
 	DataCollectorURL              string `toml:"data_collector_url"`
 	DataCollectorToken            string
 	EnableChefClientDataCollector bool
+	ConvergeStatusJSONFile        string `toml:"converge_status_json_file"`
 	SleepDuration                 int
 	ChefServerURL                 string `toml:"chef_server_url"`
 	ClientName                    string
@@ -52,6 +53,10 @@ mode = "chef-client"
 #
 # Send data to the Chef Automate Visibility Data Collector when the mode is "chef-client"
 # enable_chef_client_data_collector = false
+
+# The list of resources from a converge status report will be loaded from this file and used
+# for each node's converge status report that gets sent to the Automate server.
+# converge_status_json_file = "/path/to/file.json"
 
 # When the mode is "chef-client" the sleep_duration happens between the chef-client
 # getting its cookbooks and it making the final API requests to report it has finished its run.
@@ -180,6 +185,8 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		DataCollectorURL:              "http://automate.example.org/data-collector/v0",
 		DataCollectorToken:            "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
 		EnableChefClientDataCollector: false,
+
+		ConvergeStatusJSONFile: "",
 
 		SleepDuration: 0,
 
