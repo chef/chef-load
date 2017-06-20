@@ -27,6 +27,16 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	var node chef.Node
 	var err error
 
+	ohaiJSON["fqdn"] = nodeName
+
+	if ohaiJSON["platform"] == nil {
+		ohaiJSON["platform"] = "rhel"
+	}
+
+	if ohaiJSON["ipaddress"] == nil {
+		ohaiJSON["ipaddress"] = "169.254.169.254"
+	}
+
 	if config.Mode == "chef-client" {
 		node, err = nodeClient.Nodes.Get(nodeName)
 		if err != nil {
