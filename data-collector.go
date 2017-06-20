@@ -178,7 +178,7 @@ func dataCollectorComplianceReport(nodeName string, chefEnvironment string, repo
 	msgBody["environment"] = chefEnvironment
 	msgBody["report_uuid"] = reportUUID
 	msgBody["node_uuid"] = nodeUUID
-	msgBody["end_time"] = endTime
+	msgBody["end_time"] = endTime.Format(iso8601DateTime)
 
 	client, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   config.DataCollectorToken,
