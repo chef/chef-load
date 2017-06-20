@@ -92,6 +92,9 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 
 	node.RunList = runList.toStringSlice()
 
+	// Ensure that at least an empty set of tags is set for the node's normal attributes
+	node.NormalAttributes = map[string]interface{}{"tags": []interface{}{}}
+
 	// Ensure that what we post at the end of the run is different from previous runs
 	endTime := time.Now().UTC()
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
