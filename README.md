@@ -45,15 +45,7 @@ env GOOS=linux GOARCH=amd64 go build github.com/jeremiahsnapp/chef-load
 
 #### Chef API client
 
-The client defined by "client_name" in the chef-load configuration file needs to be able to create clients.
-
-By default only admin users can create clients so the recommendation is to set "client_name" and
-"client_key" to an admin user of the org.
-
-If you want to use a regular user or even a regular client instead then you will need
-to use the [knife-acl plugin](https://github.com/chef/knife-acl) to create a new group in the
-Chef Server, add the regular user or client to that group and then give the group the create
-permission on the clients container.
+The client defined by "client_name" in the chef-load configuration file needs to be an admin user of the org.
 
 ## Upgrading chef-load
 

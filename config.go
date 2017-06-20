@@ -18,7 +18,6 @@ type chefLoadConfig struct {
 	ChefServerURL                 string `toml:"chef_server_url"`
 	ClientName                    string
 	ClientKey                     string
-	BootstrapNodesConcurrency     int
 	Nodes                         int
 	NodeNamePrefix                string
 	OhaiJSONFile                  string `toml:"ohai_json_file"`
@@ -74,38 +73,10 @@ mode = "chef-client"
 # The URL of the Chef Server including the organization name
 chef_server_url = "https://chef.example.com/organizations/demo/"
 
-# Before a node's first chef-client run chef-load uses the API client defined by client_name
-# and client_key to delete the node and its corresponding client.
-#
-# Then chef-load creates a new client for the node and puts the public key that corresponds with the
-# private key defined by client_key into the new client.
-# This avoids the need to manage individual private keys for each node.
-#
-# The new client is used for all remaining API requests.
-#
-# The client defined by client_name needs to be able to create clients. By default only admin users
-# can create clients so the recommendation is to set client_name and client_key to an admin user
-# of the org.
-#
-# If you want to use a regular user or even a regular client instead then you will need
-# to use the knife-acl plugin to create a new group in the Chef Server, add the regular user or
-# client to that group and then give the group the create permission on the clients container.
-# Ref: https://github.com/chef/knife-acl
+# The client defined by client_name needs to be an admin user of the org.
 #
 # client_name = "CLIENT_NAME"
 # client_key = "/path/to/CLIENT_NAME.pem"
-
-# chef-load only uses the API client defined above when bootstrapping all nodes.
-# The bootstrap process makes the following API requests for each node.
-# 1. Delete the node
-# 2. Delete the node's client
-# 3. Create a new client for the node
-#
-# It is important for the bootstrap process to complete successfully for each node otherwise there
-# is no chance for the node's chef-client run to make successful API requests.
-# To ensure success the first thing chef-load does is bootstrap all nodes.
-#
-# bootstrap_nodes_concurrency = 20
 
 # Number of nodes making chef-client runs
 # nodes = 10
@@ -198,8 +169,6 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		SleepDuration: 0,
 
 		ChefServerURL: "https://chef.example.com/organizations/demo/",
-
-		BootstrapNodesConcurrency: 20,
 
 		Nodes:          10,
 		NodeNamePrefix: "chef-load",
