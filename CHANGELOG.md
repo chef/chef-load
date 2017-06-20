@@ -1,5 +1,14 @@
 # chef-load Change Log
 
+## 0.5.0 (2017-06-20)
+
+* read complete http response when making API requests
+* Update data_collector message_version to 1.1.0
+* Use organization_name field in data_collector messages
+* Add ability to use converge status JSON for data collector resources field
+* Send compliance status report to data collector
+* Set default values for essential automatic attributes
+
 ## 0.4.0 (2016-10-24)
 
 * Add option to set the node's chef_environment
