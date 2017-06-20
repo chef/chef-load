@@ -11,6 +11,8 @@ import (
 )
 
 func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, resourcesJSON []interface{}, complianceJSON map[string]interface{}, config chefLoadConfig) {
+	fmt.Println(nodeName, "Started")
+
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
 	apiGetRequests := config.APIGetRequests
@@ -119,4 +121,6 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, resourcesJSON, config)
 		dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON, config)
 	}
+
+	fmt.Println(nodeName, "Finished")
 }

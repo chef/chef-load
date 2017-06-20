@@ -74,17 +74,20 @@ Select the "mode" you want chef-load to operate in.
 You will need to make sure appropriate settings are made depending on the chosen mode. For example, "chef-client" mode
 will require at least "chef_server_url", "client_name" and "client_key" to have working values in chef-load.conf. However, the "data-collector" mode will require at least the "data_collector_url" and "data_collector_token" to have working values.
 
-You can set the number of nodes and chef-client runs for either mode as command line options.  
-This is useful for quickly testing the chef-load configuration.  
-
-The following will make one node perform two chef-client runs.
-
-```
-chef-load --config chef-load.conf --nodes 1 --runs 2
-```
-
 Run chef-load using only the configuration file.
 
 ```
 chef-load --config chef-load.conf
+```
+
+You can set the desired Chef Client runs per minute rate using the `--rpm` command line option. This is useful for quickly adjusting the rate without modifying the configuration file.
+
+```
+chef-load --config chef-load.conf --rpm 30
+```
+
+You can also set the desired interval between each node's Chef Client run using the `--interval` option. The default is 30 minutes.
+
+```
+chef-load --config chef-load.conf --rpm 30 --interval 1
 ```

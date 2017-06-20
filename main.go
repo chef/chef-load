@@ -4,20 +4,22 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strconv"
+	"time"
+
+	"github.com/go-chef/chef"
 )
 
 // AppVersion - Application Version
 const AppVersion = "0.5.0"
 
-var quit = make(chan int)
-
 func main() {
 	fConfig := flag.String("config", "", "Configuration file to load")
 	fHelp := flag.Bool("help", false, "Print this help")
-	fNodes := flag.String("nodes", "", "Number of nodes making chef-client runs")
-	fRuns := flag.String("runs", "", "Number of chef-client runs each node should make, 0 value will make infinite runs")
+	fRunsPerMinute := flag.String("rpm", "", "The number of Chef Client runs to make per minute")
+	fInterval := flag.String("interval", "", "Interval between a node's chef-client runs, in minutes")
 	fSampleConfig := flag.Bool("sample-config", false, "Print out full sample configuration")
 	fVersion := flag.Bool("version", false, "Print chef-load version")
 	flag.Parse()
@@ -54,12 +56,12 @@ func main() {
 		return
 	}
 
-	if *fNodes != "" {
-		config.Nodes, _ = strconv.Atoi(*fNodes)
+	if *fRunsPerMinute != "" {
+		config.RunsPerMinute, _ = strconv.Atoi(*fRunsPerMinute)
 	}
 
-	if *fRuns != "" {
-		config.Runs, _ = strconv.Atoi(*fRuns)
+	if *fInterval != "" {
+		config.Interval, _ = strconv.Atoi(*fInterval)
 	}
 
 	if config.Mode == "chef-client" {
@@ -72,12 +74,45 @@ func main() {
 		f.Close()
 	}
 
-	numNodes := config.Nodes
-	for i := 0; i < numNodes; i++ {
-		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-		go startNode(nodeName, *config)
+	var nodeClient chef.Client
+	if config.Mode == "chef-client" {
+		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
 	}
-	for i := 0; i < numNodes; i++ {
-		<-quit // Wait to be told to exit.
+
+	ohaiJSON := map[string]interface{}{}
+	if config.OhaiJSONFile != "" {
+		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
+	}
+
+	resourcesJSON := []interface{}{}
+	if config.ConvergeStatusJSONFile != "" {
+		convergeStatusJSON := map[string]interface{}{}
+		convergeStatusJSON = parseJSONFile(config.ConvergeStatusJSONFile)
+		resourcesJSON = convergeStatusJSON["resources"].([]interface{})
+	}
+
+	complianceJSON := map[string]interface{}{}
+	if config.ComplianceStatusJSONFile != "" {
+		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
+	}
+
+	var getCookbooks bool
+	if config.DownloadCookbooks == "never" {
+		getCookbooks = false
+	} else {
+		getCookbooks = true
+	}
+
+	numNodes := config.RunsPerMinute * config.Interval
+	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Minute/time.Nanosecond)/float64(config.RunsPerMinute))) * time.Nanosecond
+	for {
+		for i := 0; i < numNodes; i++ {
+			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
+			go chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, resourcesJSON, complianceJSON, *config)
+			time.Sleep(delayBetweenNodes)
+		}
+		if config.DownloadCookbooks == "first" {
+			getCookbooks = false
+		}
 	}
 }

@@ -14,16 +14,14 @@ type chefLoadConfig struct {
 	EnableChefClientDataCollector bool
 	ConvergeStatusJSONFile        string `toml:"converge_status_json_file"`
 	ComplianceStatusJSONFile      string `toml:"compliance_status_json_file"`
+	RunsPerMinute                 int
+	Interval                      int
 	SleepDuration                 int
 	ChefServerURL                 string `toml:"chef_server_url"`
 	ClientName                    string
 	ClientKey                     string
-	Nodes                         int
 	NodeNamePrefix                string
 	OhaiJSONFile                  string `toml:"ohai_json_file"`
-	Interval                      int
-	Splay                         int
-	Runs                          int
 	ChefEnvironment               string
 	RunList                       []string
 	DownloadCookbooks             string
@@ -62,6 +60,12 @@ mode = "chef-client"
 # report that gets sent to the Automate server.
 # compliance_status_json_file = "/path/to/file.json"
 
+# The number of Chef Client runs to be made per minute
+# runs_per_minute = 1
+
+# Interval between a node's chef-client runs, in minutes
+# interval = 30
+
 # When the mode is "chef-client" the sleep_duration happens between the chef-client
 # getting its cookbooks and it making the final API requests to report it has finished its run.
 # When the mode is "data-collector" the sleep_duration happens between the data-collector's run_start
@@ -78,9 +82,6 @@ chef_server_url = "https://chef.example.com/organizations/demo/"
 # client_name = "CLIENT_NAME"
 # client_key = "/path/to/CLIENT_NAME.pem"
 
-# Number of nodes making chef-client runs
-# nodes = 10
-
 # This prefix will go at the beginning of each node name.
 # This enables running multiple instances of the chef-load tool without affecting each others' nodes
 # For example, a value of "chef-load" will result in nodes named "chef-load-0", "chef-load-1", ...
@@ -90,11 +91,6 @@ chef_server_url = "https://chef.example.com/organizations/demo/"
 # Leave this unset to leave automatic attributes empty.
 # An ohai JSON file can be created by running "ohai > ohai.json".
 # ohai_json_file = "/path/to/ohai.json"
-
-# interval = 1800     # Interval between a node's chef-client runs, in seconds
-# splay = 300         # A random number between zero and splay that is added to interval, in seconds
-
-# runs = 0            # Number of chef-client runs each node should make, 0 value will make infinite runs
 
 # chef_environment = "_default"     # Chef environment used by each node
 
@@ -122,7 +118,7 @@ chef_server_url = "https://chef.example.com/organizations/demo/"
 # to use "never" or "first".
 #
 # If you want to use "always" and you run out of ephemeral ports then consider increasing the range of
-# ephemeral ports or reducing load by changing chef-load settings such as "nodes" or "interval".
+# ephemeral ports or reducing load by changing chef-load settings such as "nodes".
 # Ref: http://www.cyberciti.biz/tips/linux-increase-outgoing-network-sockets-range.html
 #
 # download_cookbooks = "never"
@@ -166,19 +162,17 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 		ComplianceStatusJSONFile: "",
 
+		RunsPerMinute: 1,
+
+		Interval: 30,
+
 		SleepDuration: 0,
 
 		ChefServerURL: "https://chef.example.com/organizations/demo/",
 
-		Nodes:          10,
 		NodeNamePrefix: "chef-load",
 
 		OhaiJSONFile: "",
-
-		Interval: 1800,
-		Splay:    300,
-
-		Runs: 0,
 
 		ChefEnvironment:   "_default",
 		RunList:           make([]string, 0),
