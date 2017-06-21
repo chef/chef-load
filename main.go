@@ -18,6 +18,7 @@ const AppVersion = "0.5.0"
 func main() {
 	fConfig := flag.String("config", "", "Configuration file to load")
 	fHelp := flag.Bool("help", false, "Print this help")
+	fNodeNamePrefix := flag.String("prefix", "", "This prefix will go at the beginning of each node name")
 	fRunsPerMinute := flag.String("rpm", "", "The number of Chef Client runs to make per minute")
 	fInterval := flag.String("interval", "", "Interval between a node's chef-client runs, in minutes")
 	fSampleConfig := flag.Bool("sample-config", false, "Print out full sample configuration")
@@ -62,6 +63,10 @@ func main() {
 
 	if *fInterval != "" {
 		config.Interval, _ = strconv.Atoi(*fInterval)
+	}
+
+	if *fNodeNamePrefix != "" {
+		config.NodeNamePrefix = *fNodeNamePrefix
 	}
 
 	if config.Mode == "chef-client" {

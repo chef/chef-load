@@ -80,6 +80,17 @@ Run chef-load using only the configuration file.
 chef-load --config chef-load.conf
 ```
 
+You can use the `--prefix` command line option to set the prefix for the node names. This
+enables easily running multiple instances of chef-load without affecting each others' nodes.
+For example, a value of "chef-load" will result in nodes named "chef-load-1", "chef-load-2", etc.
+
+```
+chef-load --config chef-load.conf --prefix chef-load-a
+
+# in another terminal you can run the following to create another instance of chef-load
+chef-load --config chef-load.conf --prefix chef-load-b
+```
+
 You can set the desired Chef Client runs per minute rate using the `--rpm` command line option. This is useful for quickly adjusting the rate without modifying the configuration file.
 
 ```
