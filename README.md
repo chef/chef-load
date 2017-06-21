@@ -60,7 +60,8 @@ Print help.
 chef-load --help
 ```
 
-Generate a chef-load configuration file.  
+### Generate a chef-load configuration file.  
+
 The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and documents a lot of the flexibility of chef-load so please read it.
 
 ```
@@ -69,6 +70,8 @@ chef-load --sample-config > chef-load.conf
 
 Make sure chef-load.conf has appropriate settings for applying load to your Chef Server,
 Automate Server or both.
+
+### Various ways to run chef-load
 
 Run chef-load using only the configuration file.
 
@@ -97,4 +100,45 @@ You can also set the desired interval between each node's Chef Client run using 
 
 ```
 chef-load --config chef-load.conf --rpm 30 --interval 1
+```
+
+### Using sample JSON data files
+
+chef-load is able to use files containing ohai, converge status and compliance status data captured from real nodes. This helps by simulating more accurate API payloads.
+
+chef-load's configuration file has the following settings to specify the path to sample data files.
+
+* ohai_json_file
+* converge_status_json_file
+* compliance_status_json_file
+
+The chef-load GitHub repo's ["sample-data" directory](https://github.com/jeremiahsnapp/chef-load/tree/master/sample-data) has a file for each type of data that can be used.
+
+#### Create your own sample ohai JSON file
+
+An ohai JSON file can be created by running "ohai > example-ohai.json".
+
+#### Create sample compliance status JSON file
+
+A compliance status JSON file can be created by adding the "json-file" reporter to a node's "audit" cookbook's attribute. The next Chef Client run will save the compliance status report in the "/var/chef/cache/cookbooks/audit/" directory.
+
+Alternatively, you can simply run the "inspec exec" command along with the "--format json" option to execute inspec profiles against a node. The resultant JSON file can be used with the compliance_status_json_file chef-load option.
+ 
+#### Create sample converge status JSON file
+
+You can copy the following code to a file named capture-converge-status.rb in any cookbook's "libraries" directory and it will cause the next Chef Client run to save the converge status JSON data to "/tmp/converge-status.json" on the node. Once you capture the data you can remove the code from the cookbook.
+
+```
+class Chef
+  class DataCollector
+    class Reporter < EventDispatch::Base
+      private
+      def send_to_data_collector(message)
+        return unless data_collector_accessible?
+        IO.write('/tmp/converge-status.json', JSON.generate(message))
+        http.post(nil, message, headers)
+      end
+    end
+  end
+end
 ```
