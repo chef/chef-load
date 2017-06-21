@@ -88,8 +88,11 @@ func (dcc *DataCollectorClient) Update(body map[string]interface{}) error {
 }
 
 func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) error {
+	chefServerURL, _ := url.Parse(config.ChefServerURL)
+	chefServerFQDN := chefServerURL.Host
+
 	msgBody := map[string]interface{}{
-		"chef_server_fqdn":  config.ChefServerURL,
+		"chef_server_fqdn":  chefServerFQDN,
 		"entity_uuid":       nodeUUID.String(),
 		"id":                runUUID.String(),
 		"message_version":   "1.1.0",
@@ -117,6 +120,9 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 }
 
 func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}, config chefLoadConfig) error {
+	chefServerURL, _ := url.Parse(config.ChefServerURL)
+	chefServerFQDN := chefServerURL.Host
+
 	convergedRunList := []interface{}{}
 	convergedExpandedRunListMap := map[string]interface{}{}
 	if convergeJSON["run_list"] != nil && convergeJSON["expanded_run_list"] != nil {
@@ -158,7 +164,7 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 	}
 
 	msgBody := map[string]interface{}{
-		"chef_server_fqdn":       config.ChefServerURL,
+		"chef_server_fqdn":       chefServerFQDN,
 		"entity_uuid":            nodeUUID.String(),
 		"id":                     runUUID.String(),
 		"message_version":        "1.1.0",
