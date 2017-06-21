@@ -73,6 +73,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 		dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 	}
 
+	if config.Mode == "data-collector" {
+		expandedRunList = runList.toStringSlice()
+	}
+
 	if config.Mode == "chef-client" {
 		// Expand run_list
 		expandedRunList = runList.expand(&nodeClient, chefEnvironment)
@@ -115,9 +119,6 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 
 	// Notify Data Collector of run end
 	if config.Mode == "data-collector" || (config.Mode == "chef-client" && config.EnableChefClientDataCollector) {
-		if config.Mode == "data-collector" {
-			expandedRunList = runList.toStringSlice()
-		}
 		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, resourcesJSON, config)
 		dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON, config)
 	}
