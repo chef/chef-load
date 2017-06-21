@@ -1,5 +1,23 @@
 # chef-load Change Log
 
+## 1.0.0 (2017-06-21)
+
+* Remove the bootstrap process
+* Set each node's essential normal attributes
+* Fix end_time format for compliance status report
+* Redesign how API load is defined.
+* Refactor when expandedRunList is calculated in data-collector mode
+* Ensure run_list and expanded_run_list are properly set for converge status report
+* Use FQDN for converge status report's chef_server_fqdn instead of the full URL
+* If complianceJSON is empty don't send compliance status to Automate server
+* Set compliance status report's `type` field to `inspec_report`
+* Delete top level `controls` key if it exists in compliance status report
+* Start numbering nodes at 1 instead of 0
+* Add ability to set prefix at command line
+* Overhaul the config file to simplify and provide clarity
+* Minor change to output
+* Add timestamps to output
+
 ## 0.5.0 (2017-06-20)
 
 * read complete http response when making API requests
