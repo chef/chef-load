@@ -104,7 +104,7 @@ func main() {
 	numNodes := config.RunsPerMinute * config.Interval
 	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Minute/time.Nanosecond)/float64(config.RunsPerMinute))) * time.Nanosecond
 	for {
-		for i := 0; i < numNodes; i++ {
+		for i := 1; i <= numNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
 			go chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, convergeJSON, complianceJSON, *config)
 			time.Sleep(delayBetweenNodes)
