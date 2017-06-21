@@ -84,11 +84,9 @@ func main() {
 		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
 	}
 
-	resourcesJSON := []interface{}{}
+	convergeJSON := map[string]interface{}{}
 	if config.ConvergeStatusJSONFile != "" {
-		convergeStatusJSON := map[string]interface{}{}
-		convergeStatusJSON = parseJSONFile(config.ConvergeStatusJSONFile)
-		resourcesJSON = convergeStatusJSON["resources"].([]interface{})
+		convergeJSON = parseJSONFile(config.ConvergeStatusJSONFile)
 	}
 
 	complianceJSON := map[string]interface{}{}
@@ -108,7 +106,7 @@ func main() {
 	for {
 		for i := 0; i < numNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-			go chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, resourcesJSON, complianceJSON, *config)
+			go chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, convergeJSON, complianceJSON, *config)
 			time.Sleep(delayBetweenNodes)
 		}
 		if config.DownloadCookbooks == "first" {

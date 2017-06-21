@@ -10,7 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, resourcesJSON []interface{}, complianceJSON map[string]interface{}, config chefLoadConfig) {
+func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}, config chefLoadConfig) {
 	fmt.Println(nodeName, "Started")
 
 	chefEnvironment := config.ChefEnvironment
@@ -119,7 +119,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 
 	// Notify Data Collector of run end
 	if config.Mode == "data-collector" || (config.Mode == "chef-client" && config.EnableChefClientDataCollector) {
-		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, resourcesJSON, config)
+		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
 		dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON, config)
 	}
 

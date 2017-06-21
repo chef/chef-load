@@ -116,24 +116,45 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 	return res
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, resourcesJSON []interface{}, config chefLoadConfig) error {
-	var expandedRunListItems []expandedRunListItem
-	for _, runListItem := range expandedRunList {
-		erli := expandedRunListItem{
-			Name:     runListItem.name,
-			ItemType: runListItem.itemType,
-			Skipped:  false,
+func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}, config chefLoadConfig) error {
+	convergedRunList := []interface{}{}
+	convergedExpandedRunListMap := map[string]interface{}{}
+	if convergeJSON["run_list"] != nil && convergeJSON["expanded_run_list"] != nil {
+		convergedRunList = convergeJSON["run_list"].([]interface{})
+		convergedExpandedRunListMap = convergeJSON["expanded_run_list"].(map[string]interface{})
+	} else {
+		for _, v := range runList.toStringSlice() {
+			convergedRunList = append(convergedRunList, v)
 		}
-		if runListItem.version != "" {
-			version := runListItem.version
-			erli.Version = &version
+
+		var expandedRunListItems []expandedRunListItem
+		for _, runListItem := range expandedRunList {
+			erli := expandedRunListItem{
+				Name:     runListItem.name,
+				ItemType: runListItem.itemType,
+				Skipped:  false,
+			}
+			if runListItem.version != "" {
+				version := runListItem.version
+				erli.Version = &version
+			}
+			expandedRunListItems = append(expandedRunListItems, erli)
 		}
-		expandedRunListItems = append(expandedRunListItems, erli)
+
+		expandedRunListItemsInterface := []interface{}{}
+		for _, v := range expandedRunListItems {
+			expandedRunListItemsInterface = append(expandedRunListItemsInterface, v)
+		}
+
+		convergedExpandedRunListMap = map[string]interface{}{
+			"id":       config.ChefEnvironment,
+			"run_list": expandedRunListItemsInterface,
+		}
 	}
 
-	expandedRunListMap := map[string]interface{}{
-		"id":       config.ChefEnvironment,
-		"run_list": expandedRunListItems,
+	resourcesJSON := []interface{}{}
+	if convergeJSON["resources"] != nil {
+		resourcesJSON = convergeJSON["resources"].([]interface{})
 	}
 
 	msgBody := map[string]interface{}{
@@ -149,8 +170,8 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		"start_time":             startTime.Format(iso8601DateTime),
 		"end_time":               endTime.Format(iso8601DateTime),
 		"status":                 "success",
-		"run_list":               runList.toStringSlice(),
-		"expanded_run_list":      expandedRunListMap,
+		"run_list":               convergedRunList,
+		"expanded_run_list":      convergedExpandedRunListMap,
 		"node":                   node,
 		"resources":              resourcesJSON,
 		"total_resource_count":   0,
