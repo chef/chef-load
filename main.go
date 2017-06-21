@@ -13,7 +13,7 @@ import (
 )
 
 // AppVersion - Application Version
-const AppVersion = "0.5.0"
+const AppVersion = "1.0.0"
 
 func main() {
 	fConfig := flag.String("config", "", "Configuration file to load")
