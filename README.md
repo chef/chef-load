@@ -67,12 +67,8 @@ The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and
 chef-load --sample-config > chef-load.conf
 ```
 
-Make sure chef-load.conf is configured properly.
-
-Select the "mode" you want chef-load to operate in.
-
-You will need to make sure appropriate settings are made depending on the chosen mode. For example, "chef-client" mode
-will require at least "chef_server_url", "client_name" and "client_key" to have working values in chef-load.conf. However, the "data-collector" mode will require at least the "data_collector_url" and "data_collector_token" to have working values.
+Make sure chef-load.conf has appropriate settings for applying load to your Chef Server,
+Automate Server or both.
 
 Run chef-load using only the configuration file.
 

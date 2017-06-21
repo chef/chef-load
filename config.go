@@ -8,96 +8,84 @@ import (
 )
 
 type chefLoadConfig struct {
-	Mode                          string
-	DataCollectorURL              string `toml:"data_collector_url"`
-	DataCollectorToken            string
-	EnableChefClientDataCollector bool
-	ConvergeStatusJSONFile        string `toml:"converge_status_json_file"`
-	ComplianceStatusJSONFile      string `toml:"compliance_status_json_file"`
-	RunsPerMinute                 int
-	Interval                      int
-	SleepDuration                 int
-	ChefServerURL                 string `toml:"chef_server_url"`
-	ClientName                    string
-	ClientKey                     string
-	NodeNamePrefix                string
-	OhaiJSONFile                  string `toml:"ohai_json_file"`
-	ChefEnvironment               string
-	RunList                       []string
-	DownloadCookbooks             string
-	APIGetRequests                []string `toml:"api_get_requests"`
-	EnableReporting               bool
+	RunChefClient            bool
+	RunDataCollector         bool
+	ChefServerURL            string `toml:"chef_server_url"`
+	ClientName               string
+	ClientKey                string
+	DataCollectorURL         string `toml:"data_collector_url"`
+	DataCollectorToken       string
+	OhaiJSONFile             string `toml:"ohai_json_file"`
+	ConvergeStatusJSONFile   string `toml:"converge_status_json_file"`
+	ComplianceStatusJSONFile string `toml:"compliance_status_json_file"`
+	RunsPerMinute            int
+	Interval                 int
+	NodeNamePrefix           string
+	ChefEnvironment          string
+	RunList                  []string
+	SleepDuration            int
+	DownloadCookbooks        string
+	APIGetRequests           []string `toml:"api_get_requests"`
+	EnableReporting          bool
 }
 
 func printSampleConfig() {
-	sampleConfig := `# Select the mode chef-load should operate in.
+	sampleConfig := `# The chef_server_url, client_name and client_key parameters must be set if you want
+# to make API requests to a Chef Server.
 #
-# Available modes are:
+# Be sure to include the organization name
+# For example: chef_server_url = "https://chef.example.com/organizations/demo/"
+# chef_server_url = ""
 #
-# chef-client - simulate a chef-client run's API requests optionally including Chef Reporting
-#               and Automate's Visibility API requests
-#
-# data-collector - simulate only the API requests that a chef-client sends to
-#                  an Automate server's data-collector endpoint. The benefit of
-#                  this mode is it applies load to an Automate server without requiring
-#                  a Chef Server.
-mode = "chef-client"
+# The client defined by client_name needs to be an admin user of the Chef Server org.
+# client_name = "CLIENT_NAME"
+# client_key = "/path/to/CLIENT_NAME.pem"
 
-# The URL to the Chef Automate Visibility Data Collector URL
-# data_collector_url = "https://automate.example.org/data-collector/v0/"
-#
-# The Authorization token for Chef Automate Visibility
+# The data_collector_url must be set if you want to make API requests to an Automate server.
+# For example: data_collector_url = "https://automate.example.org/data-collector/v0/"
+# data_collector_url = ""
+
+# The Authorization token for the Automate server.
+# The following default value is sufficient unless you set your own token in your Automate server.
 # data_collector_token = "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506"
-#
-# Send data to the Chef Automate Visibility Data Collector when the mode is "chef-client"
-# enable_chef_client_data_collector = false
 
-# The list of resources from a converge status report will be loaded from this file and used
-# for each node's converge status report that gets sent to the Automate server.
-# converge_status_json_file = "/path/to/file.json"
+# Ohai data will be loaded from this file and used for the nodes' automatic attributes.
+# See the chef-load README for instructions for creating an ohai JSON file.
+# ohai_json_file = "/path/to/example-ohai.json"
 
-# The compliance report will be loaded from this file and used for each node's compliance status
-# report that gets sent to the Automate server.
-# compliance_status_json_file = "/path/to/file.json"
+# Data from a converge status report will be loaded from this file and used
+# for each node's converge status report that is sent to the Automate server.
+# See the chef-load README for instructions for creating a converge status JSON file.
+# converge_status_json_file = "/path/to/example-converge-status.json"
+
+# Data from a compliance status report will be loaded from this file and used
+# for each node's compliance status report that is sent to the Automate server.
+# See the chef-load README for instructions for creating a compliance status JSON file.
+# compliance_status_json_file = "/path/to/example-compliance-status.json"
 
 # The number of Chef Client runs to be made per minute
 # runs_per_minute = 1
 
-# Interval between a node's chef-client runs, in minutes
+# Number of minutes between a node's chef-client runs
 # interval = 30
 
-# When the mode is "chef-client" the sleep_duration happens between the chef-client
-# getting its cookbooks and it making the final API requests to report it has finished its run.
-# When the mode is "data-collector" the sleep_duration happens between the data-collector's run_start
-# and its run_converge messages.
-# In both cases the intent is to enable a more accurate simulation of API requests.
-# sleep_duration is measured in seconds
-# sleep_duration = 0
-
-# The URL of the Chef Server including the organization name
-chef_server_url = "https://chef.example.com/organizations/demo/"
-
-# The client defined by client_name needs to be an admin user of the org.
-#
-# client_name = "CLIENT_NAME"
-# client_key = "/path/to/CLIENT_NAME.pem"
-
 # This prefix will go at the beginning of each node name.
-# This enables running multiple instances of the chef-load tool without affecting each others' nodes
-# For example, a value of "chef-load" will result in nodes named "chef-load-0", "chef-load-1", ...
+# This enables running multiple instances of chef-load without affecting each others' nodes
+# For example, a value of "chef-load" will result in nodes named "chef-load-1", "chef-load-2", ...
 # node_name_prefix = "chef-load"
 
-# Ohai data will be loaded from this file and used for the nodes' automatic attributes.
-# Leave this unset to leave automatic attributes empty.
-# An ohai JSON file can be created by running "ohai > ohai.json".
-# ohai_json_file = "/path/to/ohai.json"
+# Chef environment used for each node
+# chef_environment = "_default"
 
-# chef_environment = "_default"     # Chef environment used by each node
-
-# run_list is the run list used by each node. It should be a list of strings.
+# run_list is the run list used for each node. It should be a list of strings.
 # For example: run_list = [ "role[role_name]", "recipe_name", "recipe[different_recipe_name@1.0.0]" ]
 # The default value is an empty run_list.
 # run_list = [ ]
+
+# sleep_duration is an optional setting that is available to provide a delay to simulate
+# the amount of time a Chef Client takes actually converging all of the run list's resources.
+# sleep_duration is measured in seconds
+# sleep_duration = 0
 
 # download_cookbooks controls which chef-client run downloads cookbook files.
 # Options are: "never", "first" (first chef-client run only), "always"
@@ -118,14 +106,14 @@ chef_server_url = "https://chef.example.com/organizations/demo/"
 # to use "never" or "first".
 #
 # If you want to use "always" and you run out of ephemeral ports then consider increasing the range of
-# ephemeral ports or reducing load by changing chef-load settings such as "nodes".
+# ephemeral ports or reducing load by reducing the requests_per_minute setting.
 # Ref: http://www.cyberciti.biz/tips/linux-increase-outgoing-network-sockets-range.html
 #
 # download_cookbooks = "never"
 
 # api_get_requests is an optional list of API GET requests that are made during the chef-client run.
 # This is used to simulate the API requests that the cookbooks would make.
-# For example, it can make Chef Search requests or requests to get data bag items.
+# For example, it can make Chef Search or data bag item requests.
 # The values can be either full URLs that include the chef_server_url portion or just the portion of
 # the URL that comes after the chef_server_url.
 # For example, to make a Chef Search API request that searches for all nodes you can use either of the
@@ -152,11 +140,15 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 	// Initialize default configuration values
 	config := chefLoadConfig{
-		Mode: "chef-client",
+		RunChefClient:    false,
+		RunDataCollector: false,
 
-		DataCollectorURL:              "http://automate.example.org/data-collector/v0",
-		DataCollectorToken:            "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
-		EnableChefClientDataCollector: false,
+		ChefServerURL: "",
+
+		DataCollectorURL:   "",
+		DataCollectorToken: "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
+
+		OhaiJSONFile: "",
 
 		ConvergeStatusJSONFile: "",
 
@@ -166,16 +158,13 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 		Interval: 30,
 
-		SleepDuration: 0,
-
-		ChefServerURL: "https://chef.example.com/organizations/demo/",
-
 		NodeNamePrefix: "chef-load",
 
-		OhaiJSONFile: "",
+		ChefEnvironment: "_default",
+		RunList:         make([]string, 0),
 
-		ChefEnvironment:   "_default",
-		RunList:           make([]string, 0),
+		SleepDuration: 0,
+
 		DownloadCookbooks: "never",
 		EnableReporting:   false,
 	}

@@ -39,7 +39,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 		ohaiJSON["ipaddress"] = "169.254.169.254"
 	}
 
-	if config.Mode == "chef-client" {
+	if config.RunChefClient {
 		node, err = nodeClient.Nodes.Get(nodeName)
 		if err != nil {
 			statusCode := getStatusCode(err)
@@ -55,11 +55,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 				fmt.Println("Couldn't get node: ", err)
 			}
 		}
-	} else if config.Mode == "data-collector" {
+	} else if config.RunDataCollector {
 		node = chef.Node{Name: nodeName, Environment: chefEnvironment, AutomaticAttributes: ohaiJSON}
 	}
 
-	if config.Mode == "chef-client" {
+	if config.RunChefClient {
 		nodeClient.Environments.Get(chefEnvironment)
 
 		// Notify Reporting of run start
@@ -69,15 +69,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	}
 
 	// Notify Data Collector of run start
-	if config.Mode == "data-collector" || (config.Mode == "chef-client" && config.EnableChefClientDataCollector) {
+	if config.RunDataCollector {
 		dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 	}
 
-	if config.Mode == "data-collector" {
-		expandedRunList = runList.toStringSlice()
-	}
-
-	if config.Mode == "chef-client" {
+	if config.RunChefClient {
 		// Expand run_list
 		expandedRunList = runList.expand(&nodeClient, chefEnvironment)
 
@@ -92,6 +88,8 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 		for _, apiGetRequest := range apiGetRequests {
 			apiRequest(nodeClient, "GET", apiGetRequest, nil)
 		}
+	} else if config.RunDataCollector {
+		expandedRunList = runList.toStringSlice()
 	}
 
 	time.Sleep(time.Duration(sleepDuration) * time.Second)
@@ -105,7 +103,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	endTime := time.Now().UTC()
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
-	if config.Mode == "chef-client" {
+	if config.RunChefClient {
 		_, err = nodeClient.Nodes.Put(node)
 		if err != nil {
 			fmt.Println("Couldn't update node: ", err)
@@ -118,7 +116,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 	}
 
 	// Notify Data Collector of run end
-	if config.Mode == "data-collector" || (config.Mode == "chef-client" && config.EnableChefClientDataCollector) {
+	if config.RunDataCollector {
 		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
 		if len(complianceJSON) != 0 {
 			dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON, config)

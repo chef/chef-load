@@ -69,7 +69,30 @@ func main() {
 		config.NodeNamePrefix = *fNodeNamePrefix
 	}
 
-	if config.Mode == "chef-client" {
+	if config.ChefServerURL != "" {
+		config.RunChefClient = true
+		if config.ClientName == "" || config.ClientKey == "" {
+			fmt.Println("ERROR: You must set client_name and client_key if chef_server_url is set")
+			os.Exit(1)
+		}
+	}
+
+	if config.DataCollectorURL != "" {
+		config.RunDataCollector = true
+	}
+
+	if !config.RunChefClient && !config.RunDataCollector {
+		fmt.Println("ERROR: You must set chef_server_url or data_collector_url or both")
+		os.Exit(1)
+	}
+
+	if config.RunDataCollector && config.ChefServerURL == "" {
+		// make sure config.ChefServerURL is set to something because it is used
+		// even when only in data-collector mode
+		config.ChefServerURL = "https://chef.example.com/organizations/demo/"
+	}
+
+	if config.RunChefClient {
 		// Early exit if we can't read the client_key, avoiding a messy stacktrace
 		f, err := os.Open(config.ClientKey)
 		if err != nil {
@@ -80,7 +103,7 @@ func main() {
 	}
 
 	var nodeClient chef.Client
-	if config.Mode == "chef-client" {
+	if config.RunChefClient {
 		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
 	}
 
