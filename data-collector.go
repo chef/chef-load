@@ -201,6 +201,7 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 
 func dataCollectorComplianceReport(nodeName string, chefEnvironment string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}, config chefLoadConfig) error {
 	msgBody := complianceJSON
+	msgBody["type"] = "inspec_report"
 	msgBody["node_name"] = nodeName
 	msgBody["environment"] = chefEnvironment
 	msgBody["report_uuid"] = reportUUID
