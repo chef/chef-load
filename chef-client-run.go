@@ -11,7 +11,7 @@ import (
 )
 
 func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}, config chefLoadConfig) {
-	fmt.Println(nodeName, "run_started")
+	fmt.Println(time.Now().UTC().Format(iso8601DateTime), nodeName, "run_started")
 
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
@@ -123,5 +123,5 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 		}
 	}
 
-	fmt.Println(nodeName, "run_finished")
+	fmt.Println(time.Now().UTC().Format(iso8601DateTime), nodeName, "run_finished")
 }
