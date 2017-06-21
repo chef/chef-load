@@ -208,6 +208,10 @@ func dataCollectorComplianceReport(nodeName string, chefEnvironment string, repo
 	msgBody["node_uuid"] = nodeUUID
 	msgBody["end_time"] = endTime.Format(iso8601DateTime)
 
+	if msgBody["controls"] != nil {
+		delete(msgBody, "controls")
+	}
+
 	client, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   config.DataCollectorToken,
 		URL:     config.DataCollectorURL,
