@@ -1,6 +1,6 @@
 ## Description
 
-chef-load is a tool written in Go that simulates load on a [Chef Server](https://www.chef.io/chef/) and/or [Chef Automate](https://www.chef.io/chef://www.chef.io/automate/) from a configured number of nodes.
+chef-load is a tool that simulates Chef Client API load on a [Chef Server](https://www.chef.io/chef/) and/or a [Chef Automate server](https://www.chef.io/chef://www.chef.io/automate/).
 
 It is designed to be easy to use yet powerfully flexible and accurate in its simulation of the chef-client run.
 
@@ -128,7 +128,7 @@ An ohai JSON file can be created by running "ohai > example-ohai.json".
 A compliance status JSON file can be created by adding the "json-file" reporter to a node's "audit" cookbook's attribute. The next Chef Client run will save the compliance status report in the "/var/chef/cache/cookbooks/audit/" directory.
 
 Alternatively, you can simply run the "inspec exec" command along with the "--format json" option to execute inspec profiles against a node. The resultant JSON file can be used with the compliance_status_json_file chef-load option.
- 
+
 #### Create sample converge status JSON file
 
 You can copy the following code to a file named capture-converge-status.rb in any cookbook's "libraries" directory and it will cause the next Chef Client run to save the converge status JSON data to "/tmp/converge-status.json" on the node. Once you capture the data you can remove the code from the cookbook.
