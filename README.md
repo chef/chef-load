@@ -90,16 +90,21 @@ chef-load --config chef-load.conf --prefix chef-load-a
 chef-load --config chef-load.conf --prefix chef-load-b
 ```
 
-You can set the desired Chef Client runs per minute rate using the `--rpm` command line option. This is useful for quickly adjusting the rate without modifying the configuration file.
+You can set the number of nodes using the `--nodes` command line option and the interval using the `--interval` command line option. The default value for both of these options is 30. This is useful for quickly adjusting the load without modifying the configuration file.
+
+chef-load will evenly distribute the number of nodes across the desired interval (minutes).
+
+Examples:
+
+1800 nodes / 30 minute interval = 60 chef-client runs per minute
+1800 nodes / 60 minute interval = 30 chef-client runs per minute
 
 ```
-chef-load --config chef-load.conf --rpm 30
+chef-load --config chef-load.conf --nodes 1800
 ```
 
-You can also set the desired interval between each node's Chef Client run using the `--interval` option. The default is 30 minutes.
-
 ```
-chef-load --config chef-load.conf --rpm 30 --interval 1
+chef-load --config chef-load.conf --nodes 1800 --interval 60
 ```
 
 ### Using sample JSON data files

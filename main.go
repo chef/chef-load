@@ -19,7 +19,7 @@ func main() {
 	fConfig := flag.String("config", "", "Configuration file to load")
 	fHelp := flag.Bool("help", false, "Print this help")
 	fNodeNamePrefix := flag.String("prefix", "", "This prefix will go at the beginning of each node name")
-	fRunsPerMinute := flag.String("rpm", "", "The number of Chef Client runs to make per minute")
+	fNumNodes := flag.String("nodes", "", "The number of nodes to simulate")
 	fInterval := flag.String("interval", "", "Interval between a node's chef-client runs, in minutes")
 	fSampleConfig := flag.Bool("sample-config", false, "Print out full sample configuration")
 	fVersion := flag.Bool("version", false, "Print chef-load version")
@@ -57,8 +57,8 @@ func main() {
 		return
 	}
 
-	if *fRunsPerMinute != "" {
-		config.RunsPerMinute, _ = strconv.Atoi(*fRunsPerMinute)
+	if *fNumNodes != "" {
+		config.NumNodes, _ = strconv.Atoi(*fNumNodes)
 	}
 
 	if *fInterval != "" {
@@ -129,10 +129,9 @@ func main() {
 		getCookbooks = true
 	}
 
-	numNodes := config.RunsPerMinute * config.Interval
-	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Minute/time.Nanosecond)/float64(config.RunsPerMinute))) * time.Nanosecond
+	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
 	for {
-		for i := 1; i <= numNodes; i++ {
+		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
 			go chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, convergeJSON, complianceJSON, *config)
 			time.Sleep(delayBetweenNodes)

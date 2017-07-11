@@ -18,7 +18,7 @@ type chefLoadConfig struct {
 	OhaiJSONFile             string `toml:"ohai_json_file"`
 	ConvergeStatusJSONFile   string `toml:"converge_status_json_file"`
 	ComplianceStatusJSONFile string `toml:"compliance_status_json_file"`
-	RunsPerMinute            int
+	NumNodes                 int
 	Interval                 int
 	NodeNamePrefix           string
 	ChefEnvironment          string
@@ -63,10 +63,11 @@ func printSampleConfig() {
 # See the chef-load README for instructions for creating a compliance status JSON file.
 # compliance_status_json_file = "/path/to/example-compliance-status.json"
 
-# The number of Chef Client runs to be made per minute
-# runs_per_minute = 1
-
-# Number of minutes between a node's chef-client runs
+# chef-load will evenly distribute the number of nodes across the desired interval (minutes)
+# Examples:
+#   30 nodes / 30 minute interval =  1 chef-client run per minute
+# 1800 nodes / 30 minute interval = 60 chef-client runs per minute
+# num_nodes = 30
 # interval = 30
 
 # This prefix will go at the beginning of each node name.
@@ -154,7 +155,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 		ComplianceStatusJSONFile: "",
 
-		RunsPerMinute: 1,
+		NumNodes: 30,
 
 		Interval: 30,
 
