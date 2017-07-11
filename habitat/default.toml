@@ -16,10 +16,11 @@ data_collector_token = "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9
 # See the chef-load README for instructions for creating a compliance status JSON file.
 # compliance_status_json_file = "/path/to/example-compliance-status.json"
 
-# The number of Chef Client runs to be made per minute
-runs_per_minute = 1
-
-# Number of minutes between a node's chef-client runs
+# chef-load will evenly distribute the number of nodes across the desired interval (minutes)
+# Examples:
+#   30 nodes / 30 minute interval =  1 chef-client run per minute
+# 1800 nodes / 30 minute interval = 60 chef-client runs per minute
+num_nodes = 30
 interval = 30
 
 # This prefix will go at the beginning of each node name.
