@@ -39,6 +39,19 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 		ohaiJSON["ipaddress"] = "169.254.169.254"
 	}
 
+	if config.RunChefClient && config.CreateClients {
+		_, err = nodeClient.Clients.Get(nodeName)
+		if err != nil {
+			statusCode := getStatusCode(err)
+			if statusCode == 404 {
+				_, err = nodeClient.Clients.Create(nodeName, false)
+				if err != nil {
+					fmt.Println("Couldn't create client", err)
+				}
+			}
+		}
+	}
+
 	if config.RunChefClient {
 		node, err = nodeClient.Nodes.Get(nodeName)
 		if err != nil {

@@ -27,6 +27,7 @@ type chefLoadConfig struct {
 	DownloadCookbooks        string
 	APIGetRequests           []string `toml:"api_get_requests"`
 	EnableReporting          bool
+	CreateClients            bool
 }
 
 func printSampleConfig() {
@@ -127,6 +128,11 @@ func printSampleConfig() {
 
 # Send data to the Chef server's Reporting service
 # enable_reporting = false
+
+# Create clients for each node. 
+# This is useful if you need to generate load to simulate validator key based bootstrapping.
+# Note that the client generated will not actually be used in any requests.
+# create_clients = false
 `
 	fmt.Print(sampleConfig)
 }
@@ -167,6 +173,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 		DownloadCookbooks: "never",
 		EnableReporting:   false,
+		CreateClients:     false,
 	}
 
 	if err = toml.NewDecoder(f).Decode(&config); err != nil {
