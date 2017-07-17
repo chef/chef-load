@@ -122,22 +122,14 @@ func main() {
 		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
 	}
 
-	var getCookbooks bool
-	if config.DownloadCookbooks == "never" {
-		getCookbooks = false
-	} else {
-		getCookbooks = true
-	}
-
 	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
+	firstRun := true
 	for {
 		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-			go chefClientRun(nodeClient, nodeName, getCookbooks, ohaiJSON, convergeJSON, complianceJSON, *config)
+			go chefClientRun(nodeClient, nodeName, firstRun, ohaiJSON, convergeJSON, complianceJSON, *config)
 			time.Sleep(delayBetweenNodes)
 		}
-		if config.DownloadCookbooks == "first" {
-			getCookbooks = false
-		}
+		firstRun = false
 	}
 }

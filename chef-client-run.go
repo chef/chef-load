@@ -10,7 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}, config chefLoadConfig) {
+func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}, config chefLoadConfig) {
 	fmt.Println(time.Now().UTC().Format(iso8601DateTime), nodeName, "run_started")
 
 	chefEnvironment := config.ChefEnvironment
@@ -81,7 +81,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, getCookbooks bool, o
 		ckbks := solveRunListDependencies(&nodeClient, expandedRunList, chefEnvironment)
 
 		// Download cookbooks
-		if getCookbooks {
+		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first" && firstRun) {
 			ckbks.download(&nodeClient)
 		}
 
