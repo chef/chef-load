@@ -40,6 +40,13 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	if config.RunChefClient {
+		if firstRun {
+			_, err = nodeClient.Clients.Create(nodeName, false)
+			if err != nil && getStatusCode(err) != 409 {
+				fmt.Println("Couldn't create client", err)
+			}
+		}
+
 		node, err = nodeClient.Nodes.Get(nodeName)
 		if err != nil {
 			statusCode := getStatusCode(err)
