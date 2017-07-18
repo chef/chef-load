@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -78,17 +77,11 @@ func solveRunListDependencies(nodeClient *chef.Client, expandedRunList []string,
 		fmt.Println(err)
 	}
 
-	req, err := nodeClient.NewRequest("POST", "environments/"+chefEnvironment+"/cookbook_versions", data)
-	res, err := nodeClient.Do(req, nil)
+	var ckbks cookbooks
+	_, err = apiRequest(*nodeClient, "POST", "environments/"+chefEnvironment+"/cookbook_versions", data, &ckbks, nil)
 	if err != nil {
-		// can't print res here if it is nil
-		// fmt.Println(res.StatusCode)
 		fmt.Println(err)
 	}
-	defer res.Body.Close()
-
-	var ckbks cookbooks
-	json.NewDecoder(res.Body).Decode(&ckbks)
 	return ckbks
 }
 
