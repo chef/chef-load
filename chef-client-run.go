@@ -77,7 +77,8 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 	// Notify Data Collector of run start
 	if config.DataCollectorURL != "" {
-		dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
+		runStartJSON := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
+		chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartJSON)
 	}
 
 	if config.RunChefClient {
@@ -124,9 +125,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 	// Notify Data Collector of run end
 	if config.DataCollectorURL != "" {
-		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
+		runStopJSON := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
+		chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopJSON)
 		if len(complianceJSON) != 0 {
-			dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON, config)
+			complianceReportJSON := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
+			chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, complianceReportJSON)
 		}
 	}
 

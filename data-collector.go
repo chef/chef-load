@@ -97,7 +97,7 @@ func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string,
 	return res
 }
 
-func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) error {
+func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) io.Reader {
 	chefServerURL, _ := url.Parse(config.ChefServerURL)
 	chefServerFQDN := chefServerURL.Host
 
@@ -119,11 +119,10 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 		fmt.Println(err)
 	}
 
-	res := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, msgJSON)
-	return res
+	return msgJSON
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}, config chefLoadConfig) error {
+func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}, config chefLoadConfig) io.Reader {
 	chefServerURL, _ := url.Parse(config.ChefServerURL)
 	chefServerFQDN := chefServerURL.Host
 
@@ -193,11 +192,10 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		fmt.Println(err)
 	}
 
-	res := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, msgJSON)
-	return res
+	return msgJSON
 }
 
-func dataCollectorComplianceReport(nodeName string, chefEnvironment string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}, config chefLoadConfig) error {
+func dataCollectorComplianceReport(nodeName string, chefEnvironment string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}) io.Reader {
 	msgBody := complianceJSON
 	msgBody["type"] = "inspec_report"
 	msgBody["node_name"] = nodeName
@@ -215,6 +213,5 @@ func dataCollectorComplianceReport(nodeName string, chefEnvironment string, repo
 		fmt.Println(err)
 	}
 
-	res := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, msgJSON)
-	return res
+	return msgJSON
 }
