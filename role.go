@@ -19,18 +19,11 @@ type role struct {
 }
 
 func roleRunListFor(nodeClient *chef.Client, roleName, chefEnvironment string) runList {
-	req, _ := nodeClient.NewRequest("GET", "roles/"+roleName, nil)
-	res, err := nodeClient.Do(req, nil)
+	var r role
+	_, err := apiRequest(*nodeClient, "GET", "roles/"+roleName, nil, &r, nil)
 	if err != nil {
-		// can't print res here if it is nil
-		// fmt.Println(res.StatusCode)
-		// TODO: should this be handled better than just skipping over it?
 		fmt.Println(err)
 	}
-	defer res.Body.Close()
-
-	var r role
-	json.NewDecoder(res.Body).Decode(&r)
 
 	var roleRunList runList
 	if chefEnvironment == "_default" {
