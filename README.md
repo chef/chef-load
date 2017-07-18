@@ -148,6 +148,29 @@ class Chef
 end
 ```
 
+### Run as a systemd service
+
+Here is a working example of a systemd service file for chef-load. Notice that it is able to set `LimitNOFILE` to unlimited to avoid running out of file descriptors.
+
+```
+[Unit]
+Description=Chef load testing tool
+After=network.target
+
+[Service]
+ExecStart=/home/centos/chef-load -config /home/centos/chef_load.conf
+Type=simple
+PIDFile=/tmp/chef_load.pid
+Restart=always
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+LimitNOFILE=unlimited:unlimited
+
+[Install]
+WantedBy=default.target
+```
+
 # License
 
 chef-load - a tool that simulates Chef Client API load on a Chef Server and/or a Chef Automate server
