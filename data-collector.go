@@ -3,10 +3,9 @@ package main
 // Cheers! https://github.com/go-chef/chef/blob/master/http.go
 
 import (
-	"bytes"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -59,14 +58,9 @@ func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, err
 }
 
 // Update the data collector endpoint with our map
-func (dcc *DataCollectorClient) Update(body map[string]interface{}) error {
-	// Convert our body to encoded JSON
-	buf := new(bytes.Buffer)
-	err := json.NewEncoder(buf).Encode(body)
-	encodedBody := bytes.NewReader(buf.Bytes())
-
+func (dcc *DataCollectorClient) Update(msgJSON io.Reader) error {
 	// Create an HTTP Request
-	req, err := http.NewRequest("POST", dcc.URL.String(), encodedBody)
+	req, err := http.NewRequest("POST", dcc.URL.String(), msgJSON)
 	if err != nil {
 		return err
 	}
@@ -87,6 +81,22 @@ func (dcc *DataCollectorClient) Update(body map[string]interface{}) error {
 	return err
 }
 
+func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, msgJSON io.Reader) error {
+	client, err := NewDataCollectorClient(&DataCollectorConfig{
+		Token:   dataCollectorToken,
+		URL:     dataCollectorURL,
+		SkipSSL: true,
+	})
+
+	if err != nil {
+		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
+	}
+
+	res := client.Update(msgJSON)
+
+	return res
+}
+
 func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) error {
 	chefServerURL, _ := url.Parse(config.ChefServerURL)
 	chefServerFQDN := chefServerURL.Host
@@ -104,18 +114,12 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 		"start_time":        startTime.Format(iso8601DateTime),
 	}
 
-	client, err := NewDataCollectorClient(&DataCollectorConfig{
-		Token:   config.DataCollectorToken,
-		URL:     config.DataCollectorURL,
-		SkipSSL: true,
-	})
-
+	msgJSON, err := chef.JSONReader(msgBody)
 	if err != nil {
-		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
+		fmt.Println(err)
 	}
 
-	res := client.Update(msgBody)
-
+	res := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, msgJSON)
 	return res
 }
 
@@ -184,18 +188,12 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		"updated_resource_count": 0,
 	}
 
-	client, err := NewDataCollectorClient(&DataCollectorConfig{
-		Token:   config.DataCollectorToken,
-		URL:     config.DataCollectorURL,
-		SkipSSL: true,
-	})
-
+	msgJSON, err := chef.JSONReader(msgBody)
 	if err != nil {
-		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
+		fmt.Println(err)
 	}
 
-	res := client.Update(msgBody)
-
+	res := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, msgJSON)
 	return res
 }
 
@@ -212,17 +210,11 @@ func dataCollectorComplianceReport(nodeName string, chefEnvironment string, repo
 		delete(msgBody, "controls")
 	}
 
-	client, err := NewDataCollectorClient(&DataCollectorConfig{
-		Token:   config.DataCollectorToken,
-		URL:     config.DataCollectorURL,
-		SkipSSL: true,
-	})
-
+	msgJSON, err := chef.JSONReader(msgBody)
 	if err != nil {
-		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
+		fmt.Println(err)
 	}
 
-	res := client.Update(msgBody)
-
+	res := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, msgJSON)
 	return res
 }
