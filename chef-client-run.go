@@ -62,7 +62,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 				fmt.Println("Couldn't get node: ", err)
 			}
 		}
-	} else if config.RunDataCollector {
+	} else {
 		node = chef.Node{Name: nodeName, Environment: chefEnvironment, AutomaticAttributes: ohaiJSON}
 	}
 
@@ -76,7 +76,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run start
-	if config.RunDataCollector {
+	if config.DataCollectorURL != "" {
 		dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 	}
 
@@ -95,7 +95,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		for _, apiGetRequest := range apiGetRequests {
 			apiRequest(nodeClient, "GET", apiGetRequest, nil)
 		}
-	} else if config.RunDataCollector {
+	} else {
 		expandedRunList = runList.toStringSlice()
 	}
 
@@ -123,7 +123,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run end
-	if config.RunDataCollector {
+	if config.DataCollectorURL != "" {
 		dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
 		if len(complianceJSON) != 0 {
 			dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON, config)

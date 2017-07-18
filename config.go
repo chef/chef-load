@@ -9,7 +9,6 @@ import (
 
 type chefLoadConfig struct {
 	RunChefClient            bool
-	RunDataCollector         bool
 	ChefServerURL            string `toml:"chef_server_url"`
 	ClientName               string
 	ClientKey                string
@@ -141,8 +140,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 	// Initialize default configuration values
 	config := chefLoadConfig{
-		RunChefClient:    false,
-		RunDataCollector: false,
+		RunChefClient: false,
 
 		ChefServerURL: "",
 

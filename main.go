@@ -69,6 +69,11 @@ func main() {
 		config.NodeNamePrefix = *fNodeNamePrefix
 	}
 
+	if config.ChefServerURL == "" && config.DataCollectorURL == "" {
+		fmt.Println("ERROR: You must set chef_server_url or data_collector_url or both")
+		os.Exit(1)
+	}
+
 	if config.ChefServerURL != "" {
 		config.RunChefClient = true
 		if config.ClientName == "" || config.ClientKey == "" {
@@ -77,16 +82,7 @@ func main() {
 		}
 	}
 
-	if config.DataCollectorURL != "" {
-		config.RunDataCollector = true
-	}
-
-	if !config.RunChefClient && !config.RunDataCollector {
-		fmt.Println("ERROR: You must set chef_server_url or data_collector_url or both")
-		os.Exit(1)
-	}
-
-	if config.RunDataCollector && config.ChefServerURL == "" {
+	if config.DataCollectorURL != "" && config.ChefServerURL == "" {
 		// make sure config.ChefServerURL is set to something because it is used
 		// even when only in data-collector mode
 		config.ChefServerURL = "https://chef.example.com/organizations/demo/"
