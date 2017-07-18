@@ -25,6 +25,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	url, _ := url.ParseRequestURI(chefServerURL)
 	orgName := strings.Split(url.Path, "/")[2]
 	var reportsStatusCode int
+	dataCollectorAvailable := true
 	var expandedRunList []string
 	var node chef.Node
 	var err error
@@ -76,9 +77,14 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run start
+	runStartJSON := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 	if config.DataCollectorURL != "" {
-		runStartJSON := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 		chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartJSON)
+	} else {
+		res, _ := apiRequest(nodeClient, "POST", "data-collector", runStartJSON)
+		if res != nil && res.StatusCode == 404 {
+			dataCollectorAvailable = false
+		}
 	}
 
 	if config.RunChefClient {
@@ -124,12 +130,20 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run end
+	runStopJSON := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
 	if config.DataCollectorURL != "" {
-		runStopJSON := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
 		chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopJSON)
-		if len(complianceJSON) != 0 {
-			complianceReportJSON := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
+	} else if dataCollectorAvailable {
+		apiRequest(nodeClient, "POST", "data-collector", runStopJSON)
+	}
+
+	// Notify Data Collector of compliance report
+	if len(complianceJSON) != 0 {
+		complianceReportJSON := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
+		if config.DataCollectorURL != "" {
 			chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, complianceReportJSON)
+		} else {
+			apiRequest(nodeClient, "POST", "data-collector", complianceReportJSON)
 		}
 	}
 

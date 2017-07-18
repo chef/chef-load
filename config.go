@@ -32,6 +32,11 @@ func printSampleConfig() {
 	sampleConfig := `# The chef_server_url, client_name and client_key parameters must be set if you want
 # to make API requests to a Chef Server.
 #
+# chef-load will also automatically attempt to connect to the Chef Server authenticated data collector proxy.
+# If you enabled this feature on the Chef Server, Chef Client run data will automatically be forwarded to Automate.
+# If you do not have Automate or the feature is disabled on the Chef Server, chef-load will detect this and
+# disable data collection.
+#
 # Be sure to include the organization name
 # For example: chef_server_url = "https://chef.example.com/organizations/demo/"
 # chef_server_url = ""
@@ -40,7 +45,7 @@ func printSampleConfig() {
 # client_name = "CLIENT_NAME"
 # client_key = "/path/to/CLIENT_NAME.pem"
 
-# The data_collector_url must be set if you want to make API requests to an Automate server.
+# The data_collector_url must be set if you want to make API requests directly to an Automate server.
 # For example: data_collector_url = "https://automate.example.org/data-collector/v0/"
 # data_collector_url = ""
 

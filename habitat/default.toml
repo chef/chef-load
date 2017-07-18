@@ -82,8 +82,13 @@ api_get_requests = [ ]
 # Send data to the Chef server's Reporting service
 enable_reporting = false
 
-## The chef server url, client_name and client_key parameters must be set if you want
+# The chef_server_url, client_name and client_key parameters must be set if you want
 # to make API requests to a Chef Server.
+#
+# chef-load will also automatically attempt to connect to the Chef Server authenticated data collector proxy.
+# If you enabled this feature on the Chef Server, Chef Client run data will automatically be forwarded to Automate.
+# If you do not have Automate or the feature is disabled on the Chef Server, chef-load will detect this and
+# disable data collection.
 #
 # Be sure to include the organization name
 # For example: "https://chef.example.com/organizations/demo/"
@@ -106,7 +111,7 @@ organization = "demo"
 # client_name = "CLIENT_NAME"
 # client_key = "/path/to/CLIENT_NAME.pem"
 
-# The data collector url must be set if you want to make API requests to an Automate server.
+# The data collector url must be set if you want to make API requests directly to an Automate server.
 # For example: "https://automate.example.org/data-collector/v0/"
 #
 # These options combined make the "data_collector_url" setting in the chef-load
