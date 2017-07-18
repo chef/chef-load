@@ -1,5 +1,12 @@
 # chef-load Change Log
 
+## 2.0.0 (2017-07-18)
+
+* Add habitat plan (thanks @smith!)
+* Use number of nodes and interval instead of runs/minute and interval as parameters
+* Create client object during first chef client run (thanks @nsdavidson!)
+* Add Apache License and Copyright info
+
 ## 1.0.0 (2017-06-21)
 
 * Remove the bootstrap process
