@@ -58,11 +58,11 @@ func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, err
 }
 
 // Update the data collector endpoint with our map
-func (dcc *DataCollectorClient) Update(msgJSON io.Reader) error {
+func (dcc *DataCollectorClient) Update(msgJSON io.Reader) (*http.Response, error) {
 	// Create an HTTP Request
 	req, err := http.NewRequest("POST", dcc.URL.String(), msgJSON)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Set our headers
@@ -78,10 +78,10 @@ func (dcc *DataCollectorClient) Update(msgJSON io.Reader) error {
 		defer res.Body.Close()
 	}
 
-	return err
+	return res, err
 }
 
-func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, msgJSON io.Reader) error {
+func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, msgJSON io.Reader) (*http.Response, error) {
 	client, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   dataCollectorToken,
 		URL:     dataCollectorURL,
@@ -92,9 +92,9 @@ func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string,
 		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
 	}
 
-	res := client.Update(msgJSON)
+	res, err := client.Update(msgJSON)
 
-	return res
+	return res, err
 }
 
 func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) io.Reader {
