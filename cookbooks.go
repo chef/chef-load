@@ -32,14 +32,10 @@ type cookbook struct {
 type cookbooks map[string]cookbook
 
 func (ckbkFile cookbookFile) download(nodeClient *chef.Client) {
-	req, err := nodeClient.NewRequest("GET", ckbkFile.URL, nil)
-	res, err := nodeClient.Do(req, nil)
+	_, err := apiRequest(*nodeClient, "GET", ckbkFile.URL, nil, nil, nil)
 	if err != nil {
 		fmt.Println(err)
-		// TODO: need to handle errors better
-		return
 	}
-	defer res.Body.Close()
 }
 
 func (ckbk cookbook) download(nodeClient *chef.Client) {
