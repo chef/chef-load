@@ -14,7 +14,7 @@ import (
 )
 
 func apiRequest(nodeClient chef.Client, method, url string, data io.Reader) (*http.Response, error) {
-	req, _ := nodeClient.NewRequest("GET", url, data)
+	req, _ := nodeClient.NewRequest(method, url, data)
 	res, err := nodeClient.Do(req, nil)
 	if res != nil {
 		defer res.Body.Close()
