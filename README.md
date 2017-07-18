@@ -171,6 +171,12 @@ LimitNOFILE=unlimited:unlimited
 WantedBy=default.target
 ```
 
+### Considerations when applying high load
+
+Make sure the system has `nscd` or something similar in place to cache DNS requests. This can significantly improve chef-load's performance when applying high load.
+
+Make sure the maximum number of open file descriptors is set to `unlimited`. This can either be done in chef-load's systemd service file as shown above or you can follow instructions in [this link](https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/).
+
 # License
 
 chef-load - a tool that simulates Chef Client API load on a Chef Server and/or a Chef Automate server
