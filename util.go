@@ -16,17 +16,14 @@ import (
 func apiRequest(nodeClient chef.Client, method, url string, data io.Reader) (*http.Response, error) {
 	req, _ := nodeClient.NewRequest("GET", url, data)
 	res, err := nodeClient.Do(req, nil)
+	if res != nil {
+		defer res.Body.Close()
+	}
 	if err != nil {
-		// can't print res here if it is nil
-		// fmt.Println(res.StatusCode)
-		// TODO: should this be handled better than just skipping over it?
 		fmt.Println(err)
+		return res, err
 	}
-	defer res.Body.Close()
-
-	if res.StatusCode == 200 {
-		ioutil.ReadAll(res.Body)
-	}
+	ioutil.ReadAll(res.Body)
 	return res, err
 }
 
