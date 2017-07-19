@@ -13,9 +13,9 @@ import (
 	"github.com/go-chef/chef"
 )
 
-func apiRequest(nodeClient chef.Client, method, url string, data io.Reader) (*http.Response, error) {
+func apiRequest(nodeClient chef.Client, method, url string, data io.Reader, v interface{}) (*http.Response, error) {
 	req, _ := nodeClient.NewRequest(method, url, data)
-	res, err := nodeClient.Do(req, nil)
+	res, err := nodeClient.Do(req, v)
 	if res != nil {
 		defer res.Body.Close()
 	}
