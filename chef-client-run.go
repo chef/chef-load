@@ -69,6 +69,9 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	if config.RunChefClient {
+		// Expand run_list
+		expandedRunList = runList.expand(&nodeClient, chefEnvironment)
+
 		nodeClient.Environments.Get(chefEnvironment)
 
 		// Notify Reporting of run start
@@ -102,9 +105,6 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	if config.RunChefClient {
-		// Expand run_list
-		expandedRunList = runList.expand(&nodeClient, chefEnvironment)
-
 		// Calculate cookbook dependencies
 		ckbks := solveRunListDependencies(&nodeClient, expandedRunList, chefEnvironment)
 
