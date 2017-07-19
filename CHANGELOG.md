@@ -1,5 +1,14 @@
 # chef-load Change Log
 
+## 2.1.0 (2017-07-19)
+
+* Send data-collector data through Chef Server if it's available
+* http.Response handling improvements
+* Improve apiRequest capabilities and use it whenever possible
+* Make sure the node object's chef environment is set to chef-load's value
+* Correct the order of some Chef Client API requests
+* Use the default run list if a role doesn't have an environment specific run list
+
 ## 2.0.0 (2017-07-18)
 
 * Add habitat plan (thanks @smith!)
