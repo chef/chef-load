@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 
 const rubyDateTime = "2006-01-02 15:04:05 -0700"
 
-func reportingRunStart(nodeClient chef.Client, nodeName string, runUUID uuid.UUID, startTime time.Time) int {
+func reportingRunStart(nodeClient chef.Client, nodeName string, runUUID uuid.UUID, startTime time.Time) (*http.Response, error) {
 	startRunBody := map[string]string{
 		"action":     "start",
 		"run_id":     runUUID.String(),
@@ -22,20 +23,11 @@ func reportingRunStart(nodeClient chef.Client, nodeName string, runUUID uuid.UUI
 		fmt.Println(err)
 	}
 
-	req, err := nodeClient.NewRequest("POST", "reports/nodes/"+nodeName+"/runs", data)
-	req.Header.Set("X-Ops-Reporting-Protocol-Version", "0.1.0")
-	res, err := nodeClient.Do(req, nil)
-	if err != nil && res.StatusCode != 404 {
-		// can't print res here if it is nil
-		// fmt.Println(res.StatusCode)
-		fmt.Println(err)
-		return res.StatusCode
-	}
-	defer res.Body.Close()
-	return res.StatusCode
+	res, err := apiRequest(nodeClient, "POST", "reports/nodes/"+nodeName+"/runs", data, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
+	return res, err
 }
 
-func reportingRunStop(nodeClient chef.Client, nodeName string, runUUID uuid.UUID, startTime time.Time, endTime time.Time, rl runList) int {
+func reportingRunStop(nodeClient chef.Client, nodeName string, runUUID uuid.UUID, startTime time.Time, endTime time.Time, rl runList) (*http.Response, error) {
 	endRunBody := map[string]interface{}{
 		"action":          "end",
 		"data":            map[string]interface{}{},
@@ -51,15 +43,6 @@ func reportingRunStop(nodeClient chef.Client, nodeName string, runUUID uuid.UUID
 		fmt.Println(err)
 	}
 
-	req, err := nodeClient.NewRequest("POST", "reports/nodes/"+nodeName+"/runs/"+runUUID.String(), data)
-	req.Header.Set("X-Ops-Reporting-Protocol-Version", "0.1.0")
-	res, err := nodeClient.Do(req, nil)
-	if err != nil {
-		// can't print res here if it is nil
-		// fmt.Println(res.StatusCode)
-		fmt.Println(err)
-		return res.StatusCode
-	}
-	defer res.Body.Close()
-	return res.StatusCode
+	res, err := apiRequest(nodeClient, "POST", "reports/nodes/"+nodeName+"/runs/"+runUUID.String(), data, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
+	return res, err
 }

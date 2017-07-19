@@ -24,7 +24,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	chefServerURL := config.ChefServerURL
 	url, _ := url.ParseRequestURI(chefServerURL)
 	orgName := strings.Split(url.Path, "/")[2]
-	var reportsStatusCode int
+	reportingAvailable := true
 	dataCollectorAvailable := true
 	var expandedRunList []string
 	var node chef.Node
@@ -72,7 +72,15 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 		// Notify Reporting of run start
 		if config.EnableReporting {
-			reportsStatusCode = reportingRunStart(nodeClient, nodeName, runUUID, startTime)
+			res, err := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
+			if err != nil {
+				if res != nil && res.StatusCode != 404 {
+					fmt.Println(err)
+				}
+			}
+			if res != nil && res.StatusCode == 404 {
+				reportingAvailable = false
+			}
 		}
 	}
 
@@ -132,8 +140,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		}
 
 		// Notify Reporting of run end
-		if config.EnableReporting && reportsStatusCode == 201 {
-			reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
+		if config.EnableReporting && reportingAvailable {
+			_, err := reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 
