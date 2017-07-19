@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
@@ -72,12 +73,12 @@ func (dcc *DataCollectorClient) Update(msgJSON io.Reader) (*http.Response, error
 
 	// Do request
 	res, err := dcc.Client.Do(req)
-
-	// Handle response
-	if res != nil {
-		defer res.Body.Close()
+	if err != nil {
+		fmt.Println(err)
+		return res, err
 	}
-
+	defer res.Body.Close()
+	ioutil.ReadAll(res.Body)
 	return res, err
 }
 
