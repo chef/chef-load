@@ -63,6 +63,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 				fmt.Println("Couldn't get node: ", err)
 			}
 		}
+		node.Environment = chefEnvironment
 	} else {
 		node = chef.Node{Name: nodeName, Environment: chefEnvironment, AutomaticAttributes: ohaiJSON}
 	}
