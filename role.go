@@ -26,10 +26,11 @@ func roleRunListFor(nodeClient *chef.Client, roleName, chefEnvironment string) r
 	}
 
 	var roleRunList runList
-	if chefEnvironment == "_default" {
-		roleRunList = parseRunList(r.RunList)
+	envRunList, envRunListExists := r.EnvRunLists[chefEnvironment]
+	if chefEnvironment != "_default" && envRunListExists {
+		roleRunList = parseRunList(envRunList)
 	} else {
-		roleRunList = parseRunList(r.EnvRunLists[chefEnvironment])
+		roleRunList = parseRunList(r.RunList)
 	}
 	return roleRunList
 }
