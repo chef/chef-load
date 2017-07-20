@@ -74,7 +74,6 @@ func (dcc *DataCollectorClient) Update(msgJSON io.Reader) (*http.Response, error
 	// Do request
 	res, err := dcc.Client.Do(req)
 	if err != nil {
-		fmt.Println(err)
 		return res, err
 	}
 	defer res.Body.Close()
