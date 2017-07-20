@@ -81,7 +81,12 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartJSON)
 	} else {
-		res, _ := apiRequest(nodeClient, "POST", "data-collector", runStartJSON, nil, nil)
+		res, err := apiRequest(nodeClient, "POST", "data-collector", runStartJSON, nil, nil)
+		if err != nil {
+			if res != nil && res.StatusCode != 404 {
+				fmt.Println(err)
+			}
+		}
 		if res != nil && res.StatusCode == 404 {
 			dataCollectorAvailable = false
 		}
@@ -100,7 +105,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		}
 
 		for _, apiGetRequest := range apiGetRequests {
-			apiRequest(nodeClient, "GET", apiGetRequest, nil, nil, nil)
+			_, err := apiRequest(nodeClient, "GET", apiGetRequest, nil, nil, nil)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	} else {
 		expandedRunList = runList.toStringSlice()
@@ -134,7 +142,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopJSON)
 	} else if dataCollectorAvailable {
-		apiRequest(nodeClient, "POST", "data-collector", runStopJSON, nil, nil)
+		_, err := apiRequest(nodeClient, "POST", "data-collector", runStopJSON, nil, nil)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	// Notify Data Collector of compliance report
@@ -143,7 +154,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		if config.DataCollectorURL != "" {
 			chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, complianceReportJSON)
 		} else {
-			apiRequest(nodeClient, "POST", "data-collector", complianceReportJSON, nil, nil)
+			_, err := apiRequest(nodeClient, "POST", "data-collector", complianceReportJSON, nil, nil)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 

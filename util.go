@@ -23,7 +23,6 @@ func apiRequest(nodeClient chef.Client, method, url string, data io.Reader, v in
 		defer res.Body.Close()
 	}
 	if err != nil {
-		fmt.Println(err)
 		return res, err
 	}
 	ioutil.ReadAll(res.Body)
