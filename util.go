@@ -13,8 +13,11 @@ import (
 	"github.com/go-chef/chef"
 )
 
-func apiRequest(nodeClient chef.Client, method, url string, data io.Reader, v interface{}) (*http.Response, error) {
+func apiRequest(nodeClient chef.Client, method, url string, data io.Reader, v interface{}, headers map[string]string) (*http.Response, error) {
 	req, _ := nodeClient.NewRequest(method, url, data)
+	for name, value := range headers {
+		req.Header.Set(name, value)
+	}
 	res, err := nodeClient.Do(req, v)
 	if res != nil {
 		defer res.Body.Close()
