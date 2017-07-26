@@ -45,23 +45,8 @@ sleep_duration = 0
 # Options are: "never", "first" (first chef-client run only), "always"
 #
 # Downloading cookbooks can significantly increase the number of API requests that chef-load
-# makes depending on the run_list.
-#
-# Normal TCP protocol requires the connections to be in TIME-WAIT for about two minutes and it is
-# recommended that the system's TIME-WAIT parameter's do not get changed.
-# Ref: http://vincent.bernat.im/en/blog/2014-tcp-time-wait-state-linux.html
-#
-# If chef-load makes enough API requests then the number of connections can increase until
-# the system runs out of ephemeral ports resulting in connect(2) error EADDRNOTAVAIL.
-# Ref: http://manpages.ubuntu.com/manpages/trusty/en/man2/connect.2freebsd.html
-# Ref: http://manpages.ubuntu.com/manpages/trusty/en/man7/ip.7.html
-#
-# If you aren't concerned with simulating the download of cookbook files then the recommendation is
-# to use "never" or "first".
-#
-# If you want to use "always" and you run out of ephemeral ports then consider increasing the range of
-# ephemeral ports or reducing load by reducing the requests_per_minute setting.
-# Ref: http://www.cyberciti.biz/tips/linux-increase-outgoing-network-sockets-range.html
+# makes depending on the run_list. If you aren't concerned with simulating the download of cookbook files
+# then the recommendation is to use "never" or "first".
 #
 download_cookbooks = "never"
 
