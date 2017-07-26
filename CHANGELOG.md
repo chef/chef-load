@@ -1,6 +1,6 @@
 # chef-load Change Log
 
-## 2.1.0 (2017-07-19)
+## 2.1.0 (2017-07-26)
 
 * Send data-collector data through Chef Server if it's available
 * http.Response handling improvements
