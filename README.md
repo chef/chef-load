@@ -6,59 +6,21 @@ It is designed to be easy to use yet powerfully flexible and accurate in its sim
 
 It works well at this point but there is always room for improvement so please provide feedback.
 
-## Requirements
+## Considerations when applying high load
 
-#### Download prebuilt binary
+chef-load will periodically resolve hostnames for the API requests. It is recommended that the
+hostnames and their IP addresses are put in the system's `/etc/hosts` file so chef-load does not
+need to make DNS requests.
+
+Make sure the maximum number of open file descriptors is set to `unlimited`. This can either be done in chef-load's systemd service file as shown below or you can follow instructions in [this link](https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/).
+
+## Installation & Setup
+
+### Download prebuilt binary
 
 Prebuilt chef-load binary files are available on chef-load's "Releases" page.
 
 https://github.com/jeremiahsnapp/chef-load/releases
-
-#### OR build the chef-load executable
-
-To build chef-load you must have Go installed.  
-Ref: https://golang.org/dl/
-
-Setup a GOPATH if you haven't already.  
-Ref: https://golang.org/doc/install#testing
-
-```
-mkdir ~/go-work
-export GOPATH=~/go-work
-```
-
-Get and install chef-load
-
-```
-go get github.com/jeremiahsnapp/chef-load
-```
-
-It is easy to cross-compile chef-load for other platforms.  
-Options for $GOOS and $GOARCH are listed in the following link.  
-Ref: https://golang.org/doc/install/source#environment
-
-The following command will create a chef-load executable file for linux amd64 in the current working directory.
-
-```
-env GOOS=linux GOARCH=amd64 go build github.com/jeremiahsnapp/chef-load
-```
-
-#### Chef API client
-
-The client defined by "client_name" in the chef-load configuration file needs to be an admin user of the org.
-
-## Upgrading chef-load
-
-Sometimes a new version of chef-load has breaking changes in the configuration file. The easiest way to handle this might
-be to create a new config file and copy/paste modified settings from the old file.
-
-## Usage
-
-Print help.
-
-```
-chef-load --help
-```
 
 ### Generate a chef-load configuration file.  
 
@@ -71,7 +33,11 @@ chef-load --sample-config > chef-load.conf
 Make sure chef-load.conf has appropriate settings for applying load to your Chef Server,
 Automate Server or both.
 
-### Various ways to run chef-load
+#### Chef API client
+
+The client defined by "client_name" in the chef-load configuration file needs to be an admin user of the Chef Server organization.
+
+## Various ways to run chef-load
 
 Run chef-load using only the configuration file.
 
@@ -107,7 +73,30 @@ chef-load --config chef-load.conf --nodes 1800
 chef-load --config chef-load.conf --nodes 1800 --interval 60
 ```
 
-### Using sample JSON data files
+### Example chef-load systemd service file
+
+Here is a working example of a systemd service file for chef-load. Notice that it is able to set `LimitNOFILE` to unlimited to avoid running out of file descriptors.
+
+```
+[Unit]
+Description=Chef load testing tool
+After=network.target
+
+[Service]
+ExecStart=/home/centos/chef-load -config /home/centos/chef_load.conf
+Type=simple
+PIDFile=/tmp/chef_load.pid
+Restart=always
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+LimitNOFILE=unlimited:unlimited
+
+[Install]
+WantedBy=default.target
+```
+
+## Using sample JSON data files
 
 chef-load is able to use files containing ohai, converge status and compliance status data captured from real nodes. This helps by simulating more accurate API payloads.
 
@@ -148,34 +137,34 @@ class Chef
 end
 ```
 
-### Run as a systemd service
+## Build chef-load from source
 
-Here is a working example of a systemd service file for chef-load. Notice that it is able to set `LimitNOFILE` to unlimited to avoid running out of file descriptors.
+To build chef-load you must have Go installed.  
+Ref: https://golang.org/dl/
+
+Setup a GOPATH if you haven't already.  
+Ref: https://golang.org/doc/install#testing
 
 ```
-[Unit]
-Description=Chef load testing tool
-After=network.target
-
-[Service]
-ExecStart=/home/centos/chef-load -config /home/centos/chef_load.conf
-Type=simple
-PIDFile=/tmp/chef_load.pid
-Restart=always
-ExecReload=/bin/kill -HUP $MAINPID
-KillMode=process
-Restart=on-failure
-LimitNOFILE=unlimited:unlimited
-
-[Install]
-WantedBy=default.target
+mkdir ~/go-work
+export GOPATH=~/go-work
 ```
 
-### Considerations when applying high load
+Get and install chef-load
 
-Make sure the system has `nscd` or something similar in place to cache DNS requests. This can significantly improve chef-load's performance when applying high load.
+```
+go get github.com/jeremiahsnapp/chef-load
+```
 
-Make sure the maximum number of open file descriptors is set to `unlimited`. This can either be done in chef-load's systemd service file as shown above or you can follow instructions in [this link](https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/).
+It is easy to cross-compile chef-load for other platforms.  
+Options for $GOOS and $GOARCH are listed in the following link.  
+Ref: https://golang.org/doc/install/source#environment
+
+The following command will create a chef-load executable file for linux amd64 in the current working directory.
+
+```
+env GOOS=linux GOARCH=amd64 go build github.com/jeremiahsnapp/chef-load
+```
 
 # License
 
