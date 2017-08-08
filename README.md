@@ -90,7 +90,7 @@ Restart=always
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 Restart=on-failure
-LimitNOFILE=unlimited:unlimited
+LimitNOFILE=infinity
 
 [Install]
 WantedBy=default.target
