@@ -1,5 +1,11 @@
 # chef-load Change Log
 
+## 2.2.0 (2017-08-15)
+
+* Make it configurable whether or not the Chef Server creates client keys
+* Make the Chef Client version configurable
+* Improve API request error handling
+
 ## 2.1.0 (2017-07-26)
 
 * Send data-collector data through Chef Server if it's available
