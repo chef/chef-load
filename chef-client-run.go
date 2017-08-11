@@ -46,23 +46,31 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 				"name":  nodeName,
 				"admin": false,
 			}
-			_, err = apiRequest(nodeClient, "POST", "clients", clientBody, nil, nil)
+			res, err := apiRequest(nodeClient, "POST", "clients", clientBody, nil, nil)
 			if err != nil {
-				fmt.Println(err)
+				if res != nil && res.StatusCode != 409 {
+					printError(nodeName, err)
+					printRunFailed(nodeName)
+					return
+				}
 			}
 		}
 
 		res, err := apiRequest(nodeClient, "GET", "nodes/"+nodeName, nil, &node, nil)
 		if err != nil {
 			if res != nil && res.StatusCode != 404 {
-				fmt.Println(err)
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
 			}
 		}
 		if res != nil && res.StatusCode == 404 {
 			node = chef.Node{Name: nodeName, Environment: chefEnvironment}
 			_, err = apiRequest(nodeClient, "POST", "nodes", node, nil, nil)
 			if err != nil {
-				fmt.Println(err)
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
 			}
 			// mimic the real chef-client by setting the automatic attributes after creating the node object
 			node.AutomaticAttributes = ohaiJSON
@@ -74,11 +82,18 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 	if config.RunChefClient {
 		// Expand run_list
-		expandedRunList = runList.expand(&nodeClient, chefEnvironment)
+		expandedRunList, err = runList.expand(&nodeClient, chefEnvironment)
+		if err != nil {
+			printError(nodeName, err)
+			printRunFailed(nodeName)
+			return
+		}
 
 		_, err := apiRequest(nodeClient, "GET", "environments/"+chefEnvironment, nil, nil, nil)
 		if err != nil {
-			fmt.Println(err)
+			printError(nodeName, err)
+			printRunFailed(nodeName)
+			return
 		}
 
 		// Notify Reporting of run start
@@ -86,7 +101,9 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 			res, err := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
 			if err != nil {
 				if res != nil && res.StatusCode != 404 {
-					fmt.Println(err)
+					printError(nodeName, err)
+					printRunFailed(nodeName)
+					return
 				}
 			}
 			if res != nil && res.StatusCode == 404 {
@@ -98,35 +115,46 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	// Notify Data Collector of run start
 	runStartBody := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 	if config.DataCollectorURL != "" {
-		_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartBody)
+		err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartBody)
 		if err != nil {
-			fmt.Println(err)
+			dataCollectorAvailable = false
+			printError(nodeName, err)
 		}
 	} else {
 		res, err := apiRequest(nodeClient, "POST", "data-collector", runStartBody, nil, nil)
 		if err != nil {
-			if res != nil && res.StatusCode != 404 {
-				fmt.Println(err)
-			}
-		}
-		if res != nil && res.StatusCode == 404 {
 			dataCollectorAvailable = false
+			if res != nil && res.StatusCode != 404 {
+				printError(nodeName, err)
+			}
 		}
 	}
 
 	if config.RunChefClient {
 		// Calculate cookbook dependencies
-		ckbks := solveRunListDependencies(&nodeClient, expandedRunList, chefEnvironment)
+		ckbks, err := solveRunListDependencies(&nodeClient, expandedRunList, chefEnvironment)
+		if err != nil {
+			printError(nodeName, err)
+			printRunFailed(nodeName)
+			return
+		}
 
 		// Download cookbooks
 		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first" && firstRun) {
-			ckbks.download(&nodeClient)
+			err := ckbks.download(&nodeClient)
+			if err != nil {
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
+			}
 		}
 
 		for _, apiGetRequest := range apiGetRequests {
 			_, err := apiRequest(nodeClient, "GET", apiGetRequest, nil, nil, nil)
 			if err != nil {
-				fmt.Println(err)
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
 			}
 		}
 	} else {
@@ -145,16 +173,20 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
 	if config.RunChefClient {
-		_, err = apiRequest(nodeClient, "PUT", "nodes/"+nodeName, node, nil, nil)
+		_, err := apiRequest(nodeClient, "PUT", "nodes/"+nodeName, node, nil, nil)
 		if err != nil {
-			fmt.Println(err)
+			printError(nodeName, err)
+			printRunFailed(nodeName)
+			return
 		}
 
 		// Notify Reporting of run end
 		if config.EnableReporting && reportingAvailable {
 			_, err := reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
 			if err != nil {
-				fmt.Println(err)
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
 			}
 		}
 	}
@@ -162,14 +194,20 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	// Notify Data Collector of run end
 	runStopBody := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
 	if config.DataCollectorURL != "" {
-		_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopBody)
-		if err != nil {
-			fmt.Println(err)
+		if dataCollectorAvailable || !config.RunChefClient {
+			err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopBody)
+			if err != nil {
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
+			}
 		}
 	} else if dataCollectorAvailable {
 		_, err := apiRequest(nodeClient, "POST", "data-collector", runStopBody, nil, nil)
 		if err != nil {
-			fmt.Println(err)
+			printError(nodeName, err)
+			printRunFailed(nodeName)
+			return
 		}
 	}
 
@@ -177,14 +215,18 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	if len(complianceJSON) != 0 {
 		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
 		if config.DataCollectorURL != "" {
-			_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
+			err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
 			if err != nil {
-				fmt.Println(err)
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
 			}
 		} else {
 			_, err := apiRequest(nodeClient, "POST", "data-collector", complianceReportBody, nil, nil)
 			if err != nil {
-				fmt.Println(err)
+				printError(nodeName, err)
+				printRunFailed(nodeName)
+				return
 			}
 		}
 	}

@@ -4,6 +4,7 @@ package main
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -65,7 +66,7 @@ func (dcc *DataCollectorClient) Update(body interface{}) (*http.Response, error)
 		var err error
 		bodyJSON, err = chef.JSONReader(body)
 		if err != nil {
-			fmt.Println(err)
+			return nil, err
 		}
 	}
 
@@ -85,12 +86,17 @@ func (dcc *DataCollectorClient) Update(body interface{}) (*http.Response, error)
 	if err != nil {
 		return res, err
 	}
-	defer res.Body.Close()
+	if res != nil {
+		defer res.Body.Close()
+		if !(res.StatusCode >= 200 && res.StatusCode <= 299) {
+			return res, errors.New(fmt.Sprintf("POST %s: %s", dcc.URL.String(), res.Status))
+		}
+	}
 	ioutil.ReadAll(res.Body)
 	return res, err
 }
 
-func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, body interface{}) (*http.Response, error) {
+func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, body interface{}) error {
 	client, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   dataCollectorToken,
 		URL:     dataCollectorURL,
@@ -98,12 +104,11 @@ func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string,
 	})
 
 	if err != nil {
-		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
+		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
 	}
 
-	res, err := client.Update(body)
-
-	return res, err
+	_, err = client.Update(body)
+	return err
 }
 
 func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) interface{} {

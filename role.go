@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/go-chef/chef"
 )
@@ -18,11 +17,11 @@ type role struct {
 	RunList            []string                   `json:"run_list"`
 }
 
-func roleRunListFor(nodeClient *chef.Client, roleName, chefEnvironment string) runList {
+func roleRunListFor(nodeClient *chef.Client, roleName, chefEnvironment string) (runList, error) {
 	var r role
 	_, err := apiRequest(*nodeClient, "GET", "roles/"+roleName, nil, &r, nil)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
 	var roleRunList runList
@@ -32,5 +31,5 @@ func roleRunListFor(nodeClient *chef.Client, roleName, chefEnvironment string) r
 	} else {
 		roleRunList = parseRunList(r.RunList)
 	}
-	return roleRunList
+	return roleRunList, nil
 }

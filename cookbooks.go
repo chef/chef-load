@@ -1,10 +1,6 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/go-chef/chef"
-)
+import "github.com/go-chef/chef"
 
 type cookbookFile struct {
 	Checksum    string `json:"checksum"`
@@ -31,45 +27,78 @@ type cookbook struct {
 
 type cookbooks map[string]cookbook
 
-func (ckbkFile cookbookFile) download(nodeClient *chef.Client) {
+func (ckbkFile cookbookFile) download(nodeClient *chef.Client) error {
 	_, err := apiRequest(*nodeClient, "GET", ckbkFile.URL, nil, nil, nil)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }
 
-func (ckbk cookbook) download(nodeClient *chef.Client) {
+func (ckbk cookbook) download(nodeClient *chef.Client) error {
 	for _, ckbkFile := range ckbk.Attributes {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.Definitions {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.Files {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.Libraries {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.Providers {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.Recipes {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.Resources {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.RootFiles {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
 	for _, ckbkFile := range ckbk.Templates {
-		ckbkFile.download(nodeClient)
+		err := ckbkFile.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (ckbks cookbooks) download(nodeClient *chef.Client) {
+func (ckbks cookbooks) download(nodeClient *chef.Client) error {
 	for _, ckbk := range ckbks {
-		ckbk.download(nodeClient)
+		err := ckbk.download(nodeClient)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
