@@ -26,6 +26,7 @@ type chefLoadConfig struct {
 	SleepDuration            int
 	DownloadCookbooks        string
 	APIGetRequests           []string `toml:"api_get_requests"`
+	ChefVersion              string
 	EnableReporting          bool
 }
 
@@ -116,6 +117,10 @@ func printSampleConfig() {
 #
 # api_get_requests = [ ]
 
+# chef_version sets the value of the X-Chef-Version HTTP header in API requests sent to the Chef Server.
+# This value represents the version of the Chef Client making the API requests. The default is "13.2.20"
+# chef_version = "13.2.20"
+
 # Send data to the Chef server's Reporting service
 # enable_reporting = false
 `
@@ -156,7 +161,10 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		SleepDuration: 0,
 
 		DownloadCookbooks: "never",
-		EnableReporting:   false,
+
+		ChefVersion: "13.2.20",
+
+		EnableReporting: false,
 	}
 
 	if err = toml.NewDecoder(f).Decode(&config); err != nil {

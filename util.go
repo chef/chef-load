@@ -23,6 +23,7 @@ func apiRequest(nodeClient chef.Client, method, url string, body interface{}, v 
 	}
 
 	req, _ := nodeClient.NewRequest(method, url, bodyJSON)
+	req.Header.Set("X-Chef-Version", config.ChefVersion)
 	for name, value := range headers {
 		req.Header.Set(name, value)
 	}
