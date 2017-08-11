@@ -43,8 +43,12 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	if config.RunChefClient {
 		if firstRun {
 			clientBody := map[string]interface{}{
-				"name":  nodeName,
-				"admin": false,
+				"admin":     false,
+				"name":      nodeName,
+				"validator": false,
+			}
+			if config.ChefServerCreatesClientKey {
+				clientBody["create_key"] = config.ChefServerCreatesClientKey
 			}
 			res, err := apiRequest(nodeClient, "POST", "clients", clientBody, nil, nil)
 			if err != nil {

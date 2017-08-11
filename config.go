@@ -9,25 +9,26 @@ import (
 )
 
 type chefLoadConfig struct {
-	RunChefClient            bool
-	ChefServerURL            string `toml:"chef_server_url"`
-	ClientName               string
-	ClientKey                string
-	DataCollectorURL         string `toml:"data_collector_url"`
-	DataCollectorToken       string
-	OhaiJSONFile             string `toml:"ohai_json_file"`
-	ConvergeStatusJSONFile   string `toml:"converge_status_json_file"`
-	ComplianceStatusJSONFile string `toml:"compliance_status_json_file"`
-	NumNodes                 int
-	Interval                 int
-	NodeNamePrefix           string
-	ChefEnvironment          string
-	RunList                  []string
-	SleepDuration            int
-	DownloadCookbooks        string
-	APIGetRequests           []string `toml:"api_get_requests"`
-	ChefVersion              string
-	EnableReporting          bool
+	RunChefClient              bool
+	ChefServerURL              string `toml:"chef_server_url"`
+	ClientName                 string
+	ClientKey                  string
+	DataCollectorURL           string `toml:"data_collector_url"`
+	DataCollectorToken         string
+	OhaiJSONFile               string `toml:"ohai_json_file"`
+	ConvergeStatusJSONFile     string `toml:"converge_status_json_file"`
+	ComplianceStatusJSONFile   string `toml:"compliance_status_json_file"`
+	NumNodes                   int
+	Interval                   int
+	NodeNamePrefix             string
+	ChefEnvironment            string
+	RunList                    []string
+	SleepDuration              int
+	DownloadCookbooks          string
+	APIGetRequests             []string `toml:"api_get_requests"`
+	ChefVersion                string
+	ChefServerCreatesClientKey bool `toml:chef_server_creates_client_key`
+	EnableReporting            bool
 }
 
 func printSampleConfig() {
@@ -121,6 +122,12 @@ func printSampleConfig() {
 # This value represents the version of the Chef Client making the API requests. The default is "13.2.20"
 # chef_version = "13.2.20"
 
+# Ever since Chef Client 12.x was released the default behavior has been for the Chef Client to create its
+# own client key locally and then upload the public side to the Chef Server when it creates the client object.
+# chef-load simulates this behavior. However, if you want chef-load to ask the Chef Server to create a client key
+# when the client object is created then set chef_server_creates_client_key to true.
+# chef_server_creates_client_key = false
+
 # Send data to the Chef server's Reporting service
 # enable_reporting = false
 `
@@ -163,6 +170,8 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 		DownloadCookbooks: "never",
 
 		ChefVersion: "13.2.20",
+
+		ChefServerCreatesClientKey: false,
 
 		EnableReporting: false,
 	}
