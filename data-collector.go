@@ -111,7 +111,7 @@ func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string,
 	return err
 }
 
-func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) interface{} {
+func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time) interface{} {
 	chefServerURL, _ := url.Parse(config.ChefServerURL)
 	chefServerFQDN := chefServerURL.Host
 
@@ -130,7 +130,7 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 	return body
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}, config chefLoadConfig) interface{} {
+func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
 	chefServerURL, _ := url.Parse(config.ChefServerURL)
 	chefServerFQDN := chefServerURL.Host
 

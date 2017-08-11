@@ -15,6 +15,8 @@ import (
 // AppVersion - Application Version
 const AppVersion = "2.1.0"
 
+var config *chefLoadConfig
+
 func main() {
 	fConfig := flag.String("config", "", "Configuration file to load")
 	fHelp := flag.Bool("help", false, "Print this help")
@@ -41,12 +43,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	var (
-		config *chefLoadConfig
-		err    error
-	)
-
 	if *fConfig != "" {
+		var err error
 		config, err = loadConfig(*fConfig)
 		if err != nil {
 			log.Fatal(err)
@@ -123,7 +121,7 @@ func main() {
 	for {
 		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-			go chefClientRun(nodeClient, nodeName, firstRun, ohaiJSON, convergeJSON, complianceJSON, *config)
+			go chefClientRun(nodeClient, nodeName, firstRun, ohaiJSON, convergeJSON, complianceJSON)
 			time.Sleep(delayBetweenNodes)
 		}
 		firstRun = false

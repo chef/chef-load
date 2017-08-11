@@ -10,7 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}, config chefLoadConfig) {
+func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}) {
 	fmt.Println(time.Now().UTC().Format(iso8601DateTime), nodeName, "run_started")
 
 	chefEnvironment := config.ChefEnvironment
@@ -113,7 +113,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run start
-	runStartBody := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
+	runStartBody := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime)
 	if config.DataCollectorURL != "" {
 		err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartBody)
 		if err != nil {
@@ -192,7 +192,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run end
-	runStopBody := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
+	runStopBody := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
 	if config.DataCollectorURL != "" {
 		if dataCollectorAvailable || !config.RunChefClient {
 			err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopBody)
