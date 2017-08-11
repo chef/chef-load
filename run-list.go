@@ -72,13 +72,10 @@ func expandRunList(nodeClient *chef.Client, rl runList, recipesPtr *[]string, ap
 }
 
 func solveRunListDependencies(nodeClient *chef.Client, expandedRunList []string, chefEnvironment string) cookbooks {
-	data, err := chef.JSONReader(map[string][]string{"run_list": expandedRunList})
-	if err != nil {
-		fmt.Println(err)
-	}
+	body := map[string][]string{"run_list": expandedRunList}
 
 	var ckbks cookbooks
-	_, err = apiRequest(*nodeClient, "POST", "environments/"+chefEnvironment+"/cookbook_versions", data, &ckbks, nil)
+	_, err := apiRequest(*nodeClient, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil)
 	if err != nil {
 		fmt.Println(err)
 	}

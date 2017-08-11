@@ -59,9 +59,18 @@ func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, err
 }
 
 // Update the data collector endpoint with our map
-func (dcc *DataCollectorClient) Update(msgJSON io.Reader) (*http.Response, error) {
+func (dcc *DataCollectorClient) Update(body interface{}) (*http.Response, error) {
+	var bodyJSON io.Reader = nil
+	if body != nil {
+		var err error
+		bodyJSON, err = chef.JSONReader(body)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
 	// Create an HTTP Request
-	req, err := http.NewRequest("POST", dcc.URL.String(), msgJSON)
+	req, err := http.NewRequest("POST", dcc.URL.String(), bodyJSON)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +90,7 @@ func (dcc *DataCollectorClient) Update(msgJSON io.Reader) (*http.Response, error
 	return res, err
 }
 
-func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, msgJSON io.Reader) (*http.Response, error) {
+func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, body interface{}) (*http.Response, error) {
 	client, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   dataCollectorToken,
 		URL:     dataCollectorURL,
@@ -92,16 +101,16 @@ func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string,
 		fmt.Printf("Error creating DataCollectorClient: %+v \n", err)
 	}
 
-	res, err := client.Update(msgJSON)
+	res, err := client.Update(body)
 
 	return res, err
 }
 
-func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) io.Reader {
+func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, config chefLoadConfig) interface{} {
 	chefServerURL, _ := url.Parse(config.ChefServerURL)
 	chefServerFQDN := chefServerURL.Host
 
-	msgBody := map[string]interface{}{
+	body := map[string]interface{}{
 		"chef_server_fqdn":  chefServerFQDN,
 		"entity_uuid":       nodeUUID.String(),
 		"id":                runUUID.String(),
@@ -113,16 +122,10 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 		"source":            "chef_client",
 		"start_time":        startTime.Format(iso8601DateTime),
 	}
-
-	msgJSON, err := chef.JSONReader(msgBody)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return msgJSON
+	return body
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}, config chefLoadConfig) io.Reader {
+func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}, config chefLoadConfig) interface{} {
 	chefServerURL, _ := url.Parse(config.ChefServerURL)
 	chefServerFQDN := chefServerURL.Host
 
@@ -166,7 +169,7 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		resourcesJSON = convergeJSON["resources"].([]interface{})
 	}
 
-	msgBody := map[string]interface{}{
+	body := map[string]interface{}{
 		"chef_server_fqdn":       chefServerFQDN,
 		"entity_uuid":            nodeUUID.String(),
 		"id":                     runUUID.String(),
@@ -186,32 +189,20 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		"total_resource_count":   0,
 		"updated_resource_count": 0,
 	}
-
-	msgJSON, err := chef.JSONReader(msgBody)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return msgJSON
+	return body
 }
 
-func dataCollectorComplianceReport(nodeName string, chefEnvironment string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}) io.Reader {
-	msgBody := complianceJSON
-	msgBody["type"] = "inspec_report"
-	msgBody["node_name"] = nodeName
-	msgBody["environment"] = chefEnvironment
-	msgBody["report_uuid"] = reportUUID
-	msgBody["node_uuid"] = nodeUUID
-	msgBody["end_time"] = endTime.Format(iso8601DateTime)
+func dataCollectorComplianceReport(nodeName string, chefEnvironment string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}) interface{} {
+	body := complianceJSON
+	body["type"] = "inspec_report"
+	body["node_name"] = nodeName
+	body["environment"] = chefEnvironment
+	body["report_uuid"] = reportUUID
+	body["node_uuid"] = nodeUUID
+	body["end_time"] = endTime.Format(iso8601DateTime)
 
-	if msgBody["controls"] != nil {
-		delete(msgBody, "controls")
+	if body["controls"] != nil {
+		delete(body, "controls")
 	}
-
-	msgJSON, err := chef.JSONReader(msgBody)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return msgJSON
+	return body
 }

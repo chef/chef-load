@@ -7,14 +7,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/go-chef/chef"
 )
 
-func apiRequest(nodeClient chef.Client, method, url string, data io.Reader, v interface{}, headers map[string]string) (*http.Response, error) {
-	req, _ := nodeClient.NewRequest(method, url, data)
+func apiRequest(nodeClient chef.Client, method, url string, body interface{}, v interface{}, headers map[string]string) (*http.Response, error) {
+	var bodyJSON io.Reader = nil
+	if body != nil {
+		var err error
+		bodyJSON, err = chef.JSONReader(body)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	req, _ := nodeClient.NewRequest(method, url, bodyJSON)
 	for name, value := range headers {
 		req.Header.Set(name, value)
 	}

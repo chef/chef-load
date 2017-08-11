@@ -89,14 +89,14 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run start
-	runStartJSON := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
+	runStartBody := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime, config)
 	if config.DataCollectorURL != "" {
-		_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartJSON)
+		_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStartBody)
 		if err != nil {
 			fmt.Println(err)
 		}
 	} else {
-		res, err := apiRequest(nodeClient, "POST", "data-collector", runStartJSON, nil, nil)
+		res, err := apiRequest(nodeClient, "POST", "data-collector", runStartBody, nil, nil)
 		if err != nil {
 			if res != nil && res.StatusCode != 404 {
 				fmt.Println(err)
@@ -153,14 +153,14 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run end
-	runStopJSON := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
+	runStopBody := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, config)
 	if config.DataCollectorURL != "" {
-		_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopJSON)
+		_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, runStopBody)
 		if err != nil {
 			fmt.Println(err)
 		}
 	} else if dataCollectorAvailable {
-		_, err := apiRequest(nodeClient, "POST", "data-collector", runStopJSON, nil, nil)
+		_, err := apiRequest(nodeClient, "POST", "data-collector", runStopBody, nil, nil)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -168,14 +168,14 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 	// Notify Data Collector of compliance report
 	if len(complianceJSON) != 0 {
-		complianceReportJSON := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
+		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
 		if config.DataCollectorURL != "" {
-			_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, complianceReportJSON)
+			_, err := chefAutomateSendMessage(config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
 			if err != nil {
 				fmt.Println(err)
 			}
 		} else {
-			_, err := apiRequest(nodeClient, "POST", "data-collector", complianceReportJSON, nil, nil)
+			_, err := apiRequest(nodeClient, "POST", "data-collector", complianceReportBody, nil, nil)
 			if err != nil {
 				fmt.Println(err)
 			}
