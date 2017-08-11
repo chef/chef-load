@@ -51,12 +51,6 @@ func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client 
 	return *client
 }
 
-func getStatusCode(err error) int {
-	errFields := strings.Fields(err.Error())
-	statusCode, _ := strconv.Atoi(errFields[len(errFields)-1])
-	return statusCode
-}
-
 func getPrivateKey(privateKeyPath string) string {
 	fileContent, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {

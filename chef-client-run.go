@@ -42,26 +42,30 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 	if config.RunChefClient {
 		if firstRun {
-			_, err = nodeClient.Clients.Create(nodeName, false)
-			if err != nil && getStatusCode(err) != 409 {
-				fmt.Println("Couldn't create client", err)
+			clientBody := map[string]interface{}{
+				"name":  nodeName,
+				"admin": false,
+			}
+			_, err = apiRequest(nodeClient, "POST", "clients", clientBody, nil, nil)
+			if err != nil {
+				fmt.Println(err)
 			}
 		}
 
-		node, err = nodeClient.Nodes.Get(nodeName)
+		res, err := apiRequest(nodeClient, "GET", "nodes/"+nodeName, nil, &node, nil)
 		if err != nil {
-			statusCode := getStatusCode(err)
-			if statusCode == 404 {
-				node = chef.Node{Name: nodeName, Environment: chefEnvironment}
-				_, err = nodeClient.Nodes.Post(node)
-				if err != nil {
-					fmt.Println("Couldn't create node. ", err)
-				}
-				// mimic the real chef-client by setting the automatic attributes after creating the node object
-				node.AutomaticAttributes = ohaiJSON
-			} else {
-				fmt.Println("Couldn't get node: ", err)
+			if res != nil && res.StatusCode != 404 {
+				fmt.Println(err)
 			}
+		}
+		if res != nil && res.StatusCode == 404 {
+			node = chef.Node{Name: nodeName, Environment: chefEnvironment}
+			_, err = apiRequest(nodeClient, "POST", "nodes", node, nil, nil)
+			if err != nil {
+				fmt.Println(err)
+			}
+			// mimic the real chef-client by setting the automatic attributes after creating the node object
+			node.AutomaticAttributes = ohaiJSON
 		}
 		node.Environment = chefEnvironment
 	} else {
@@ -72,7 +76,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		// Expand run_list
 		expandedRunList = runList.expand(&nodeClient, chefEnvironment)
 
-		nodeClient.Environments.Get(chefEnvironment)
+		_, err := apiRequest(nodeClient, "GET", "environments/"+chefEnvironment, nil, nil, nil)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		// Notify Reporting of run start
 		if config.EnableReporting {
@@ -138,9 +145,9 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
 	if config.RunChefClient {
-		_, err = nodeClient.Nodes.Put(node)
+		_, err = apiRequest(nodeClient, "PUT", "nodes/"+nodeName, node, nil, nil)
 		if err != nil {
-			fmt.Println("Couldn't update node: ", err)
+			fmt.Println(err)
 		}
 
 		// Notify Reporting of run end
