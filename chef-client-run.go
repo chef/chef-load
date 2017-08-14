@@ -21,8 +21,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	reportUUID := uuid.NewV4()
 	nodeUUID := uuid.NewV3(uuid.NamespaceDNS, nodeName)
 	startTime := time.Now().UTC()
-	chefServerURL := config.ChefServerURL
-	url, _ := url.ParseRequestURI(chefServerURL)
+	url, _ := url.ParseRequestURI(config.ChefServerURL)
 	orgName := strings.Split(url.Path, "/")[2]
 	reportingAvailable := true
 	dataCollectorAvailable := true
