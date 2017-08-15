@@ -64,6 +64,16 @@ download_cookbooks = "never"
 #
 api_get_requests = [ ]
 
+# chef_version sets the value of the X-Chef-Version HTTP header in API requests sent to the Chef Server.
+# This value represents the version of the Chef Client making the API requests. The default is "13.2.20"
+chef_version = "13.2.20"
+
+# Ever since Chef Client 12.x was released the default behavior has been for the Chef Client to create its
+# own client key locally and then upload the public side to the Chef Server when it creates the client object.
+# chef-load simulates this behavior. However, if you want chef-load to ask the Chef Server to create a client key
+# when the client object is created then set chef_server_creates_client_key to true.
+chef_server_creates_client_key = false
+
 # Send data to the Chef server's Reporting service
 enable_reporting = false
 
