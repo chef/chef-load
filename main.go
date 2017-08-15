@@ -13,7 +13,7 @@ import (
 )
 
 // AppVersion - Application Version
-const AppVersion = "2.1.0"
+const AppVersion = "2.2.0"
 
 var config *chefLoadConfig
 
