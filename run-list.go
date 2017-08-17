@@ -40,14 +40,14 @@ func (rl runList) toStringSlice() []string {
 	return stringSlice
 }
 
-func (rl runList) expand(nodeClient *chef.Client, chefEnvironment string) ([]string, error) {
+func (rl runList) expand(nodeClient *chef.Client, nodeName string, chefEnvironment string) []string {
 	recipes := []string{}
 	appliedRoles := map[string]bool{}
-	err := expandRunList(nodeClient, rl, &recipes, &appliedRoles, chefEnvironment)
-	return recipes, err
+	expandRunList(nodeClient, nodeName, rl, &recipes, &appliedRoles, chefEnvironment)
+	return recipes
 }
 
-func expandRunList(nodeClient *chef.Client, rl runList, recipesPtr *[]string, appliedRolesPtr *map[string]bool, chefEnvironment string) error {
+func expandRunList(nodeClient *chef.Client, nodeName string, rl runList, recipesPtr *[]string, appliedRolesPtr *map[string]bool, chefEnvironment string) {
 	var entry runListItem
 	if rl.length() > 0 {
 		entry, rl = rl.shift()
@@ -63,30 +63,23 @@ func expandRunList(nodeClient *chef.Client, rl runList, recipesPtr *[]string, ap
 		case "role":
 			if !(*appliedRolesPtr)[entry.name] {
 				(*appliedRolesPtr)[entry.name] = true
-				roleRunList, err := roleRunListFor(nodeClient, entry.name, chefEnvironment)
-				if err != nil {
-					return err
-				}
-				err = expandRunList(nodeClient, roleRunList, recipesPtr, appliedRolesPtr, chefEnvironment)
-				if err != nil {
-					return err
-				}
+				roleRunList := roleRunListFor(nodeClient, nodeName, entry.name, chefEnvironment)
+				expandRunList(nodeClient, nodeName, roleRunList, recipesPtr, appliedRolesPtr, chefEnvironment)
 			}
 		}
-		return expandRunList(nodeClient, rl, recipesPtr, appliedRolesPtr, chefEnvironment)
+		expandRunList(nodeClient, nodeName, rl, recipesPtr, appliedRolesPtr, chefEnvironment)
 	}
-	return nil
 }
 
-func solveRunListDependencies(nodeClient *chef.Client, expandedRunList []string, chefEnvironment string) (cookbooks, error) {
+func solveRunListDependencies(nodeClient *chef.Client, nodeName string, expandedRunList []string, chefEnvironment string) cookbooks {
 	body := map[string][]string{"run_list": expandedRunList}
 
 	var ckbks cookbooks
 	_, err := apiRequest(*nodeClient, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil)
 	if err != nil {
-		return nil, err
+		printError(nodeName, err)
 	}
-	return ckbks, nil
+	return ckbks
 }
 
 func parseRunList(unparsedRunList []string) runList {

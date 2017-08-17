@@ -17,11 +17,11 @@ type role struct {
 	RunList            []string                   `json:"run_list"`
 }
 
-func roleRunListFor(nodeClient *chef.Client, roleName, chefEnvironment string) (runList, error) {
+func roleRunListFor(nodeClient *chef.Client, nodeName string, roleName, chefEnvironment string) runList {
 	var r role
 	_, err := apiRequest(*nodeClient, "GET", "roles/"+roleName, nil, &r, nil)
 	if err != nil {
-		return nil, err
+		printError(nodeName, err)
 	}
 
 	var roleRunList runList
@@ -31,5 +31,5 @@ func roleRunListFor(nodeClient *chef.Client, roleName, chefEnvironment string) (
 	} else {
 		roleRunList = parseRunList(r.RunList)
 	}
-	return roleRunList, nil
+	return roleRunList
 }

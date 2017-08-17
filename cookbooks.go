@@ -27,78 +27,45 @@ type cookbook struct {
 
 type cookbooks map[string]cookbook
 
-func (ckbkFile cookbookFile) download(nodeClient *chef.Client) error {
+func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName string) {
 	_, err := apiRequest(*nodeClient, "GET", ckbkFile.URL, nil, nil, nil)
 	if err != nil {
-		return err
+		printError(nodeName, err)
 	}
-	return nil
 }
 
-func (ckbk cookbook) download(nodeClient *chef.Client) error {
+func (ckbk cookbook) download(nodeClient *chef.Client, nodeName string) {
 	for _, ckbkFile := range ckbk.Attributes {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.Definitions {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.Files {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.Libraries {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.Providers {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.Recipes {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.Resources {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.RootFiles {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
 	for _, ckbkFile := range ckbk.Templates {
-		err := ckbkFile.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbkFile.download(nodeClient, nodeName)
 	}
-	return nil
 }
 
-func (ckbks cookbooks) download(nodeClient *chef.Client) error {
+func (ckbks cookbooks) download(nodeClient *chef.Client, nodeName string) {
 	for _, ckbk := range ckbks {
-		err := ckbk.download(nodeClient)
-		if err != nil {
-			return err
-		}
+		ckbk.download(nodeClient, nodeName)
 	}
-	return nil
 }
