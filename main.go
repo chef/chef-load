@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"math"
 	"os"
+	"path"
 	"strconv"
 	"time"
 
 	"github.com/go-chef/chef"
+	log "github.com/sirupsen/logrus"
 )
 
 // AppVersion - Application Version
@@ -17,7 +18,18 @@ const AppVersion = "2.2.0"
 
 var config *chefLoadConfig
 
-func main() {
+type UTCFormatter struct {
+	log.Formatter
+}
+
+func (u UTCFormatter) Format(e *log.Entry) ([]byte, error) {
+	e.Time = e.Time.UTC()
+	return u.Formatter.Format(e)
+}
+
+var logger = log.New()
+
+func init() {
 	fConfig := flag.String("config", "", "Configuration file to load")
 	fHelp := flag.Bool("help", false, "Print this help")
 	fNodeNamePrefix := flag.String("prefix", "", "This prefix will go at the beginning of each node name")
@@ -96,6 +108,20 @@ func main() {
 		f.Close()
 	}
 
+	logger.Formatter = UTCFormatter{&log.JSONFormatter{}}
+
+	if err := os.MkdirAll(path.Dir(config.LogFile), 0755); err != nil {
+		log.WithField("error", err).Fatal("Failed to create directory")
+	}
+	file, err := os.OpenFile(config.LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err == nil {
+		logger.Out = file
+	} else {
+		log.WithField("error", err).Fatal("Failed to log to file")
+	}
+}
+
+func main() {
 	var nodeClient chef.Client
 	if config.RunChefClient {
 		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)

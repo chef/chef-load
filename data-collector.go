@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-chef/chef"
 	uuid "github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 const iso8601DateTime = "2006-01-02T15:04:05Z"
@@ -60,7 +61,7 @@ func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, err
 }
 
 // Update the data collector endpoint with our map
-func (dcc *DataCollectorClient) Update(body interface{}) (*http.Response, error) {
+func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http.Response, error) {
 	var bodyJSON io.Reader = nil
 	if body != nil {
 		var err error
@@ -82,21 +83,31 @@ func (dcc *DataCollectorClient) Update(body interface{}) (*http.Response, error)
 	req.Header.Set("x-data-collector-token", dcc.Token)
 
 	// Do request
+	t0 := time.Now()
 	res, err := dcc.Client.Do(req)
-	if err != nil {
-		return res, err
-	}
+	request_time := time.Now().Sub(t0)
+	statusCode := 999
 	if res != nil {
 		defer res.Body.Close()
+		statusCode = res.StatusCode
+	}
+	logger.WithFields(log.Fields{"node_name": nodeName, "method": req.Method, "url": req.URL.String(), "status_code": statusCode, "request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000}).Info("API Request")
+
+	if res != nil {
 		if !(res.StatusCode >= 200 && res.StatusCode <= 299) {
 			return res, errors.New(fmt.Sprintf("POST %s: %s", dcc.URL.String(), res.Status))
 		}
 	}
+
+	if err != nil {
+		return res, err
+	}
+
 	ioutil.ReadAll(res.Body)
 	return res, err
 }
 
-func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string, body interface{}) error {
+func chefAutomateSendMessage(nodeName string, dataCollectorToken string, dataCollectorURL string, body interface{}) error {
 	client, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   dataCollectorToken,
 		URL:     dataCollectorURL,
@@ -107,7 +118,7 @@ func chefAutomateSendMessage(dataCollectorToken string, dataCollectorURL string,
 		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
 	}
 
-	_, err = client.Update(body)
+	_, err = client.Update(nodeName, body)
 	return err
 }
 

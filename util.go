@@ -10,9 +10,10 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
+	log "github.com/sirupsen/logrus"
 )
 
-func apiRequest(nodeClient chef.Client, method, url string, body interface{}, v interface{}, headers map[string]string) (*http.Response, error) {
+func apiRequest(nodeClient chef.Client, nodeName string, method, url string, body interface{}, v interface{}, headers map[string]string) (*http.Response, error) {
 	var bodyJSON io.Reader = nil
 	if body != nil {
 		var err error
@@ -28,13 +29,20 @@ func apiRequest(nodeClient chef.Client, method, url string, body interface{}, v 
 	for name, value := range headers {
 		req.Header.Set(name, value)
 	}
+	t0 := time.Now()
 	res, err := nodeClient.Do(req, v)
+	request_time := time.Now().Sub(t0)
+	statusCode := 999
 	if res != nil {
 		defer res.Body.Close()
+		statusCode = res.StatusCode
 	}
+	logger.WithFields(log.Fields{"node_name": nodeName, "method": req.Method, "url": req.URL.String(), "status_code": statusCode, "request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000}).Info("API Request")
+
 	if err != nil {
 		return res, err
 	}
+
 	ioutil.ReadAll(res.Body)
 	return res, err
 }

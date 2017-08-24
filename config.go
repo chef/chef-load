@@ -10,6 +10,7 @@ import (
 
 type chefLoadConfig struct {
 	RunChefClient              bool
+	LogFile                    string
 	ChefServerURL              string `toml:"chef_server_url"`
 	ClientName                 string
 	ClientKey                  string
@@ -32,7 +33,10 @@ type chefLoadConfig struct {
 }
 
 func printSampleConfig() {
-	sampleConfig := `# The chef_server_url, client_name and client_key parameters must be set if you want
+	sampleConfig := `# log_file specifies the location to log API requests
+# log_file = "/var/log/chef-load/chef-load.log"
+
+# The chef_server_url, client_name and client_key parameters must be set if you want
 # to make API requests to a Chef Server.
 #
 # chef-load will also automatically attempt to connect to the Chef Server authenticated data collector proxy.
@@ -144,6 +148,8 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 	// Initialize default configuration values
 	config := chefLoadConfig{
 		RunChefClient: false,
+
+		LogFile: "/var/log/chef-load/chef-load.log",
 
 		ChefServerURL: "",
 

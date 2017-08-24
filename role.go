@@ -19,7 +19,7 @@ type role struct {
 
 func roleRunListFor(nodeClient *chef.Client, nodeName string, roleName, chefEnvironment string) runList {
 	var r role
-	_, err := apiRequest(*nodeClient, "GET", "roles/"+roleName, nil, &r, nil)
+	_, err := apiRequest(*nodeClient, nodeName, "GET", "roles/"+roleName, nil, &r, nil)
 	if err != nil {
 		printError(nodeName, err)
 	}

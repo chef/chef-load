@@ -18,7 +18,7 @@ func reportingRunStart(nodeClient chef.Client, nodeName string, runUUID uuid.UUI
 		"start_time": startTime.Format(rubyDateTime),
 	}
 
-	res, err := apiRequest(nodeClient, "POST", "reports/nodes/"+nodeName+"/runs", body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
+	res, err := apiRequest(nodeClient, nodeName, "POST", "reports/nodes/"+nodeName+"/runs", body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
 	return res, err
 }
 
@@ -34,6 +34,6 @@ func reportingRunStop(nodeClient chef.Client, nodeName string, runUUID uuid.UUID
 		"total_res_count": "0",
 	}
 
-	res, err := apiRequest(nodeClient, "POST", "reports/nodes/"+nodeName+"/runs/"+runUUID.String(), body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
+	res, err := apiRequest(nodeClient, nodeName, "POST", "reports/nodes/"+nodeName+"/runs/"+runUUID.String(), body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
 	return res, err
 }
