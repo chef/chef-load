@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/signal"
 	"path"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/go-chef/chef"
@@ -15,6 +17,8 @@ import (
 
 // AppVersion - Application Version
 const AppVersion = "2.2.0"
+
+const iso8601DateTime = "2006-01-02T15:04:05Z"
 
 var config *chefLoadConfig
 
@@ -122,6 +126,27 @@ func init() {
 }
 
 func main() {
+	go func() {
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+		for {
+			select {
+			case sig := <-sigs:
+				switch sig {
+				case syscall.SIGINT, syscall.SIGTERM:
+					if sig == syscall.SIGINT {
+						fmt.Printf("\n%s Received Signal: INT\n", time.Now().UTC().Format(iso8601DateTime))
+					} else {
+						fmt.Printf("%s Received Signal: TERM\n", time.Now().UTC().Format(iso8601DateTime))
+					}
+					fmt.Printf("%s Stopping chef-load\n", time.Now().UTC().Format(iso8601DateTime))
+					os.Exit(0)
+				}
+			}
+		}
+	}()
+
 	var nodeClient chef.Client
 	if config.RunChefClient {
 		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
@@ -142,6 +167,8 @@ func main() {
 		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
 	}
 
+	fmt.Printf("%s Starting chef-load with %d nodes distributed evenly across a %d minute interval\n", time.Now().UTC().Format(iso8601DateTime), config.NumNodes, config.Interval)
+	fmt.Printf("%s All API requests will be logged in %s\n", time.Now().UTC().Format(iso8601DateTime), config.LogFile)
 	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
 	firstRun := true
 	for {

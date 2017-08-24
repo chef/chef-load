@@ -17,8 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const iso8601DateTime = "2006-01-02T15:04:05Z"
-
 // DataCollectorConfig holds our configuration for the Data Collector
 type DataCollectorConfig struct {
 	Token   string
