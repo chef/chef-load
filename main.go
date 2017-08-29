@@ -126,7 +126,7 @@ func main() {
 
 	go func() {
 		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGUSR1)
 
 		for {
 			select {
@@ -143,6 +143,9 @@ func main() {
 					printAPIRequestProfile(amountOfRequests)
 					fmt.Printf("%s Stopping chef-load\n", time.Now().UTC().Format(iso8601DateTime))
 					os.Exit(0)
+				case syscall.SIGUSR1:
+					fmt.Printf("%s Received Signal: USR1\n", time.Now().UTC().Format(iso8601DateTime))
+					printAPIRequestProfile(amountOfRequests)
 				}
 			}
 		}
