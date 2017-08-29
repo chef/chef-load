@@ -63,7 +63,7 @@ func init() {
 		var err error
 		config, err = loadConfig(*fConfig)
 		if err != nil {
-			log.Fatal(err)
+			log.WithField("error", err).Fatal("Could not load chef-load config file")
 		}
 	} else {
 		fmt.Println("Usage of chef-load:")
@@ -84,15 +84,13 @@ func init() {
 	}
 
 	if config.ChefServerURL == "" && config.DataCollectorURL == "" {
-		fmt.Println("ERROR: You must set chef_server_url or data_collector_url or both")
-		os.Exit(1)
+		log.Fatal("You must set chef_server_url or data_collector_url or both")
 	}
 
 	if config.ChefServerURL != "" {
 		config.RunChefClient = true
 		if config.ClientName == "" || config.ClientKey == "" {
-			fmt.Println("ERROR: You must set client_name and client_key if chef_server_url is set")
-			os.Exit(1)
+			log.Fatal("You must set client_name and client_key if chef_server_url is set")
 		}
 	}
 
@@ -100,16 +98,6 @@ func init() {
 		// make sure config.ChefServerURL is set to something because it is used
 		// even when only in data-collector mode
 		config.ChefServerURL = "https://chef.example.com/organizations/demo/"
-	}
-
-	if config.RunChefClient {
-		// Early exit if we can't read the client_key, avoiding a messy stacktrace
-		f, err := os.Open(config.ClientKey)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not read client key %v:\n\t%v\n", config.ClientKey, err)
-			os.Exit(1)
-		}
-		f.Close()
 	}
 
 	logger.Formatter = UTCFormatter{&log.JSONFormatter{}}
