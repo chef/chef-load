@@ -89,6 +89,7 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		defer res.Body.Close()
 		statusCode = res.StatusCode
 	}
+	requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
 	logger.WithFields(log.Fields{"node_name": nodeName, "method": req.Method, "url": req.URL.String(), "status_code": statusCode, "request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000}).Info("API Request")
 
 	if res != nil {

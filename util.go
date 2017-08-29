@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
+	"sort"
+	"strconv"
 	"time"
 
 	"github.com/go-chef/chef"
@@ -37,6 +40,7 @@ func apiRequest(nodeClient chef.Client, nodeName string, method, url string, bod
 		defer res.Body.Close()
 		statusCode = res.StatusCode
 	}
+	requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
 	logger.WithFields(log.Fields{"node_name": nodeName, "method": req.Method, "url": req.URL.String(), "status_code": statusCode, "request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000}).Info("API Request")
 
 	if err != nil {
@@ -87,4 +91,61 @@ func parseJSONFile(jsonFile string) map[string]interface{} {
 		return jsonContent
 	}
 	return jsonContent
+}
+
+type amountOfRequests map[request]uint64
+
+func (a amountOfRequests) addRequest(req request) {
+	re := regexp.MustCompile("/bookshelf/.*")
+	req.Url = re.ReplaceAllString(req.Url, "/bookshelf/<...>")
+
+	re = regexp.MustCompile("(/nodes/.*-)\\d+(/.*)?")
+	req.Url = re.ReplaceAllString(req.Url, "$1<N>$2")
+	a[req]++
+}
+
+func printAPIRequestProfile(amountOfRequests map[request]uint64) {
+	fmt.Printf("%s Printing profile of API requests\n", time.Now().UTC().Format(iso8601DateTime))
+
+	var requests []request
+	var maxAmount uint64
+	var totalAmount uint64
+	for request, amount := range amountOfRequests {
+		requests = append(requests, request)
+		if amount > maxAmount {
+			maxAmount = amount
+		}
+		totalAmount += amount
+	}
+
+	sort.Slice(requests, func(i, j int) bool {
+		switch {
+		case requests[i].Url < requests[j].Url:
+			return true
+		case requests[i].Url == requests[j].Url:
+			switch {
+			case requests[i].Method < requests[j].Method:
+				return true
+			case requests[i].Method == requests[j].Method:
+				if requests[i].StatusCode < requests[j].StatusCode {
+					return true
+				}
+			}
+		}
+		return false
+	})
+
+	fmt.Printf("Total API Requests: %d\n", totalAmount)
+
+	amountHeader := "Subtotal"
+	amountFieldWidth := len(amountHeader)
+	if maxAmountWidth := len(strconv.FormatUint(maxAmount, 10)); maxAmountWidth > amountFieldWidth {
+		amountFieldWidth = maxAmountWidth
+	}
+	fmt.Printf("%% of Total | %-*s | Status | Method | URL\n", amountFieldWidth, amountHeader)
+	for _, request := range requests {
+		count := amountOfRequests[request]
+		percentOfTotal := float64(count) / float64(totalAmount) * 100.0
+		fmt.Printf("%-10.2f   %-*d   %-6d   %-6s   %s\n", percentOfTotal, amountFieldWidth, count, request.StatusCode, request.Method, request.Url)
+	}
 }

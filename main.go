@@ -22,6 +22,14 @@ const iso8601DateTime = "2006-01-02T15:04:05Z"
 
 var config *chefLoadConfig
 
+type request struct {
+	Method     string `json:"method"`
+	Url        string `json:"url"`
+	StatusCode int    `json:"status_code"`
+}
+
+var requests = make(chan *request)
+
 type UTCFormatter struct {
 	log.Formatter
 }
@@ -114,12 +122,16 @@ func init() {
 }
 
 func main() {
+	amountOfRequests := make(amountOfRequests)
+
 	go func() {
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 		for {
 			select {
+			case req := <-requests:
+				amountOfRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
 			case sig := <-sigs:
 				switch sig {
 				case syscall.SIGINT, syscall.SIGTERM:
@@ -128,6 +140,7 @@ func main() {
 					} else {
 						fmt.Printf("%s Received Signal: TERM\n", time.Now().UTC().Format(iso8601DateTime))
 					}
+					printAPIRequestProfile(amountOfRequests)
 					fmt.Printf("%s Stopping chef-load\n", time.Now().UTC().Format(iso8601DateTime))
 					os.Exit(0)
 				}
