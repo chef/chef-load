@@ -75,10 +75,7 @@ func solveRunListDependencies(nodeClient *chef.Client, nodeName string, expanded
 	body := map[string][]string{"run_list": expandedRunList}
 
 	var ckbks cookbooks
-	_, err := apiRequest(*nodeClient, nodeName, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil)
-	if err != nil {
-		printError(nodeName, err)
-	}
+	apiRequest(*nodeClient, nodeName, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil)
 	return ckbks
 }
 

@@ -48,18 +48,12 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 			if config.ChefServerCreatesClientKey {
 				clientBody["create_key"] = config.ChefServerCreatesClientKey
 			}
-			res, err := apiRequest(nodeClient, nodeName, "POST", "clients", clientBody, nil, nil)
-			if err != nil {
-				if res != nil && res.StatusCode != 409 {
-					printError(nodeName, err)
-				}
-			}
+			apiRequest(nodeClient, nodeName, "POST", "clients", clientBody, nil, nil)
 		}
 
 		res, err := apiRequest(nodeClient, nodeName, "GET", "nodes/"+nodeName, nil, &node, nil)
 		if err != nil {
 			if res != nil && res.StatusCode != 404 {
-				printError(nodeName, err)
 				node = chef.Node{Name: nodeName}
 			}
 		}
@@ -67,7 +61,6 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 			node = chef.Node{Name: nodeName, Environment: chefEnvironment}
 			_, err = apiRequest(nodeClient, nodeName, "POST", "nodes", node, nil, nil)
 			if err != nil {
-				printError(nodeName, err)
 				node = chef.Node{Name: nodeName}
 			}
 		}
@@ -81,19 +74,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		// Expand run_list
 		expandedRunList = runList.expand(&nodeClient, nodeName, chefEnvironment)
 
-		_, err := apiRequest(nodeClient, nodeName, "GET", "environments/"+chefEnvironment, nil, nil, nil)
-		if err != nil {
-			printError(nodeName, err)
-		}
+		apiRequest(nodeClient, nodeName, "GET", "environments/"+chefEnvironment, nil, nil, nil)
 
 		// Notify Reporting of run start
 		if config.EnableReporting {
-			res, err := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
-			if err != nil {
-				if res != nil && res.StatusCode != 404 {
-					printError(nodeName, err)
-				}
-			}
+			res, _ := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
 			if res != nil && res.StatusCode == 404 {
 				reportingAvailable = false
 			}
@@ -103,18 +88,13 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	// Notify Data Collector of run start
 	runStartBody := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime)
 	if config.DataCollectorURL != "" {
-		err := chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStartBody)
-		if err != nil {
-			printError(nodeName, err)
-		}
+		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStartBody)
 	} else {
 		res, err := apiRequest(nodeClient, nodeName, "POST", "data-collector", runStartBody, nil, nil)
 		if err != nil {
 			if res != nil {
 				if res.StatusCode == 404 {
 					dataCollectorAvailable = false
-				} else {
-					printError(nodeName, err)
 				}
 			}
 		}
@@ -130,10 +110,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		}
 
 		for _, apiGetRequest := range apiGetRequests {
-			_, err := apiRequest(nodeClient, nodeName, "GET", apiGetRequest, nil, nil, nil)
-			if err != nil {
-				printError(nodeName, err)
-			}
+			apiRequest(nodeClient, nodeName, "GET", apiGetRequest, nil, nil, nil)
 		}
 	} else {
 		expandedRunList = runList.toStringSlice()
@@ -156,47 +133,29 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
 	if config.RunChefClient {
-		_, err := apiRequest(nodeClient, nodeName, "PUT", "nodes/"+nodeName, node, nil, nil)
-		if err != nil {
-			printError(nodeName, err)
-		}
+		apiRequest(nodeClient, nodeName, "PUT", "nodes/"+nodeName, node, nil, nil)
 
 		// Notify Reporting of run end
 		if config.EnableReporting && reportingAvailable {
-			_, err := reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
-			if err != nil {
-				printError(nodeName, err)
-			}
+			reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
 		}
 	}
 
 	// Notify Data Collector of run end
 	runStopBody := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
 	if config.DataCollectorURL != "" {
-		err := chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStopBody)
-		if err != nil {
-			printError(nodeName, err)
-		}
+		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStopBody)
 	} else if dataCollectorAvailable {
-		_, err := apiRequest(nodeClient, nodeName, "POST", "data-collector", runStopBody, nil, nil)
-		if err != nil {
-			printError(nodeName, err)
-		}
+		apiRequest(nodeClient, nodeName, "POST", "data-collector", runStopBody, nil, nil)
 	}
 
 	// Notify Data Collector of compliance report
 	if len(complianceJSON) != 0 {
 		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
 		if config.DataCollectorURL != "" {
-			err := chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
-			if err != nil {
-				printError(nodeName, err)
-			}
+			chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
 		} else {
-			_, err := apiRequest(nodeClient, nodeName, "POST", "data-collector", complianceReportBody, nil, nil)
-			if err != nil {
-				printError(nodeName, err)
-			}
+			apiRequest(nodeClient, nodeName, "POST", "data-collector", complianceReportBody, nil, nil)
 		}
 	}
 

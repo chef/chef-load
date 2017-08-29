@@ -88,7 +88,3 @@ func parseJSONFile(jsonFile string) map[string]interface{} {
 	}
 	return jsonContent
 }
-
-func printError(nodeName string, err error) {
-	fmt.Println(time.Now().UTC().Format(iso8601DateTime), nodeName, "ERROR:", err)
-}
