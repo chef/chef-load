@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -11,8 +10,6 @@ import (
 )
 
 func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}) {
-	fmt.Println(time.Now().UTC().Format(iso8601DateTime), nodeName, "run_started")
-
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
 	apiGetRequests := config.APIGetRequests
@@ -158,6 +155,4 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 			apiRequest(nodeClient, nodeName, "POST", "data-collector", complianceReportBody, nil, nil)
 		}
 	}
-
-	fmt.Println(time.Now().UTC().Format(iso8601DateTime), nodeName, "run_finished")
 }
