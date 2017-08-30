@@ -1,5 +1,17 @@
 # chef-load Change Log
 
+## 3.0.0 (2017-08-31)
+
+* Make chef-load a blind load tester; gracefully ignore API errors; issue #12
+* Log all API requests to a file
+* Print start and stop output
+* Stop printing error output for API requests
+* Stop printing run_started and run_finished output
+* Improve error handling
+* Print profile of API requests before shutting down chef-load and when USR1 signal is received
+* Add -profile-logs option to parse chef-load logs and print profile of API requests
+* Fix chef_server_url regression issue #13
+
 ## 2.2.0 (2017-08-15)
 
 * Make it configurable whether or not the Chef Server creates client keys
