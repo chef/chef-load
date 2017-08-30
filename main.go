@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"path"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -110,6 +111,9 @@ func init() {
 
 	if config.ChefServerURL != "" {
 		config.RunChefClient = true
+		if !strings.HasSuffix(config.ChefServerURL, "/") {
+			config.ChefServerURL = config.ChefServerURL + "/"
+		}
 		if config.ClientName == "" || config.ClientKey == "" {
 			log.Fatal("You must set client_name and client_key if chef_server_url is set")
 		}

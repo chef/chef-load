@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/naoina/toml"
 )
@@ -184,10 +183,6 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 
 	if err = toml.NewDecoder(f).Decode(&config); err != nil {
 		return nil, err
-	}
-
-	if !strings.HasSuffix(config.ChefServerURL, "/") {
-		config.ChefServerURL = config.ChefServerURL + "/"
 	}
 
 	return &config, nil
