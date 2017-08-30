@@ -19,7 +19,7 @@ import (
 )
 
 // AppVersion - Application Version
-const AppVersion = "2.2.0"
+const AppVersion = "3.0.0"
 
 const iso8601DateTime = "2006-01-02T15:04:05Z"
 
