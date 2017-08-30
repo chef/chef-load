@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"math"
@@ -21,6 +23,8 @@ const AppVersion = "2.2.0"
 const iso8601DateTime = "2006-01-02T15:04:05Z"
 
 var config *chefLoadConfig
+
+var logFiles []string
 
 type request struct {
 	Method     string `json:"method"`
@@ -48,6 +52,7 @@ func init() {
 	fNumNodes := flag.String("nodes", "", "The number of nodes to simulate")
 	fInterval := flag.String("interval", "", "Interval between a node's chef-client runs, in minutes")
 	fSampleConfig := flag.Bool("sample-config", false, "Print out full sample configuration")
+	fProfileLogs := flag.Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
 	fVersion := flag.Bool("version", false, "Print chef-load version")
 	flag.Parse()
 
@@ -67,16 +72,24 @@ func init() {
 		os.Exit(0)
 	}
 
-	if *fConfig != "" {
-		var err error
-		config, err = loadConfig(*fConfig)
-		if err != nil {
-			log.WithField("error", err).Fatal("Could not load chef-load config file")
-		}
-	} else {
+	if !*fProfileLogs && *fConfig == "" {
 		fmt.Println("Usage of chef-load:")
 		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	if *fProfileLogs {
+		if len(flag.Args()) == 0 {
+			log.Fatal("The -profile-logs option requires chef-load log file(s) to be specified")
+		}
+		logFiles = flag.Args()
 		return
+	}
+
+	var err error
+	config, err = loadConfig(*fConfig)
+	if err != nil {
+		log.WithField("error", err).Fatal("Could not load chef-load config file")
 	}
 
 	if *fNumNodes != "" {
@@ -150,6 +163,32 @@ func main() {
 			}
 		}
 	}()
+
+	if len(logFiles) != 0 {
+		for _, logFile := range logFiles {
+			fmt.Printf("%s Reading log file %s\n", time.Now().UTC().Format(iso8601DateTime), logFile)
+			file, err := os.Open(logFile)
+			defer file.Close()
+			if err != nil {
+				log.WithField("error", err).Fatalf("Could not read log file %s", logFile)
+			}
+
+			// create a new scanner and read the file line by line
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				req := request{}
+				json.Unmarshal([]byte(scanner.Text()), &req)
+				amountOfRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
+			}
+
+			// check for errors
+			if err = scanner.Err(); err != nil {
+				log.WithField("error", err).Fatalf("Could not read log file %s", logFile)
+			}
+		}
+		printAPIRequestProfile(amountOfRequests)
+		os.Exit(0)
+	}
 
 	var nodeClient chef.Client
 	if config.RunChefClient {
