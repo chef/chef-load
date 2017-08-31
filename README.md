@@ -30,6 +30,8 @@ The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and
 chef-load --sample-config > chef-load.conf
 ```
 
+chef-load logs all API requests in the file specified by the `log_file` setting in the config file. The default value is `/var/log/chef-load/chef-load.log`.
+
 Make sure chef-load.conf has appropriate settings for applying load to your Chef Server,
 Automate Server or both.
 
@@ -94,6 +96,84 @@ LimitNOFILE=infinity
 
 [Install]
 WantedBy=default.target
+```
+
+## API Request Profile
+
+chef-load prints an API request profile when it receives a `USR1` signal and when it is terminated.
+
+```
+root@ip-172-31-17-147:~# ./chef-load -config chef-load.conf -nodes 60 -interval 1 -prefix foo
+2017-08-30T20:25:37Z Starting chef-load with 60 nodes distributed evenly across a 1 minute interval
+2017-08-30T20:25:37Z All API requests will be logged in /var/log/chef-load/chef-load.log
+2017-08-30T20:25:44Z Received Signal: USR1
+2017-08-30T20:25:44Z Printing profile of API requests
+Total API Requests: 616
+% of Total | Subtotal | Status | Method | URL
+2.27         14         204      POST     https://automate.lxc/data-collector/v0/
+1.14         7          409      POST     https://chef.lxc/organizations/demo/clients
+1.14         7          200      GET      https://chef.lxc/organizations/demo/environments/_default
+1.14         7          200      POST     https://chef.lxc/organizations/demo/environments/_default/cookbook_versions
+1.14         7          200      GET      https://chef.lxc/organizations/demo/nodes/foo-<N>
+1.14         7          200      PUT      https://chef.lxc/organizations/demo/nodes/foo-<N>
+1.14         7          404      GET      https://chef.lxc/organizations/demo/roles/chef-client
+90.91        560        200      GET      https://chef.lxc:443/bookshelf/<...>
+^C
+2017-08-30T20:25:50Z Received Signal: INT
+2017-08-30T20:25:50Z Printing profile of API requests
+Total API Requests: 1149
+% of Total | Subtotal | Status | Method | URL
+2.35         27         204      POST     https://automate.lxc/data-collector/v0/
+1.22         14         409      POST     https://chef.lxc/organizations/demo/clients
+1.22         14         200      GET      https://chef.lxc/organizations/demo/environments/_default
+1.13         13         200      POST     https://chef.lxc/organizations/demo/environments/_default/cookbook_versions
+1.22         14         200      GET      https://chef.lxc/organizations/demo/nodes/foo-<N>
+1.13         13         200      PUT      https://chef.lxc/organizations/demo/nodes/foo-<N>
+1.22         14         404      GET      https://chef.lxc/organizations/demo/roles/chef-client
+90.51        1040       200      GET      https://chef.lxc:443/bookshelf/<...>
+2017-08-30T20:25:50Z Stopping chef-load
+```
+
+The `-profile-logs` option will read the specified chef-load log files and print an API request profile. If chef-load receives a `USR1` signal or is terminated before it finishes reading the log files then it will print an API request profile for the data that it read up to that point in time.
+
+```
+root@ip-172-31-17-147:~# ./chef-load -profile-logs  /var/log/chef-load/*
+2017-08-31T15:04:42Z Reading log file /var/log/chef-load/chef-load.log
+2017-08-31T15:04:43Z Reading log file /var/log/chef-load/chef-load.log.1
+2017-08-31T15:04:43Z Reading log file /var/log/chef-load/chef-load.log.2
+2017-08-31T15:04:43Z Reading log file /var/log/chef-load/chef-load.log.3
+2017-08-31T15:04:43Z Received Signal: USR1
+2017-08-31T15:04:43Z Printing profile of API requests
+Total API Requests: 31478
+% of Total | Subtotal | Status | Method | URL
+2.55         804        204      POST     https://automate.lxc/data-collector/v0/
+0.04         12         201      POST     https://chef.lxc/organizations/demo/clients
+1.05         330        409      POST     https://chef.lxc/organizations/demo/clients
+1.16         366        200      GET      https://chef.lxc/organizations/demo/environments/_default
+1.16         365        200      POST     https://chef.lxc/organizations/demo/environments/_default/cookbook_versions
+0.04         12         201      POST     https://chef.lxc/organizations/demo/nodes
+1.12         354        200      GET      https://chef.lxc/organizations/demo/nodes/bar-12-<N>
+0.04         12         404      GET      https://chef.lxc/organizations/demo/nodes/bar-12-<N>
+1.11         348        200      PUT      https://chef.lxc/organizations/demo/nodes/bar-12-<N>
+1.16         366        404      GET      https://chef.lxc/organizations/demo/roles/chef-client
+90.57        28509      200      GET      https://chef.lxc:443/bookshelf/<...>
+2017-08-31T15:04:43Z Reading log file /var/log/chef-load/chef-load.log.4
+2017-08-31T15:04:44Z Reading log file /var/log/chef-load/chef-load.log.5
+2017-08-31T15:04:44Z Reading log file /var/log/chef-load/chef-load.log.6
+2017-08-31T15:04:44Z Printing profile of API requests
+Total API Requests: 59128
+% of Total | Subtotal | Status | Method | URL
+2.56         1516       204      POST     https://automate.lxc/data-collector/v0/
+0.03         20         201      POST     https://chef.lxc/organizations/demo/clients
+1.08         641        409      POST     https://chef.lxc/organizations/demo/clients
+1.16         685        200      GET      https://chef.lxc/organizations/demo/environments/_default
+1.16         684        200      POST     https://chef.lxc/organizations/demo/environments/_default/cookbook_versions
+0.03         20         201      POST     https://chef.lxc/organizations/demo/nodes
+1.12         665        200      GET      https://chef.lxc/organizations/demo/nodes/bar-12-<N>
+0.03         20         404      GET      https://chef.lxc/organizations/demo/nodes/bar-12-<N>
+1.10         651        200      PUT      https://chef.lxc/organizations/demo/nodes/bar-12-<N>
+1.16         685        404      GET      https://chef.lxc/organizations/demo/roles/chef-client
+90.55        53541      200      GET      https://chef.lxc:443/bookshelf/<...>
 ```
 
 ## Using sample JSON data files
