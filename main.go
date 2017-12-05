@@ -139,6 +139,44 @@ func init() {
 }
 
 func main() {
+	var (
+		nodeClient     chef.Client
+		ohaiJSON       = map[string]interface{}{}
+		convergeJSON   = map[string]interface{}{}
+		complianceJSON = map[string]interface{}{}
+	)
+
+	if config.RunChefClient {
+		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
+	}
+
+	if config.OhaiJSONFile != "" {
+		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
+	}
+	if config.ConvergeStatusJSONFile != "" {
+		convergeJSON = parseJSONFile(config.ConvergeStatusJSONFile)
+	}
+
+	if config.ComplianceStatusJSONFile != "" {
+		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
+	}
+
+	if config.RandomData {
+		// TODO: (@afiune) Re design a bit more to have different use-cases, maybe sub-commands?
+		//
+		// 1) Start the Chef-Load service for continous data:
+		//       chef-load start -config foo.conf
+		// 2) Load one time data with random fields:
+		//       chef-load generate 100 -config foo.conf
+		//
+		// For now we just have one flag -random to land in this if
+		fmt.Printf("Loading %d Nodes:\n", config.NumNodes)
+		if generateRandomData(nodeClient, ohaiJSON, convergeJSON, complianceJSON) != nil {
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
 	amountOfRequests := make(amountOfRequests)
 
 	go func() {
@@ -192,26 +230,6 @@ func main() {
 		}
 		printAPIRequestProfile(amountOfRequests)
 		os.Exit(0)
-	}
-
-	var nodeClient chef.Client
-	if config.RunChefClient {
-		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
-	}
-
-	ohaiJSON := map[string]interface{}{}
-	if config.OhaiJSONFile != "" {
-		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
-	}
-
-	convergeJSON := map[string]interface{}{}
-	if config.ConvergeStatusJSONFile != "" {
-		convergeJSON = parseJSONFile(config.ConvergeStatusJSONFile)
-	}
-
-	complianceJSON := map[string]interface{}{}
-	if config.ComplianceStatusJSONFile != "" {
-		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
 	}
 
 	fmt.Printf("%s Starting chef-load with %d nodes distributed evenly across a %d minute interval\n", time.Now().UTC().Format(iso8601DateTime), config.NumNodes, config.Interval)

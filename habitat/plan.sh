@@ -1,5 +1,5 @@
 pkg_name=chef-load
-pkg_origin=jeremiahsnapp
+pkg_origin=chef
 pkg_version="3.0.0"
 pkg_license=('UNLICENSED')
 # This plan does not build the package from source, but instead downloads the

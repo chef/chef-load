@@ -113,7 +113,9 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		expandedRunList = runList.toStringSlice()
 	}
 
-	time.Sleep(time.Duration(sleepDuration) * time.Second)
+	if !config.RandomData {
+		time.Sleep(time.Duration(sleepDuration) * time.Second)
+	}
 
 	node.RunList = runList.toStringSlice()
 
