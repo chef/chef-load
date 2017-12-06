@@ -55,6 +55,7 @@ func init() {
 	fSampleConfig := flag.Bool("sample-config", false, "Print out full sample configuration")
 	fProfileLogs := flag.Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
 	fVersion := flag.Bool("version", false, "Print chef-load version")
+	fRandomData := flag.Bool("random-data", false, "Generates random data")
 	flag.Parse()
 
 	if *fHelp {
@@ -91,6 +92,10 @@ func init() {
 	config, err = loadConfig(*fConfig)
 	if err != nil {
 		log.WithField("error", err).Fatal("Could not load chef-load config file")
+	}
+
+	if *fRandomData {
+		config.RandomData = true
 	}
 
 	if *fNumNodes != "" {
