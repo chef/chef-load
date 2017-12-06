@@ -140,10 +140,11 @@ func init() {
 
 func main() {
 	var (
-		nodeClient     chef.Client
-		ohaiJSON       = map[string]interface{}{}
-		convergeJSON   = map[string]interface{}{}
-		complianceJSON = map[string]interface{}{}
+		nodeClient       chef.Client
+		ohaiJSON         = map[string]interface{}{}
+		convergeJSON     = map[string]interface{}{}
+		complianceJSON   = map[string]interface{}{}
+		amountOfRequests = make(amountOfRequests)
 	)
 
 	if config.RunChefClient {
@@ -160,24 +161,6 @@ func main() {
 	if config.ComplianceStatusJSONFile != "" {
 		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
 	}
-
-	if config.RandomData {
-		// TODO: (@afiune) Re design a bit more to have different use-cases, maybe sub-commands?
-		//
-		// 1) Start the Chef-Load service for continous data:
-		//       chef-load start -config foo.conf
-		// 2) Load one time data with random fields:
-		//       chef-load generate 100 -config foo.conf
-		//
-		// For now we just have one flag -random to land in this if
-		fmt.Printf("Loading %d Nodes:\n", config.NumNodes)
-		if generateRandomData(nodeClient, ohaiJSON, convergeJSON, complianceJSON) != nil {
-			os.Exit(1)
-		}
-		os.Exit(0)
-	}
-
-	amountOfRequests := make(amountOfRequests)
 
 	go func() {
 		sigs := make(chan os.Signal, 1)
@@ -205,6 +188,22 @@ func main() {
 			}
 		}
 	}()
+
+	if config.RandomData {
+		// TODO: (@afiune) Re design a bit more to have different use-cases, maybe sub-commands?
+		//
+		// 1) Start the Chef-Load service for continous data:
+		//       chef-load start -config foo.conf
+		// 2) Load one time data with random fields:
+		//       chef-load generate 100 -config foo.conf
+		//
+		// For now we just have one flag -random to land in this if
+		fmt.Printf("Loading %d Nodes:\n", config.NumNodes)
+		if generateRandomData(nodeClient, ohaiJSON, convergeJSON, complianceJSON, amountOfRequests) != nil {
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
 
 	if len(logFiles) != 0 {
 		for _, logFile := range logFiles {

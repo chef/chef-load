@@ -16,7 +16,7 @@ import (
 	"github.com/go-chef/chef"
 )
 
-func generateRandomData(nodeClient chef.Client, ohaiJSON, convergeJSON, complianceJSON map[string]interface{}) (err error) {
+func generateRandomData(nodeClient chef.Client, ohaiJSON, convergeJSON, complianceJSON map[string]interface{}, requests amountOfRequests) (err error) {
 	channels := make([]<-chan error, config.NumNodes)
 
 	for i := 0; i < config.NumNodes; i++ {
@@ -25,12 +25,17 @@ func generateRandomData(nodeClient chef.Client, ohaiJSON, convergeJSON, complian
 		channels[i] = ccr(nodeClient, nodeName, true, ohaiJSON, convergeJSON, complianceJSON)
 	}
 
+	fmt.Println("\n")
+
 	for n := range merge(channels...) {
 		if n != nil {
 			fmt.Println("Error: ", n)
 			err = n
 		}
 	}
+
+	printAPIRequestProfile(requests)
+
 	return err
 }
 
