@@ -29,6 +29,31 @@ type chefLoadConfig struct {
 	ChefVersion                string
 	ChefServerCreatesClientKey bool `toml:chef_server_creates_client_key`
 	EnableReporting            bool
+	RandomData                 bool
+}
+
+func defaultConfig() chefLoadConfig {
+	return chefLoadConfig{
+		RunChefClient:              false,
+		LogFile:                    "/var/log/chef-load/chef-load.log",
+		ChefServerURL:              "",
+		DataCollectorURL:           "",
+		DataCollectorToken:         "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
+		OhaiJSONFile:               "",
+		ConvergeStatusJSONFile:     "",
+		ComplianceStatusJSONFile:   "",
+		NumNodes:                   30,
+		Interval:                   30,
+		NodeNamePrefix:             "chef-load",
+		ChefEnvironment:            "_default",
+		RunList:                    make([]string, 0),
+		SleepDuration:              0,
+		DownloadCookbooks:          "never",
+		ChefVersion:                "13.2.20",
+		ChefServerCreatesClientKey: false,
+		EnableReporting:            false,
+		RandomData:                 false,
+	}
 }
 
 func printSampleConfig() {
@@ -133,6 +158,9 @@ func printSampleConfig() {
 
 # Send data to the Chef server's Reporting service
 # enable_reporting = false
+
+# Generate Random Data
+# random_data = true
 `
 	fmt.Print(sampleConfig)
 }
@@ -145,41 +173,7 @@ func loadConfig(file string) (*chefLoadConfig, error) {
 	defer f.Close()
 
 	// Initialize default configuration values
-	config := chefLoadConfig{
-		RunChefClient: false,
-
-		LogFile: "/var/log/chef-load/chef-load.log",
-
-		ChefServerURL: "",
-
-		DataCollectorURL:   "",
-		DataCollectorToken: "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
-
-		OhaiJSONFile: "",
-
-		ConvergeStatusJSONFile: "",
-
-		ComplianceStatusJSONFile: "",
-
-		NumNodes: 30,
-
-		Interval: 30,
-
-		NodeNamePrefix: "chef-load",
-
-		ChefEnvironment: "_default",
-		RunList:         make([]string, 0),
-
-		SleepDuration: 0,
-
-		DownloadCookbooks: "never",
-
-		ChefVersion: "13.2.20",
-
-		ChefServerCreatesClientKey: false,
-
-		EnableReporting: false,
-	}
+	config := defaultConfig()
 
 	if err = toml.NewDecoder(f).Decode(&config); err != nil {
 		return nil, err

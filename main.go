@@ -55,6 +55,7 @@ func init() {
 	fSampleConfig := flag.Bool("sample-config", false, "Print out full sample configuration")
 	fProfileLogs := flag.Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
 	fVersion := flag.Bool("version", false, "Print chef-load version")
+	fRandomData := flag.Bool("random-data", false, "Generates random data")
 	flag.Parse()
 
 	if *fHelp {
@@ -91,6 +92,10 @@ func init() {
 	config, err = loadConfig(*fConfig)
 	if err != nil {
 		log.WithField("error", err).Fatal("Could not load chef-load config file")
+	}
+
+	if *fRandomData {
+		config.RandomData = true
 	}
 
 	if *fNumNodes != "" {
@@ -139,7 +144,28 @@ func init() {
 }
 
 func main() {
-	amountOfRequests := make(amountOfRequests)
+	var (
+		nodeClient       chef.Client
+		ohaiJSON         = map[string]interface{}{}
+		convergeJSON     = map[string]interface{}{}
+		complianceJSON   = map[string]interface{}{}
+		amountOfRequests = make(amountOfRequests)
+	)
+
+	if config.RunChefClient {
+		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
+	}
+
+	if config.OhaiJSONFile != "" {
+		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
+	}
+	if config.ConvergeStatusJSONFile != "" {
+		convergeJSON = parseJSONFile(config.ConvergeStatusJSONFile)
+	}
+
+	if config.ComplianceStatusJSONFile != "" {
+		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
+	}
 
 	go func() {
 		sigs := make(chan os.Signal, 1)
@@ -168,6 +194,22 @@ func main() {
 		}
 	}()
 
+	if config.RandomData {
+		// TODO: (@afiune) Re design a bit more to have different use-cases, maybe sub-commands?
+		//
+		// 1) Start the Chef-Load service for continous data:
+		//       chef-load start -config foo.conf
+		// 2) Load one time data with random fields:
+		//       chef-load generate 100 -config foo.conf
+		//
+		// For now we just have one flag -random to land in this if
+		fmt.Printf("Loading %d Nodes:\n", config.NumNodes)
+		if generateRandomData(nodeClient, ohaiJSON, convergeJSON, complianceJSON, amountOfRequests) != nil {
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
 	if len(logFiles) != 0 {
 		for _, logFile := range logFiles {
 			fmt.Printf("%s Reading log file %s\n", time.Now().UTC().Format(iso8601DateTime), logFile)
@@ -192,26 +234,6 @@ func main() {
 		}
 		printAPIRequestProfile(amountOfRequests)
 		os.Exit(0)
-	}
-
-	var nodeClient chef.Client
-	if config.RunChefClient {
-		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
-	}
-
-	ohaiJSON := map[string]interface{}{}
-	if config.OhaiJSONFile != "" {
-		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
-	}
-
-	convergeJSON := map[string]interface{}{}
-	if config.ConvergeStatusJSONFile != "" {
-		convergeJSON = parseJSONFile(config.ConvergeStatusJSONFile)
-	}
-
-	complianceJSON := map[string]interface{}{}
-	if config.ComplianceStatusJSONFile != "" {
-		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
 	}
 
 	fmt.Printf("%s Starting chef-load with %d nodes distributed evenly across a %d minute interval\n", time.Now().UTC().Format(iso8601DateTime), config.NumNodes, config.Interval)
