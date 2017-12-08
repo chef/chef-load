@@ -1,7 +1,7 @@
 pkg_name=chef-load
 pkg_origin=chef
 pkg_version="4.0.0"
-pkg_license=('UNLICENSED')
+pkg_license=('Apache-2.0')
 pkg_description="A tool that simulates Chef Client API load on a Chef Server and/or a Chef Automate server"
 pkg_upstream_url="https://github.com/chef/chef-load"
 pkg_bin_dirs=(bin)
