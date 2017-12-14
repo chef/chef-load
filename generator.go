@@ -39,7 +39,7 @@ func generateRandomData(nodeClient chef.Client, ohaiJSON, convergeJSON, complian
 	for i := 0; i < config.NumNodes; i++ {
 		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i+1)
 		fmt.Printf(".")
-		channels[i] = ccr(nodeClient, nodeName, true, ohaiJSON, convergeJSON, complianceJSON)
+		channels[i] = ccr(nodeClient, nodeName, ohaiJSON, convergeJSON, complianceJSON)
 	}
 
 	fmt.Println("\n")
@@ -56,11 +56,11 @@ func generateRandomData(nodeClient chef.Client, ohaiJSON, convergeJSON, complian
 	return err
 }
 
-func ccr(nodeClient chef.Client, nodeName string, firstRun bool,
+func ccr(nodeClient chef.Client, nodeName string,
 	ohaiJSON, convergeJSON, complianceJSON map[string]interface{}) <-chan error {
 	out := make(chan error)
 	go func() {
-		randomChefClientRun(nodeClient, nodeName, true, ohaiJSON, convergeJSON, complianceJSON)
+		randomChefClientRun(nodeClient, nodeName, ohaiJSON, convergeJSON, complianceJSON)
 		close(out)
 	}()
 	return out
@@ -93,12 +93,10 @@ func merge(cs ...<-chan error) <-chan error {
 }
 
 func randomChefClientRun(
-	nodeClient chef.Client, nodeName string, 
-	firstRun bool, 
-	ohaiJSON map[string]interface{}, 
-	convergeJSON map[string]interface{}, 
-	complianceJSON map[string]interface{}
-) {
+	nodeClient chef.Client, nodeName string,
+	ohaiJSON map[string]interface{},
+	convergeJSON map[string]interface{},
+	complianceJSON map[string]interface{}) {
 	// ALL_ENVIRONMENTS = ['_default', 'acceptance-org-proj-master']
 	// ALL_ROLES = ['admin', 'windows_builder', 'stash']
 	// ALL_PLATFORMS = ['centos', 'ubuntu', 'oracle', 'solaris', 'windows']
@@ -132,17 +130,15 @@ func randomChefClientRun(
 	}
 
 	if config.RunChefClient {
-		if firstRun {
-			clientBody := map[string]interface{}{
-				"admin":     false,
-				"name":      nodeName,
-				"validator": false,
-			}
-			if config.ChefServerCreatesClientKey {
-				clientBody["create_key"] = config.ChefServerCreatesClientKey
-			}
-			apiRequest(nodeClient, nodeName, "POST", "clients", clientBody, nil, nil)
+		clientBody := map[string]interface{}{
+			"admin":     false,
+			"name":      nodeName,
+			"validator": false,
 		}
+		if config.ChefServerCreatesClientKey {
+			clientBody["create_key"] = config.ChefServerCreatesClientKey
+		}
+		apiRequest(nodeClient, nodeName, "POST", "clients", clientBody, nil, nil)
 
 		res, err := apiRequest(nodeClient, nodeName, "GET", "nodes/"+nodeName, nil, &node, nil)
 		if err != nil {
@@ -198,7 +194,7 @@ func randomChefClientRun(
 		ckbks := solveRunListDependencies(&nodeClient, nodeName, expandedRunList, chefEnvironment)
 
 		// Download cookbooks
-		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first" && firstRun) {
+		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first") {
 			ckbks.download(&nodeClient, nodeName)
 		}
 
