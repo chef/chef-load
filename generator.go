@@ -23,6 +23,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
@@ -93,17 +94,47 @@ func merge(cs ...<-chan error) <-chan error {
 }
 
 func randomChefClientRun(
-	nodeClient chef.Client, nodeName string,
+	nodeClient chef.Client,
+	nodeName string,
 	ohaiJSON map[string]interface{},
 	convergeJSON map[string]interface{},
 	complianceJSON map[string]interface{}) {
 	// ALL_ENVIRONMENTS = ['_default', 'acceptance-org-proj-master']
 	// ALL_ROLES = ['admin', 'windows_builder', 'stash']
-	// ALL_PLATFORMS = ['centos', 'ubuntu', 'oracle', 'solaris', 'windows']
 	// ALL_ORGS = ['org1', 'org2']
 	// ALL_EVENT_ACTIONS = ['created', 'updated', 'unknown']
 	// ALL_POLICY_NAMES = ['policy1', 'policy2', 'policy3']
 	// ALL_POLICY_GROUPS = ['dev', 'prod', 'audit']
+
+	// "ipaddress": "172.28.5.197",
+	// "macaddress": "18:65:90:d4:ce:b1",
+	// "ip6address": "fe80::1",
+	// "os": "darwin",
+	// "os_version": "16.5.0",
+	// "platform": "mac_os_x",
+	// "platform_version": "10.12.4",
+	// "platform_build": "16E195",
+	// "platform_family": "mac_os_x",
+	// "uptime_seconds": 4576545,
+	// "uptime": "52 days 23 hours 15 minutes 45 seconds",
+	platforms := make([]string, 0)
+	platforms = append(platforms,
+		"centos",
+		"ubuntu",
+		"oracle",
+		"solaris",
+		"windows",
+		"mac_os_x",
+		"salim",
+		"kyleen",
+		"lance",
+		"rachel",
+		"shadae",
+		"maggie",
+		"elizabeth",
+		"platform 14")
+
+	// Where does config come from that we have access to it?
 	chefEnvironment := config.ChefEnvironment
 	runList := parseRunList(config.RunList)
 	apiGetRequests := config.APIGetRequests
@@ -119,15 +150,10 @@ func randomChefClientRun(
 	var expandedRunList []string
 	var node chef.Node
 
+	// not normally in sample data
 	ohaiJSON["fqdn"] = nodeName
 
-	if ohaiJSON["platform"] == nil {
-		ohaiJSON["platform"] = "rhel"
-	}
-
-	if ohaiJSON["ipaddress"] == nil {
-		ohaiJSON["ipaddress"] = "169.254.169.254"
-	}
+	ohaiJSON["platform"] = platforms[rand.Intn(len(platforms))]
 
 	if config.RunChefClient {
 		clientBody := map[string]interface{}{
