@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 	"os/signal"
 	"path"
@@ -55,7 +56,13 @@ func init() {
 	fSampleConfig := flag.Bool("sample-config", false, "Print out full sample configuration")
 	fProfileLogs := flag.Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
 	fVersion := flag.Bool("version", false, "Print chef-load version")
+	// Turn this into a command
 	fRandomData := flag.Bool("random-data", false, "Generates random data")
+	// Turn this into a command
+	//
+	// For now and until @afiune refactors this project to introduce commands using our standard
+	// libraries (cobra/viper) we will push 10 random actions.
+	fChefAction := flag.Bool("chef-action", false, "Generates 10 Chef Actions")
 	flag.Parse()
 
 	if *fHelp {
@@ -92,6 +99,10 @@ func init() {
 	config, err = loadConfig(*fConfig)
 	if err != nil {
 		log.WithField("error", err).Fatal("Could not load chef-load config file")
+	}
+
+	if *fChefAction {
+		config.ChefAction = true
 	}
 
 	if *fRandomData {
@@ -193,6 +204,27 @@ func main() {
 			}
 		}
 	}()
+
+	if config.ChefAction {
+		// TODO: (@afiune) Re design a bit more to have different use-cases, maybe sub-commands?
+		//
+		// 1) Start the Chef-Load service for continous data:
+		//       chef-load start -config foo.conf
+		// 2) Load one time data with random fields:
+		//       (NODES):   chef-load generate nodes 100 -config foo.conf
+		//       (ACTIONS): chef-load generate actions 100 -config foo.conf
+		// 3) Initialize the chef-load conig
+		//       chef-load init
+		//
+		// For now we just have one flag -chef-action to land in this if
+		fmt.Printf("Loading 10 Chef Actions")
+		rand.Seed(time.Now().UTC().UnixNano())
+		for i := 1; i <= 10; i++ {
+			// TODO: Check the errors
+			chefAction(randomActionType())
+		}
+		os.Exit(0)
+	}
 
 	if config.RandomData {
 		// TODO: (@afiune) Re design a bit more to have different use-cases, maybe sub-commands?
