@@ -24,9 +24,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"net/url"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -99,24 +97,71 @@ func randomChefClientRun(
 	ohaiJSON map[string]interface{},
 	convergeJSON map[string]interface{},
 	complianceJSON map[string]interface{}) {
-	// ALL_ENVIRONMENTS = ['_default', 'acceptance-org-proj-master']
 	// ALL_ROLES = ['admin', 'windows_builder', 'stash']
-	// ALL_ORGS = ['org1', 'org2']
 	// ALL_EVENT_ACTIONS = ['created', 'updated', 'unknown']
 	// ALL_POLICY_NAMES = ['policy1', 'policy2', 'policy3']
 	// ALL_POLICY_GROUPS = ['dev', 'prod', 'audit']
 
-	// "ipaddress": "172.28.5.197",
-	// "macaddress": "18:65:90:d4:ce:b1",
-	// "ip6address": "fe80::1",
-	// "os": "darwin",
-	// "os_version": "16.5.0",
-	// "platform": "mac_os_x",
-	// "platform_version": "10.12.4",
-	// "platform_build": "16E195",
-	// "platform_family": "mac_os_x",
-	// "uptime_seconds": 4576545,
-	// "uptime": "52 days 23 hours 15 minutes 45 seconds",
+	environments := make([]string, 0)
+	environments = append(environments,
+		"arctic",
+		"coast",
+		"desert",
+		"forest",
+		"grassland",
+		"mountain",
+		"swamp",
+		"underdark",
+		"astral plane",
+		"ethereal plane",
+		"plane of shadow",
+		"feywild",
+		"shadowfell",
+		"mirror plane",
+		"outer space",
+		"acceptance-org-proj-master")
+
+	chefEnvironment := environments[rand.Intn(len(environments))]
+
+	runList := parseRunList(config.RunList)
+
+	apiGetRequests := config.APIGetRequests
+	sleepDuration := config.SleepDuration
+	runUUID := uuid.NewV4()
+	reportUUID := uuid.NewV4()
+	nodeUUID := uuid.NewV3(uuid.NamespaceDNS, nodeName)
+	startTime := time.Now().UTC()
+
+	organizations := make([]string, 0)
+	organizations = append(organizations,
+		"The Avengers",
+		"The Defenders",
+		"Justice League of America",
+		"The Great Lakes Avengers",
+		"The Fantastic Four",
+		"Astonishing X-Men",
+		"Justice League of Antarctica",
+		"The Misfits",
+		"The Secret Six",
+		"Teen Titans",
+		"Watchmen",
+		"Guardians of the Galaxy",
+		"S.H.I.E.L.D.",
+		"Howling Commandos",
+		"Ultimates",
+		"X-Factor",
+		"Uncanny X-Men",
+		"Next Wave")
+
+	orgName := organizations[rand.Intn(len(organizations))]
+	reportingAvailable := true
+	dataCollectorAvailable := true
+	var expandedRunList []string
+	var node chef.Node
+
+	// not normally in sample data
+	ohaiJSON["fqdn"] = nodeName
+
 	platforms := make([]string, 0)
 	platforms = append(platforms,
 		"centos",
@@ -133,25 +178,6 @@ func randomChefClientRun(
 		"maggie",
 		"elizabeth",
 		"platform 14")
-
-	// Where does config come from that we have access to it?
-	chefEnvironment := config.ChefEnvironment
-	runList := parseRunList(config.RunList)
-	apiGetRequests := config.APIGetRequests
-	sleepDuration := config.SleepDuration
-	runUUID := uuid.NewV4()
-	reportUUID := uuid.NewV4()
-	nodeUUID := uuid.NewV3(uuid.NamespaceDNS, nodeName)
-	startTime := time.Now().UTC()
-	url, _ := url.ParseRequestURI(config.ChefServerURL)
-	orgName := strings.Split(url.Path, "/")[2]
-	reportingAvailable := true
-	dataCollectorAvailable := true
-	var expandedRunList []string
-	var node chef.Node
-
-	// not normally in sample data
-	ohaiJSON["fqdn"] = nodeName
 
 	ohaiJSON["platform"] = platforms[rand.Intn(len(platforms))]
 
