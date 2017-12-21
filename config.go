@@ -47,6 +47,7 @@ type chefLoadConfig struct {
 	ChefServerCreatesClientKey bool `toml:chef_server_creates_client_key`
 	EnableReporting            bool
 	RandomData                 bool
+	ChefAction                 bool
 }
 
 func defaultConfig() chefLoadConfig {
@@ -70,6 +71,7 @@ func defaultConfig() chefLoadConfig {
 		ChefServerCreatesClientKey: false,
 		EnableReporting:            false,
 		RandomData:                 false,
+		ChefAction:                 false,
 	}
 }
 
