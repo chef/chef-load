@@ -181,6 +181,23 @@ func randomChefClientRun(
 
 	ohaiJSON["platform"] = platforms[rand.Intn(len(platforms))]
 
+	// roles := make([]string, 0)
+	// roles = append(roles,
+	// 	"admin",
+	// 	"windows_builder",
+	// 	"stash",
+	// 	"hamlet",
+	// 	"simpsons_guest_character",
+	// 	"as_herself",
+	// 	"extra_who_died_on_ER",
+	// 	"lawyer_in_a_courtroom_procedural",
+	// 	"meredith_grey_love_interest",
+	// 	"alien_diplomat_on_startrek",
+	// 	"zombie_extra",
+	// 	"person_eaten_by_zombie_extra")
+
+	// role := roles[rand.Intn(len(roles))]
+
 	if config.RunChefClient {
 		clientBody := map[string]interface{}{
 			"admin":     false,
