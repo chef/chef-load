@@ -31,8 +31,8 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	runList := parseRunList(config.RunList)
 	apiGetRequests := config.APIGetRequests
 	sleepDuration := config.SleepDuration
-	runUUID := uuid.NewV4()
-	reportUUID := uuid.NewV4()
+	runUUID, _ := uuid.NewV4()
+	reportUUID, _ := uuid.NewV4()
 	nodeUUID := uuid.NewV3(uuid.NamespaceDNS, nodeName)
 	startTime := time.Now().UTC()
 	url, _ := url.ParseRequestURI(config.ChefServerURL)

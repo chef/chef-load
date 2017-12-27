@@ -133,8 +133,9 @@ type actionRequest struct {
 }
 
 func defaultActionRequest() *actionRequest {
+	ID, _ := uuid.NewV4()
 	return &actionRequest{
-		ID:               uuid.NewV4(),
+		ID:               ID,
 		MessageType:      "action",
 		MessageVersion:   "0.1.0",
 		actionType:       nodeAction,
