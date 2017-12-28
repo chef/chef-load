@@ -138,9 +138,13 @@ func chefAutomateSendMessage(nodeName string, dataCollectorToken string, dataCol
 	return err
 }
 
-func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time) interface{} {
-	chefServerURL, _ := url.Parse(config.ChefServerURL)
-	chefServerFQDN := chefServerURL.Host
+func dataCollectorRunStart(nodeName, chefServerFQDN, orgName string,
+	runUUID, nodeUUID uuid.UUID, startTime time.Time) interface{} {
+
+	if chefServerFQDN == "" {
+		chefServerURL, _ := url.Parse(config.ChefServerURL)
+		chefServerFQDN = chefServerURL.Host
+	}
 
 	body := map[string]interface{}{
 		"chef_server_fqdn":  chefServerFQDN,
@@ -157,9 +161,14 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 	return body
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
-	chefServerURL, _ := url.Parse(config.ChefServerURL)
-	chefServerFQDN := chefServerURL.Host
+func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName string,
+	runList, expandedRunList runList, runUUID, nodeUUID uuid.UUID,
+	startTime, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
+
+	if chefServerFQDN == "" {
+		chefServerURL, _ := url.Parse(config.ChefServerURL)
+		chefServerFQDN = chefServerURL.Host
+	}
 
 	convergedRunList := []interface{}{}
 	convergedExpandedRunListMap := map[string]interface{}{}

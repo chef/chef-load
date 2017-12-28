@@ -25,37 +25,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var entityNameList = map[int]string{
-	0: "nginx",
-	1: "apache",
-	2: "burger",
-	3: "salsa",
-}
-
-var requestorNameList = map[int]string{
-	0: "kyleen",
-	1: "localhost", // This is a chef-zero run
-	2: "knife",
-	3: "rad",
-	4: "lance",
-	5: "afiune",
-}
-
-var serviceHostnameList = map[int]string{
-	0: "hostname",
-	1: "localhost",
-	2: "chef.example.com",
-	3: "my.awesome.hostname.com",
-}
-
-var organizationNameList = map[int]string{
-	0: "awesome",
-	1: "_default",
-	2: "development",
-	3: "staging",
-	4: "production",
-}
-
 // ActionType will be our enum to identity a list of actions types
 type ActionType int
 
@@ -192,14 +161,6 @@ func randomRequestorName() string {
 	return requestorNameList[rand.Intn(len(requestorNameList))]
 }
 
-func randomServiceHostname() string {
-	return serviceHostnameList[rand.Intn(len(serviceHostnameList))]
-}
-
-func randomOrganizationName() string {
-	return organizationNameList[rand.Intn(len(organizationNameList))]
-}
-
 func randomTime() time.Time {
 	return time.Now().AddDate(0, 0, rand.Intn(7)*-1)
 }
@@ -209,8 +170,8 @@ func (ar *actionRequest) randomize() {
 	ar.SetTask(randomTask())
 	ar.EntityName = randomEntityName()
 	ar.RequestorName = randomRequestorName()
-	ar.ServiceHostname = randomServiceHostname()
-	ar.OrganizationName = randomOrganizationName()
+	ar.ServiceHostname = getRandom("source_fqdn")
+	ar.OrganizationName = getRandom("organization")
 	ar.RecordedAt = randomTime()
 
 	// Custom settings for specific actions

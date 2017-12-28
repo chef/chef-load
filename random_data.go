@@ -82,13 +82,6 @@ var (
 		"solaris",
 		"windows",
 		"mac_os_x",
-		"salim",
-		"kyleen",
-		"lance",
-		"rachel",
-		"shadae",
-		"maggie",
-		"elizabeth",
 		"platform 14",
 	}
 
@@ -118,6 +111,12 @@ var (
 	attributes = map[string]interface{}{
 		"attr1": "something",
 		"attr2": []string{"some", "other", "complex", "attr"},
+		"chef": map[string]interface{}{
+			"packages": []string{"a", "b", "c", "x", "y", "z"},
+			"channel":  "awesome",
+		},
+		"install":     "/path/to/installer",
+		"application": "delightful",
 	}
 
 	resources = []struct {
@@ -149,6 +148,19 @@ var (
 			RecipeName:      "default",
 		},
 		{
+			Type:            "execute",
+			Name:            "bash script.sh",
+			ID:              "bash script.sh",
+			Duration:        "100",
+			Delta:           "",
+			IgnoreFailure:   false,
+			Result:          "run",
+			Status:          "run",
+			CookbookName:    "nginx",
+			CookbookVersion: "0.1.0",
+			RecipeName:      "install",
+		},
+		{
 			Type:            "chef_gem",
 			Name:            "test-kitchen",
 			ID:              "test-kitchen",
@@ -174,5 +186,29 @@ var (
 			CookbookVersion: "0.1.0",
 			RecipeName:      "install",
 		},
+	}
+
+	// For Actions
+	entityNameList = []string{
+		"nginx",
+		"apache",
+		"burger",
+		"salsa",
+	}
+
+	requestorNameList = []string{
+		"kyleen",
+		"localhost", // This is a chef-zero run
+		"knife",
+		"rad",
+		"lance",
+		"afiune",
+	}
+
+	sourceFqdns = []string{
+		"hostname",
+		"localhost",
+		"chef.example.com",
+		"my.awesome.hostname.com",
 	}
 )

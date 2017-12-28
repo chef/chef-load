@@ -102,6 +102,8 @@ func getRandom(kind string) string {
 		return platforms[rand.Intn(len(platforms))]
 	case "tag":
 		return tags[rand.Intn(len(tags))]
+	case "source_fqdn":
+		return sourceFqdns[rand.Intn(len(sourceFqdns))]
 	default:
 		return ""
 	}
@@ -150,15 +152,13 @@ func randAttributeMapKey(m map[string]interface{}) string {
 }
 
 func randomChefClientRun(chefClient chef.Client, nodeName string) {
-	// ALL_POLICY_NAMES = ['policy1', 'policy2', 'policy3']
-	// ALL_POLICY_GROUPS = ['dev', 'prod', 'audit']
-
 	var (
 		startTime              = time.Now().UTC()
 		endTime                = time.Now().UTC() // TODO: (@afiune) should we mock the time the CCR took to run?
 		runUUID, _             = uuid.NewV4()
 		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
 		orgName                = getRandom("organization")
+		chefServerFQDN         = getRandom("source_fqdn")
 		node                   = chef.NewNode(nodeName) // Our Random Chef Node
 		reportingAvailable     = true
 		dataCollectorAvailable = true
@@ -179,14 +179,9 @@ func randomChefClientRun(chefClient chef.Client, nodeName string) {
 	//"platform_version": "7.1",
 	//"platform_family": "rhel",
 
-	// uptime_seconds?
-	// If this is not set, the ingest pipeline explodes
-	// TODO: (@afiune) Fix it so it doesn't fail to ingest the node/ccr
-	node.AutomaticAttributes["uptime_seconds"] = 0
 	node.AutomaticAttributes["recipes"] = randRecipes
-	// Setting this to empty so that ingest doesn't break
-	// TODO: (@afiune) Do we need this field? what are we displaying?
 	node.AutomaticAttributes["cookbooks"] = map[string]interface{}{}
+	node.AutomaticAttributes["uptime_seconds"] = 0
 	node.NormalAttributes = genRandomAttributes()
 	node.NormalAttributes["tags"] = []string{getRandom("tag")}
 
@@ -227,7 +222,7 @@ func randomChefClientRun(chefClient chef.Client, nodeName string) {
 	}
 
 	// Notify Data Collector of run start
-	runStartBody := dataCollectorRunStart(nodeName, orgName, runUUID, nodeUUID, startTime)
+	runStartBody := dataCollectorRunStart(nodeName, chefServerFQDN, orgName, runUUID, nodeUUID, startTime)
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStartBody)
 	} else {
@@ -257,7 +252,8 @@ func randomChefClientRun(chefClient chef.Client, nodeName string) {
 	}
 
 	// Notify Data Collector of run end
-	runStopBody := dataCollectorRunStop(node, nodeName, orgName, runList, parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
+	runStopBody := dataCollectorRunStop(node, nodeName, chefServerFQDN, orgName, runList,
+		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStopBody)
 	} else if dataCollectorAvailable {
