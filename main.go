@@ -236,7 +236,8 @@ func main() {
 		//
 		// For now we just have one flag -random to land in this if
 		fmt.Printf("Loading %d Nodes:\n", config.NumNodes)
-		if generateRandomData(nodeClient, ohaiJSON, convergeJSON, complianceJSON, amountOfRequests) != nil {
+		rand.Seed(time.Now().UTC().UnixNano())
+		if generateRandomData(nodeClient, amountOfRequests) != nil {
 			os.Exit(1)
 		}
 		os.Exit(0)

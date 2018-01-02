@@ -29,16 +29,16 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 )
 
-func generateRandomData(nodeClient chef.Client, ohaiJSON, convergeJSON, complianceJSON map[string]interface{}, requests amountOfRequests) (err error) {
+func generateRandomData(chefClient chef.Client, requests amountOfRequests) (err error) {
 	channels := make([]<-chan error, config.NumNodes)
 
 	for i := 0; i < config.NumNodes; i++ {
 		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i+1)
 		fmt.Printf(".")
-		channels[i] = ccr(nodeClient, nodeName, ohaiJSON, convergeJSON, complianceJSON)
+		channels[i] = ccr(chefClient, nodeName)
 	}
 
 	fmt.Println("\n")
@@ -55,11 +55,10 @@ func generateRandomData(nodeClient chef.Client, ohaiJSON, convergeJSON, complian
 	return err
 }
 
-func ccr(nodeClient chef.Client, nodeName string,
-	ohaiJSON, convergeJSON, complianceJSON map[string]interface{}) <-chan error {
+func ccr(chefClient chef.Client, nodeName string) <-chan error {
 	out := make(chan error)
 	go func() {
-		randomChefClientRun(nodeClient, nodeName, ohaiJSON, convergeJSON, complianceJSON)
+		randomChefClientRun(chefClient, nodeName)
 		close(out)
 	}()
 	return out
@@ -91,112 +90,108 @@ func merge(cs ...<-chan error) <-chan error {
 	return out
 }
 
-func randomChefClientRun(
-	nodeClient chef.Client,
-	nodeName string,
-	ohaiJSON map[string]interface{},
-	convergeJSON map[string]interface{},
-	complianceJSON map[string]interface{}) {
-	// ALL_ROLES = ['admin', 'windows_builder', 'stash']
-	// ALL_EVENT_ACTIONS = ['created', 'updated', 'unknown']
+func getRandom(kind string) string {
+	switch kind {
+	case "environment":
+		return environments[rand.Intn(len(environments))]
+	case "organization":
+		return organizations[rand.Intn(len(organizations))]
+	case "role":
+		return roles[rand.Intn(len(roles))]
+	case "platform":
+		return platforms[rand.Intn(len(platforms))]
+	case "tag":
+		return tags[rand.Intn(len(tags))]
+	default:
+		return ""
+	}
+}
+
+func genRandomResourcesTree() []interface{} {
+	resourcesSize := rand.Intn(8)
+	randResources := make([]interface{}, resourcesSize)
+	for i := 0; i < resourcesSize; i++ {
+		randResources[i] = resources[rand.Intn(len(resources))]
+	}
+	return randResources
+}
+
+func genRandomRunList() ([]string, []string) {
+	runListSize := rand.Intn(3)
+	runList := make([]string, runListSize)
+	recipeList := make([]string, runListSize)
+	for i := 0; i < runListSize; i++ {
+		cb := randCookbooks[rand.Intn(len(randCookbooks))]
+		runList[i] = fmt.Sprintf("recipe[%s::default]", cb)
+		recipeList[i] = fmt.Sprintf("%s::default", cb)
+	}
+	return runList, recipeList
+}
+
+func genRandomAttributes() map[string]interface{} {
+	attrSize := rand.Intn(10)
+	randAttributes := make(map[string]interface{}, attrSize)
+	for i := 0; i < attrSize; i++ {
+		k := randAttributeMapKey(attributes)
+		randAttributes[k] = attributes[k]
+	}
+	return randAttributes
+}
+
+func randAttributeMapKey(m map[string]interface{}) string {
+	i := rand.Intn(len(m))
+	for k, _ := range m {
+		if i == 0 {
+			return k
+		}
+		i--
+	}
+	return ""
+}
+
+func randomChefClientRun(chefClient chef.Client, nodeName string) {
 	// ALL_POLICY_NAMES = ['policy1', 'policy2', 'policy3']
 	// ALL_POLICY_GROUPS = ['dev', 'prod', 'audit']
 
-	environments := make([]string, 0)
-	environments = append(environments,
-		"arctic",
-		"coast",
-		"desert",
-		"forest",
-		"grassland",
-		"mountain",
-		"swamp",
-		"underdark",
-		"astral plane",
-		"ethereal plane",
-		"plane of shadow",
-		"feywild",
-		"shadowfell",
-		"mirror plane",
-		"outer space",
-		"acceptance-org-proj-master")
+	var (
+		startTime              = time.Now().UTC()
+		endTime                = time.Now().UTC() // TODO: (@afiune) should we mock the time the CCR took to run?
+		runUUID, _             = uuid.NewV4()
+		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
+		orgName                = getRandom("organization")
+		node                   = chef.NewNode(nodeName) // Our Random Chef Node
+		reportingAvailable     = true
+		dataCollectorAvailable = true
+		expandedRunList        []string
+		convergeJSON           = map[string]interface{}{ // This is used just for the list of resources
+			"resources": genRandomResourcesTree(),
+		}
+		randRunList, randRecipes = genRandomRunList()
+	)
 
-	chefEnvironment := environments[rand.Intn(len(environments))]
+	node.Environment = getRandom("environment")
+	node.RunList = randRunList
+	node.AutomaticAttributes = map[string]interface{}{}
+	node.AutomaticAttributes["fqdn"] = nodeName
+	node.AutomaticAttributes["roles"] = []string{getRandom("role")}
+	node.AutomaticAttributes["platform"] = getRandom("platform")
+	// TODO: (@afiune) Do we need platform version and family?
+	//"platform_version": "7.1",
+	//"platform_family": "rhel",
 
-	runList := parseRunList(config.RunList)
+	// uptime_seconds?
+	// If this is not set, the ingest pipeline explodes
+	// TODO: (@afiune) Fix it so it doesn't fail to ingest the node/ccr
+	node.AutomaticAttributes["uptime_seconds"] = 0
+	node.AutomaticAttributes["recipes"] = randRecipes
+	// Setting this to empty so that ingest doesn't break
+	// TODO: (@afiune) Do we need this field? what are we displaying?
+	node.AutomaticAttributes["cookbooks"] = map[string]interface{}{}
+	node.NormalAttributes = genRandomAttributes()
+	node.NormalAttributes["tags"] = []string{getRandom("tag")}
 
-	apiGetRequests := config.APIGetRequests
-	sleepDuration := config.SleepDuration
-	runUUID := uuid.NewV4()
-	reportUUID := uuid.NewV4()
-	nodeUUID := uuid.NewV3(uuid.NamespaceDNS, nodeName)
-	startTime := time.Now().UTC()
-
-	organizations := make([]string, 0)
-	organizations = append(organizations,
-		"The Avengers",
-		"The Defenders",
-		"Justice League of America",
-		"The Great Lakes Avengers",
-		"The Fantastic Four",
-		"Astonishing X-Men",
-		"Justice League of Antarctica",
-		"The Misfits",
-		"The Secret Six",
-		"Teen Titans",
-		"Watchmen",
-		"Guardians of the Galaxy",
-		"S.H.I.E.L.D.",
-		"Howling Commandos",
-		"Ultimates",
-		"X-Factor",
-		"Uncanny X-Men",
-		"Next Wave")
-
-	orgName := organizations[rand.Intn(len(organizations))]
-	reportingAvailable := true
-	dataCollectorAvailable := true
-	var expandedRunList []string
-	var node chef.Node
-
-	// not normally in sample data
-	ohaiJSON["fqdn"] = nodeName
-
-	platforms := make([]string, 0)
-	platforms = append(platforms,
-		"centos",
-		"ubuntu",
-		"oracle",
-		"solaris",
-		"windows",
-		"mac_os_x",
-		"salim",
-		"kyleen",
-		"lance",
-		"rachel",
-		"shadae",
-		"maggie",
-		"elizabeth",
-		"platform 14")
-
-	ohaiJSON["platform"] = platforms[rand.Intn(len(platforms))]
-
-	// roles := make([]string, 0)
-	// roles = append(roles,
-	// 	"admin",
-	// 	"windows_builder",
-	// 	"stash",
-	// 	"hamlet",
-	// 	"simpsons_guest_character",
-	// 	"as_herself",
-	// 	"extra_who_died_on_ER",
-	// 	"lawyer_in_a_courtroom_procedural",
-	// 	"meredith_grey_love_interest",
-	// 	"alien_diplomat_on_startrek",
-	// 	"zombie_extra",
-	// 	"person_eaten_by_zombie_extra")
-
-	// role := roles[rand.Intn(len(roles))]
+	// This run_list is used by the RunChefClient flag, when there is a ChefServerUrl specified
+	runList := parseRunList(node.RunList)
 
 	if config.RunChefClient {
 		clientBody := map[string]interface{}{
@@ -207,36 +202,24 @@ func randomChefClientRun(
 		if config.ChefServerCreatesClientKey {
 			clientBody["create_key"] = config.ChefServerCreatesClientKey
 		}
-		apiRequest(nodeClient, nodeName, "POST", "clients", clientBody, nil, nil)
+		apiRequest(chefClient, nodeName, "POST", "clients", clientBody, nil, nil)
 
-		res, err := apiRequest(nodeClient, nodeName, "GET", "nodes/"+nodeName, nil, &node, nil)
-		if err != nil {
-			if res != nil && res.StatusCode != 404 {
-				node = chef.Node{Name: nodeName}
-			}
-		}
+		res, _ := apiRequest(chefClient, nodeName, "GET", "nodes/"+nodeName, nil, &node, nil)
 		if res != nil && res.StatusCode == 404 {
-			node = chef.Node{Name: nodeName, Environment: chefEnvironment}
-			_, err = apiRequest(nodeClient, nodeName, "POST", "nodes", node, nil, nil)
-			if err != nil {
-				node = chef.Node{Name: nodeName}
-			}
+			apiRequest(chefClient, nodeName, "POST", "nodes", node, nil, nil)
 		}
-	} else {
-		node = chef.Node{Name: nodeName}
 	}
-	node.Environment = chefEnvironment
-	node.AutomaticAttributes = ohaiJSON
 
 	if config.RunChefClient {
 		// Expand run_list
-		expandedRunList = runList.expand(&nodeClient, nodeName, chefEnvironment)
+		expandedRunList = runList.expand(&chefClient, nodeName, node.Environment)
 
-		apiRequest(nodeClient, nodeName, "GET", "environments/"+chefEnvironment, nil, nil, nil)
+		// TODO Check error?
+		apiRequest(chefClient, nodeName, "GET", "environments/"+node.Environment, nil, nil, nil)
 
 		// Notify Reporting of run start
 		if config.EnableReporting {
-			res, _ := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
+			res, _ := reportingRunStart(chefClient, nodeName, runUUID, startTime)
 			if res != nil && res.StatusCode == 404 {
 				reportingAvailable = false
 			}
@@ -248,54 +231,28 @@ func randomChefClientRun(
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStartBody)
 	} else {
-		res, err := apiRequest(nodeClient, nodeName, "POST", "data-collector", runStartBody, nil, nil)
-		if err != nil {
-			if res != nil {
-				if res.StatusCode == 404 {
-					dataCollectorAvailable = false
-				}
-			}
-		}
+		// TODO Check error?
+		apiRequest(chefClient, nodeName, "POST", "data-collector", runStartBody, nil, nil)
 	}
 
 	if config.RunChefClient {
 		// Calculate cookbook dependencies
-		ckbks := solveRunListDependencies(&nodeClient, nodeName, expandedRunList, chefEnvironment)
+		ckbks := solveRunListDependencies(&chefClient, nodeName, expandedRunList, node.Environment)
 
 		// Download cookbooks
 		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first") {
-			ckbks.download(&nodeClient, nodeName)
-		}
-
-		for _, apiGetRequest := range apiGetRequests {
-			apiRequest(nodeClient, nodeName, "GET", apiGetRequest, nil, nil, nil)
+			ckbks.download(&chefClient, nodeName)
 		}
 	} else {
 		expandedRunList = runList.toStringSlice()
 	}
 
-	time.Sleep(time.Duration(sleepDuration) * time.Second)
-
-	node.RunList = runList.toStringSlice()
-
-	// Ensure that at least an empty set of tags is set for the node's normal attributes
-	if node.NormalAttributes == nil {
-		node.NormalAttributes = map[string]interface{}{"tags": []interface{}{}}
-	} else {
-		if node.NormalAttributes["tags"] == nil {
-			node.NormalAttributes["tags"] = []interface{}{}
-		}
-	}
-	// Ensure that what we post at the end of the run is different from previous runs
-	endTime := time.Now().UTC()
-	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
-
 	if config.RunChefClient {
-		apiRequest(nodeClient, nodeName, "PUT", "nodes/"+nodeName, node, nil, nil)
+		apiRequest(chefClient, nodeName, "PUT", "nodes/"+nodeName, node, nil, nil)
 
 		// Notify Reporting of run end
 		if config.EnableReporting && reportingAvailable {
-			reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
+			reportingRunStop(chefClient, nodeName, runUUID, startTime, endTime, runList)
 		}
 	}
 
@@ -304,16 +261,17 @@ func randomChefClientRun(
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStopBody)
 	} else if dataCollectorAvailable {
-		apiRequest(nodeClient, nodeName, "POST", "data-collector", runStopBody, nil, nil)
+		apiRequest(chefClient, nodeName, "POST", "data-collector", runStopBody, nil, nil)
 	}
 
-	// Notify Data Collector of compliance report
-	if len(complianceJSON) != 0 {
-		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
-		if config.DataCollectorURL != "" {
-			chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
-		} else {
-			apiRequest(nodeClient, nodeName, "POST", "data-collector", complianceReportBody, nil, nil)
-		}
-	}
+	// TODO: (@afiune) Notify Data Collector of compliance report
+	//reportUUID := uuid.NewV4()
+	//if len(complianceJSON) != 0 {
+	//complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
+	//if config.DataCollectorURL != "" {
+	//chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
+	//} else {
+	//apiRequest(chefClient, nodeName, "POST", "data-collector", complianceReportBody, nil, nil)
+	//}
+	//}
 }
