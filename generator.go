@@ -140,6 +140,16 @@ func genRandomAttributes() map[string]interface{} {
 	return randAttributes
 }
 
+func genRandomStartEndTime() (time.Time, time.Time) {
+	var (
+		minutes         = rand.Intn(60)
+		randDuration, _ = time.ParseDuration(fmt.Sprintf("%dm", minutes))
+		sTime           = time.Now().UTC()
+		eTime           = sTime.Add(randDuration).UTC()
+	)
+	return sTime, eTime
+}
+
 func randAttributeMapKey(m map[string]interface{}) string {
 	i := rand.Intn(len(m))
 	for k, _ := range m {
@@ -153,8 +163,7 @@ func randAttributeMapKey(m map[string]interface{}) string {
 
 func randomChefClientRun(chefClient chef.Client, nodeName string) {
 	var (
-		startTime              = time.Now().UTC()
-		endTime                = time.Now().UTC() // TODO: (@afiune) should we mock the time the CCR took to run?
+		startTime, endTime     = genRandomStartEndTime()
 		runUUID, _             = uuid.NewV4()
 		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
 		orgName                = getRandom("organization")
