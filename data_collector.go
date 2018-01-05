@@ -138,9 +138,13 @@ func chefAutomateSendMessage(nodeName string, dataCollectorToken string, dataCol
 	return err
 }
 
-func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time) interface{} {
-	chefServerURL, _ := url.Parse(config.ChefServerURL)
-	chefServerFQDN := chefServerURL.Host
+func dataCollectorRunStart(nodeName, chefServerFQDN, orgName string,
+	runUUID, nodeUUID uuid.UUID, startTime time.Time) interface{} {
+
+	if chefServerFQDN == "" {
+		chefServerURL, _ := url.Parse(config.ChefServerURL)
+		chefServerFQDN = chefServerURL.Host
+	}
 
 	body := map[string]interface{}{
 		"chef_server_fqdn":  chefServerFQDN,
@@ -157,9 +161,10 @@ func dataCollectorRunStart(nodeName string, orgName string, runUUID uuid.UUID, n
 	return body
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runList runList, expandedRunList runList, runUUID uuid.UUID, nodeUUID uuid.UUID, startTime time.Time, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
-	chefServerURL, _ := url.Parse(config.ChefServerURL)
-	chefServerFQDN := chefServerURL.Host
+// TODO: (@afiune) Refactor this so we dont pass so many arguments
+func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName, status string,
+	runList, expandedRunList runList, runUUID, nodeUUID uuid.UUID,
+	startTime, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
 
 	convergedRunList := []interface{}{}
 	convergedExpandedRunListMap := map[string]interface{}{}
@@ -213,7 +218,7 @@ func dataCollectorRunStop(node chef.Node, nodeName string, orgName string, runLi
 		"source":                 "chef_client",
 		"start_time":             startTime.Format(iso8601DateTime),
 		"end_time":               endTime.Format(iso8601DateTime),
-		"status":                 "success",
+		"status":                 status,
 		"run_list":               convergedRunList,
 		"expanded_run_list":      convergedExpandedRunListMap,
 		"node":                   node,
