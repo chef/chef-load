@@ -161,14 +161,10 @@ func dataCollectorRunStart(nodeName, chefServerFQDN, orgName string,
 	return body
 }
 
-func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName string,
+// TODO: (@afiune) Refactor this so we dont pass so many arguments
+func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName, status string,
 	runList, expandedRunList runList, runUUID, nodeUUID uuid.UUID,
 	startTime, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
-
-	if chefServerFQDN == "" {
-		chefServerURL, _ := url.Parse(config.ChefServerURL)
-		chefServerFQDN = chefServerURL.Host
-	}
 
 	convergedRunList := []interface{}{}
 	convergedExpandedRunListMap := map[string]interface{}{}
@@ -222,7 +218,7 @@ func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName stri
 		"source":                 "chef_client",
 		"start_time":             startTime.Format(iso8601DateTime),
 		"end_time":               endTime.Format(iso8601DateTime),
-		"status":                 "success",
+		"status":                 status,
 		"run_list":               convergedRunList,
 		"expanded_run_list":      convergedExpandedRunListMap,
 		"node":                   node,

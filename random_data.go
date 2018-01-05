@@ -20,6 +20,11 @@ package main
 // Random data to use by the generator.go file to create random nodes/ccr's
 
 var (
+	ccrStatus = []string{
+		"success",
+		"failure",
+	}
+
 	environments = []string{
 		"arctic",
 		"coast",

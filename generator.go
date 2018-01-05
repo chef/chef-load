@@ -104,6 +104,8 @@ func getRandom(kind string) string {
 		return tags[rand.Intn(len(tags))]
 	case "source_fqdn":
 		return sourceFqdns[rand.Intn(len(sourceFqdns))]
+	case "status":
+		return ccrStatus[rand.Intn(len(ccrStatus))]
 	default:
 		return ""
 	}
@@ -168,6 +170,7 @@ func randomChefClientRun(chefClient chef.Client, nodeName string) {
 		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
 		orgName                = getRandom("organization")
 		chefServerFQDN         = getRandom("source_fqdn")
+		status                 = getRandom("status")
 		node                   = chef.NewNode(nodeName) // Our Random Chef Node
 		reportingAvailable     = true
 		dataCollectorAvailable = true
@@ -261,7 +264,7 @@ func randomChefClientRun(chefClient chef.Client, nodeName string) {
 	}
 
 	// Notify Data Collector of run end
-	runStopBody := dataCollectorRunStop(node, nodeName, chefServerFQDN, orgName, runList,
+	runStopBody := dataCollectorRunStop(node, nodeName, chefServerFQDN, orgName, status, runList,
 		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStopBody)
