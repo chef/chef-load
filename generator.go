@@ -119,7 +119,7 @@ func genRandomResourcesTree() []interface{} {
 }
 
 func genRandomRunList() ([]string, []string) {
-	runListSize := rand.Intn(3)
+	runListSize := rand.Intn(3) + 1
 	runList := make([]string, runListSize)
 	recipeList := make([]string, runListSize)
 	for i := 0; i < runListSize; i++ {
@@ -131,7 +131,7 @@ func genRandomRunList() ([]string, []string) {
 }
 
 func genRandomAttributes() map[string]interface{} {
-	attrSize := rand.Intn(10)
+	attrSize := rand.Intn(10) + 1
 	randAttributes := make(map[string]interface{}, attrSize)
 	for i := 0; i < attrSize; i++ {
 		k := randAttributeMapKey(attributes)
