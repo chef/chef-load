@@ -77,7 +77,7 @@ const (
 // Strings of the supported Tasks list above
 var tasksString = map[Task]string{
 	createTask: "create",
-	editTask:   "edit",
+	editTask:   "update",
 	deleteTask: "delete",
 }
 
