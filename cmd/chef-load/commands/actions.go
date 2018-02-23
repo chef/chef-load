@@ -32,5 +32,5 @@ var nodes = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(nodes)
+	rootCmd.AddCommand(nodes)
 }
