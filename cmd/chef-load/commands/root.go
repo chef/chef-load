@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+var cfgFile string
+
 var rootCmd = &cobra.Command{
 	Use:   "chef-load",
 	Short: "`A tool for simulating loading chef data",
@@ -27,32 +29,21 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Configuration file to load ")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chef-load.toml)")
 	rootCmd.PersistentFlags().StringVarP(&num, "number", "", "The number of nodes or actions to simulate") //TODO: Note change from "nodes", update docs
 	rootCmd.PersistentFlags().StringVarP(&interval, "interval", "", "Interval between a node's chef-client runs, in minutes")
 	rootCmd.PersistentFlags().StringVarP(&sampleConfig, "sample-config", false, "Print out full sample configuration")
-	rootCmd.PersistentFlags().StringVarP(&"profile-logs", false, "Generates API request profile from specified chef-load log files")
+	rootCmd.PersistentFlags().Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
 	rootCmd.PersistentFlags().Bool("version", false, "Print chef-load version")
 	rootCmd.PersistentFlags().Bool("random-data", false, "Generates random data")
 }
 
 func initConfig() {
-	// Don't forget to read config either from cfgFile or from home directory!
+	viper.SetConfigName(".chef-load")
+	viper.AddConfigPath("$HOME")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		//TODO: is there a default location?
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	}
-
-	if *fSampleConfig {
-		printSampleConfig()
-		os.Exit(0)
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
