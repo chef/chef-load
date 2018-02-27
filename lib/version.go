@@ -15,10 +15,23 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
-import "github.com/chef/chef-load/commands"
-
-func main() {
-	commands.Execute()
-}
+// The version is composed by three elements:
+//
+// 1) Version (semver)
+// 2) TODO: SHA (The git sha from HEAD)
+// 3) TODO: Built time (Time we built our binary)
+//
+// We pass all these parameters throught the linker:
+// => go build -ldflags "-X config.VERSION=x.x.x -X config.SHA=SHA" ...
+//
+// where 'x.x.x' is the version from the VERSION file
+//
+// The following variables are just stakeholders:
+// -- DO NOT MANUALLY MODIFY THEM --
+var (
+	VERSION string = "4.0.0"
+	//BUILD_TIME string = "DATE"
+	//SHA        string = "4f1un3"
+)

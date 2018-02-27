@@ -15,10 +15,23 @@
 // limitations under the License.
 //
 
-package main
+package commands
 
-import "github.com/chef/chef-load/commands"
+import (
+	"fmt"
 
-func main() {
-	commands.Execute()
+	chef_load "github.com/chef/chef-load/lib"
+	"github.com/spf13/cobra"
+)
+
+var initCmd = &cobra.Command{
+	Use:   "init",
+	Short: fmt.Sprintf("Initialize chef-load configuration file"),
+	Run: func(cmd *cobra.Command, args []string) {
+		chef_load.PrintSampleConfig()
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(initCmd)
 }

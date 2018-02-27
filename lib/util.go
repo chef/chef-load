@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 import (
 	"encoding/json"
@@ -32,6 +32,20 @@ import (
 	"github.com/go-chef/chef"
 	log "github.com/sirupsen/logrus"
 )
+
+// TODO: Move to a better location
+type request struct {
+	Method     string `json:"method"`
+	Url        string `json:"url"`
+	StatusCode int    `json:"status_code"`
+}
+
+// TODO: Move to a better location
+var config *chefLoadConfig
+var logger = log.New()
+var requests = make(chan *request)
+
+const iso8601DateTime = "2006-01-02T15:04:05Z"
 
 func apiRequest(nodeClient chef.Client, nodeName string, method, url string, body interface{}, v interface{}, headers map[string]string) (*http.Response, error) {
 	var bodyJSON io.Reader = nil

@@ -16,4 +16,6 @@ scaffolding_go_build_deps=(
  github.com/naoina/toml
  github.com/satori/go.uuid
  github.com/sirupsen/logrus
+ github.com/spf13/cobra
+ github.com/spf13/viper
 )
