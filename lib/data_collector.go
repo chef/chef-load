@@ -94,8 +94,14 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 
 	// Set our headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("x-data-collector-auth", "version=1.0")
-	req.Header.Set("x-data-collector-token", dcc.Token)
+	if dcc.Token != "dev" {
+		req.Header.Set("x-data-collector-auth", "version=1.0")
+		req.Header.Set("x-data-collector-token", dcc.Token)
+	} else {
+		req.Header.Set("Authorization", "Bearer dev")
+	}
+
+	logger.WithFields(log.Fields{"headers": req.Header}).Info("Auth headers")
 
 	// Do request
 	t0 := time.Now()
