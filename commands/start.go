@@ -20,48 +20,31 @@ package commands
 import (
 	"fmt"
 
+	chef_load "github.com/chef/chef-load/lib"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: fmt.Sprintf("Start the load of nodes, actions and/or reports."),
+	Use:              "start",
+	Short:            fmt.Sprintf("Start the load of nodes, actions and/or reports."),
+	TraverseChildren: true,
 	Run: func(cmd *cobra.Command, args []string) {
-		//config, err := configFromViper()
-		//if err != nil {
-		//log.WithFields(log.Fields{
-		//"error": err,
-		//}).Fatal("Failed to configure config-mgmt service")
-		//}
+		config, err := configFromViper()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Fatal("Could not load chef-load config file")
+		}
 
-		//fmt.Printf("%s Starting chef-load with %d nodes distributed evenly across a %d minute interval\n", time.Now().UTC().Format(iso8601DateTime), config.NumNodes, config.Interval)
-		//fmt.Printf("%s All API requests will be logged in %s\n", time.Now().UTC().Format(iso8601DateTime), config.LogFile)
-		//delayBetweenNodes := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
-		//firstRun := true
-		//for {
-		//for i := 1; i <= config.NumNodes; i++ {
-		//nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-		//go chef_load.chefClientRun(nodeClient, nodeName, firstRun, ohaiJSON, convergeJSON, complianceJSON)
-		//time.Sleep(delayBetweenNodes)
-		//}
-		//firstRun = false
-		//}
+		chef_load.Start(config)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(startCmd)
+	startCmd.Flags().IntP("interval", "i", 30, "Interval between a node's chef-client runs, in minutes")
+	startCmd.Flags().Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
+	viper.BindPFlags(startCmd.Flags())
 }
-
-//func configFromViper() (*Config, error) {
-//cfg := &Config{}
-//if err := viper.Unmarshal(cfg); err != nil {
-//log.WithFields(logrus.Fields{
-//"error": err.Error(),
-//}).Fatal("Failed to marshal config options to server config")
-//}
-
-////cfg.FixupRelativeTLSPaths(viper.ConfigFileUsed())
-
-//return cfg, nil
-//}

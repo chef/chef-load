@@ -80,6 +80,7 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	var bodyJSON io.Reader = nil
 	if body != nil {
 		var err error
+		// TODO: @afiune check panic!?
 		bodyJSON, err = chef.JSONReader(body)
 		if err != nil {
 			return nil, err
@@ -100,8 +101,6 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	} else {
 		req.Header.Set("Authorization", "Bearer dev")
 	}
-
-	logger.WithFields(log.Fields{"headers": req.Header}).Info("Auth headers")
 
 	// Do request
 	t0 := time.Now()
@@ -222,8 +221,8 @@ func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName, sta
 		"organization_name":      orgName,
 		"run_id":                 runUUID.String(),
 		"source":                 "chef_client",
-		"start_time":             startTime.Format(iso8601DateTime),
-		"end_time":               endTime.Format(iso8601DateTime),
+		"start_time":             startTime.Format(DateTimeFormat),
+		"end_time":               endTime.Format(DateTimeFormat),
 		"status":                 status,
 		"run_list":               convergedRunList,
 		"expanded_run_list":      convergedExpandedRunListMap,
@@ -242,7 +241,7 @@ func dataCollectorComplianceReport(nodeName string, chefEnvironment string, repo
 	body["environment"] = chefEnvironment
 	body["report_uuid"] = reportUUID
 	body["node_uuid"] = nodeUUID
-	body["end_time"] = endTime.Format(iso8601DateTime)
+	body["end_time"] = endTime.Format(DateTimeFormat)
 
 	if body["controls"] != nil {
 		delete(body, "controls")

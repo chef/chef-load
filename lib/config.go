@@ -19,39 +19,36 @@ package chef_load
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/naoina/toml"
 )
 
-type chefLoadConfig struct {
+type Config struct {
 	RunChefClient              bool
-	LogFile                    string
-	ChefServerURL              string `toml:"chef_server_url"`
-	ClientName                 string
-	ClientKey                  string
-	DataCollectorURL           string `toml:"data_collector_url"`
-	DataCollectorToken         string
-	OhaiJSONFile               string `toml:"ohai_json_file"`
-	ConvergeStatusJSONFile     string `toml:"converge_status_json_file"`
-	ComplianceStatusJSONFile   string `toml:"compliance_status_json_file"`
-	NumNodes                   int
-	Interval                   int
-	NodeNamePrefix             string
-	ChefEnvironment            string
-	RunList                    []string
-	SleepDuration              int
-	DownloadCookbooks          string
-	APIGetRequests             []string `toml:"api_get_requests"`
-	ChefVersion                string
-	ChefServerCreatesClientKey bool `toml:chef_server_creates_client_key`
-	EnableReporting            bool
-	RandomData                 bool
-	ChefAction                 bool
+	LogFile                    string   `mapstructure:"log_file"`
+	ChefServerURL              string   `mapstructure:"chef_server_url"`
+	ClientName                 string   `mapstructure:"client_name"`
+	ClientKey                  string   `mapstructure:"client_key"`
+	DataCollectorURL           string   `mapstructure:"data_collector_url"`
+	DataCollectorToken         string   `mapstructure:"data_collector_token"`
+	OhaiJSONFile               string   `mapstructure:"ohai_json_file"`
+	ConvergeStatusJSONFile     string   `mapstructure:"converge_status_json_file"`
+	ComplianceStatusJSONFile   string   `mapstructure:"compliance_status_json_file"`
+	NumActions                 int      `mapstructure:"num_actions"`
+	NumNodes                   int      `mapstructure:"num_nodes"`
+	Interval                   int      `mapstructure:"interval"`
+	NodeNamePrefix             string   `mapstructure:"node_name_prefix"`
+	ChefEnvironment            string   `mapstructure:"chef_environment"`
+	RunList                    []string `mapstructure:"run_list"`
+	SleepDuration              int      `mapstructure:"sleep_duration"`
+	DownloadCookbooks          string   `mapstructure:"download_cookbooks"`
+	APIGetRequests             []string `mapstructure:"api_get_requests"`
+	ChefVersion                string   `mapstructure:"chef_version"`
+	ChefServerCreatesClientKey bool     `mapstructure:"chef_server_creates_client_key"`
+	RandomData                 bool     `mapstructure:"random_data"`
+	EnableReporting            bool     `mapstructure:"enable_reporting"`
 }
 
-func defaultConfig() chefLoadConfig {
-	return chefLoadConfig{
+func Default() Config {
+	return Config{
 		RunChefClient:              false,
 		LogFile:                    "/var/log/chef-load/chef-load.log",
 		ChefServerURL:              "",
@@ -71,7 +68,7 @@ func defaultConfig() chefLoadConfig {
 		ChefServerCreatesClientKey: false,
 		EnableReporting:            false,
 		RandomData:                 false,
-		ChefAction:                 false,
+		NumActions:                 30,
 	}
 }
 
@@ -123,6 +120,9 @@ func PrintSampleConfig() {
 # 1800 nodes / 30 minute interval = 60 chef-client runs per minute
 # num_nodes = 30
 # interval = 30
+
+# During the same interval of time, it is also possible to load a number of  Chef actions
+# num_actions = 30
 
 # This prefix will go at the beginning of each node name.
 # This enables running multiple instances of chef-load without affecting each others' nodes
@@ -182,21 +182,4 @@ func PrintSampleConfig() {
 # random_data = true
 `
 	fmt.Print(sampleConfig)
-}
-
-func loadConfig(file string) (*chefLoadConfig, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	// Initialize default configuration values
-	config := defaultConfig()
-
-	if err = toml.NewDecoder(f).Decode(&config); err != nil {
-		return nil, err
-	}
-
-	return &config, nil
 }

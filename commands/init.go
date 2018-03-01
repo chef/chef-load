@@ -28,10 +28,13 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: fmt.Sprintf("Initialize chef-load configuration file"),
 	Run: func(cmd *cobra.Command, args []string) {
+		// TODO @afiune Instead of printing the config, write it to disk
+		// with the default config and tell the user that they can modify it
 		chef_load.PrintSampleConfig()
 	},
 }
 
 func init() {
+	// TODO: Output file param?
 	rootCmd.AddCommand(initCmd)
 }

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	uuid "github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 // ActionType will be our enum to identity a list of actions types

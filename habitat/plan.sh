@@ -13,7 +13,6 @@ pkg_scaffolding=core/scaffolding-go
 scaffolding_go_base_path=github.com/chef
 scaffolding_go_build_deps=(
  github.com/go-chef/chef
- github.com/naoina/toml
  github.com/satori/go.uuid
  github.com/sirupsen/logrus
  github.com/spf13/cobra
