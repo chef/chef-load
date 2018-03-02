@@ -26,7 +26,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}) {
+func ChefClientRun(config *Config, nodeClient chef.Client, nodeName string, firstRun bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}) {
 	var (
 		chefEnvironment        = config.ChefEnvironment
 		runList                = parseRunList(config.RunList)
@@ -67,10 +67,10 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 			if config.ChefServerCreatesClientKey {
 				clientBody["create_key"] = config.ChefServerCreatesClientKey
 			}
-			apiRequest(nodeClient, nodeName, "POST", "clients", clientBody, nil, nil)
+			apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "clients", clientBody, nil, nil)
 		}
 
-		res, err := apiRequest(nodeClient, nodeName, "GET", "nodes/"+nodeName, nil, &node, nil)
+		res, err := apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "nodes/"+nodeName, nil, &node, nil)
 		if err != nil {
 			if res != nil && res.StatusCode != 404 {
 				node = chef.Node{Name: nodeName}
@@ -78,7 +78,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		}
 		if res != nil && res.StatusCode == 404 {
 			node = chef.Node{Name: nodeName, Environment: chefEnvironment}
-			_, err = apiRequest(nodeClient, nodeName, "POST", "nodes", node, nil, nil)
+			_, err = apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "nodes", node, nil, nil)
 			if err != nil {
 				node = chef.Node{Name: nodeName}
 			}
@@ -91,13 +91,13 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 	if config.RunChefClient {
 		// Expand run_list
-		expandedRunList = runList.expand(&nodeClient, nodeName, chefEnvironment)
+		expandedRunList = runList.expand(&nodeClient, nodeName, config.ChefVersion, chefEnvironment)
 
-		apiRequest(nodeClient, nodeName, "GET", "environments/"+chefEnvironment, nil, nil, nil)
+		apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "environments/"+chefEnvironment, nil, nil, nil)
 
 		// Notify Reporting of run start
 		if config.EnableReporting {
-			res, _ := reportingRunStart(nodeClient, nodeName, runUUID, startTime)
+			res, _ := reportingRunStart(nodeClient, nodeName, config.ChefVersion, runUUID, startTime)
 			if res != nil && res.StatusCode == 404 {
 				reportingAvailable = false
 			}
@@ -105,11 +105,11 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	}
 
 	// Notify Data Collector of run start
-	runStartBody := dataCollectorRunStart(nodeName, "", orgName, runUUID, nodeUUID, startTime)
+	runStartBody := dataCollectorRunStart(config, nodeName, "", orgName, runUUID, nodeUUID, startTime)
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStartBody)
 	} else {
-		res, err := apiRequest(nodeClient, nodeName, "POST", "data-collector", runStartBody, nil, nil)
+		res, err := apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", runStartBody, nil, nil)
 		if err != nil {
 			if res != nil {
 				if res.StatusCode == 404 {
@@ -121,15 +121,15 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 
 	if config.RunChefClient {
 		// Calculate cookbook dependencies
-		ckbks := solveRunListDependencies(&nodeClient, nodeName, expandedRunList, chefEnvironment)
+		ckbks := solveRunListDependencies(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, expandedRunList)
 
 		// Download cookbooks
 		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first" && firstRun) {
-			ckbks.download(&nodeClient, nodeName)
+			ckbks.download(&nodeClient, nodeName, config.ChefVersion)
 		}
 
 		for _, apiGetRequest := range apiGetRequests {
-			apiRequest(nodeClient, nodeName, "GET", apiGetRequest, nil, nil, nil)
+			apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", apiGetRequest, nil, nil, nil)
 		}
 	} else {
 		expandedRunList = runList.toStringSlice()
@@ -152,21 +152,21 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
 	if config.RunChefClient {
-		apiRequest(nodeClient, nodeName, "PUT", "nodes/"+nodeName, node, nil, nil)
+		apiRequest(nodeClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil)
 
 		// Notify Reporting of run end
 		if config.EnableReporting && reportingAvailable {
-			reportingRunStop(nodeClient, nodeName, runUUID, startTime, endTime, runList)
+			reportingRunStop(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, endTime, runList)
 		}
 	}
 
 	// Notify Data Collector of run end
-	runStopBody := dataCollectorRunStop(node, nodeName, chefServerFQDN, orgName, status, runList,
+	runStopBody := dataCollectorRunStop(config, node, nodeName, chefServerFQDN, orgName, status, runList,
 		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStopBody)
 	} else if dataCollectorAvailable {
-		apiRequest(nodeClient, nodeName, "POST", "data-collector", runStopBody, nil, nil)
+		apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", runStopBody, nil, nil)
 	}
 
 	// Notify Data Collector of compliance report
@@ -175,7 +175,7 @@ func chefClientRun(nodeClient chef.Client, nodeName string, firstRun bool, ohaiJ
 		if config.DataCollectorURL != "" {
 			chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
 		} else {
-			apiRequest(nodeClient, nodeName, "POST", "data-collector", complianceReportBody, nil, nil)
+			apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", complianceReportBody, nil, nil)
 		}
 	}
 }

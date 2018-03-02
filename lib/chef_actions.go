@@ -196,7 +196,22 @@ func (ar *actionRequest) String() string {
 	return fmt.Sprintf("%s::%s", ar.EntityType, ar.Task)
 }
 
-func chefAction(aType ActionType) error {
+func GenerateChefActions(config *Config) error {
+	log.WithFields(log.Fields{
+		"actions":     config.NumActions,
+		"random_data": config.RandomData,
+	}).Info("Generating chef actions")
+
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	for i := 1; i <= config.NumActions; i++ {
+		// TODO: Check the errors
+		chefAction(config, randomActionType())
+	}
+	return nil
+}
+
+func chefAction(config *Config, aType ActionType) error {
 	action := newRandomActionRequest(aType)
 	return chefAutomateSendMessage(action.String(), config.DataCollectorToken, config.DataCollectorURL, action)
 }

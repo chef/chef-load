@@ -112,7 +112,14 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		statusCode = res.StatusCode
 	}
 	requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
-	logger.WithFields(log.Fields{"node_name": nodeName, "method": req.Method, "url": req.URL.String(), "status_code": statusCode, "request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000}).Info("API Request")
+	logger.WithFields(log.Fields{
+		"node_name":            nodeName,
+		"method":               req.Method,
+		"url":                  req.URL.String(),
+		"status_code":          statusCode,
+		"headers":              req.Header,
+		"request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000,
+	}).Info("API Request")
 
 	if res != nil {
 		if !(res.StatusCode >= 200 && res.StatusCode <= 299) {
@@ -143,7 +150,7 @@ func chefAutomateSendMessage(nodeName string, dataCollectorToken string, dataCol
 	return err
 }
 
-func dataCollectorRunStart(nodeName, chefServerFQDN, orgName string,
+func dataCollectorRunStart(config *Config, nodeName, chefServerFQDN, orgName string,
 	runUUID, nodeUUID uuid.UUID, startTime time.Time) interface{} {
 
 	if chefServerFQDN == "" {
@@ -161,13 +168,13 @@ func dataCollectorRunStart(nodeName, chefServerFQDN, orgName string,
 		"organization_name": orgName,
 		"run_id":            runUUID.String(),
 		"source":            "chef_client",
-		"start_time":        startTime.Format(iso8601DateTime),
+		"start_time":        startTime.Format(DateTimeFormat),
 	}
 	return body
 }
 
 // TODO: (@afiune) Refactor this so we dont pass so many arguments
-func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName, status string,
+func dataCollectorRunStop(config *Config, node chef.Node, nodeName, chefServerFQDN, orgName, status string,
 	runList, expandedRunList runList, runUUID, nodeUUID uuid.UUID,
 	startTime, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
 
