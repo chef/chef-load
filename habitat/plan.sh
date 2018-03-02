@@ -5,6 +5,7 @@ pkg_license=('Apache-2.0')
 pkg_description="A tool that simulates Chef Client API load on a Chef Server and/or a Chef Automate server"
 pkg_upstream_url="https://github.com/chef/chef-load"
 pkg_bin_dirs=(bin)
+pkg_deps=(core/glibc)
 pkg_binds_optional=(
   [automate]="port"
   [chef-server]="port"
