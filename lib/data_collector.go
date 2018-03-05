@@ -113,7 +113,7 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	}
 	requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
 	logger.WithFields(log.Fields{
-		"node_name":            nodeName,
+		"name":                 nodeName,
 		"method":               req.Method,
 		"url":                  req.URL.String(),
 		"status_code":          statusCode,
