@@ -18,8 +18,6 @@
 package commands
 
 import (
-	"fmt"
-
 	chef_load "github.com/chef/chef-load/lib"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -28,7 +26,7 @@ import (
 
 var startCmd = &cobra.Command{
 	Use:              "start",
-	Short:            fmt.Sprintf("Start the load of nodes, actions and/or reports."),
+	Short:            "Start the load of nodes, actions and/or reports.",
 	TraverseChildren: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := configFromViper()

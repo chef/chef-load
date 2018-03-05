@@ -121,7 +121,7 @@ func PrintSampleConfig() {
 # num_nodes = 30
 # interval = 30
 
-# During the same interval of time, it is also possible to load a number of  Chef actions
+# During the same interval of time, it is also possible to load a number of Chef actions
 # num_actions = 30
 
 # This prefix will go at the beginning of each node name.

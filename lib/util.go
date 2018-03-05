@@ -82,7 +82,7 @@ func apiRequest(nodeClient chef.Client, nodeName, chefVersion, method, url strin
 	return res, err
 }
 
-func GetAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client {
+func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client {
 	privateKey := getPrivateKey(privateKeyPath)
 
 	client, err := chef.NewClient(&chef.Config{

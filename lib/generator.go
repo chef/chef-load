@@ -24,8 +24,11 @@ package chef_load
 import (
 	"fmt"
 	"math/rand"
+	"os"
+	"os/signal"
 	"strconv"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/go-chef/chef"
@@ -33,15 +36,40 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func GenerateData(config *Config) error {
+	var amountOfRequests = make(amountOfRequests) // TODO whats up with this¿?
+
+	go func() {
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGUSR1)
+
+		for {
+			select {
+			case req := <-requests:
+				amountOfRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
+			}
+		}
+	}()
+
+	// TODO @afiune switch to fan-out fan-in (merge)
+	// TODO catch error
+	GenerateChefActions(config)
+	//GenerateComplianceReport(config)
+	GenerateCCRs(config)
+
+	printAPIRequestProfile(amountOfRequests)
+
+	return nil
+}
+
 func GenerateCCRs(config *Config) (err error) {
 	var (
-		chefClient       chef.Client
-		amountOfRequests = make(amountOfRequests) // TODO whats up with this¿?
-		channels         = make([]<-chan error, config.NumNodes)
+		chefClient chef.Client
+		channels   = make([]<-chan error, config.NumNodes)
 	)
 
 	if config.RunChefClient {
-		chefClient = GetAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
+		chefClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
 	}
 
 	log.WithFields(log.Fields{
@@ -63,7 +91,7 @@ func GenerateCCRs(config *Config) (err error) {
 		}
 	}
 
-	printAPIRequestProfile(amountOfRequests)
+	//printAPIRequestProfile(amountOfRequests)
 
 	return err
 }

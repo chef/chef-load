@@ -63,7 +63,7 @@ func Start(config *Config) {
 	)
 
 	if config.RunChefClient {
-		nodeClient = GetAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
+		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
 	}
 
 	if config.OhaiJSONFile != "" {

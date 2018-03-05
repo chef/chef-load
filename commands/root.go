@@ -32,7 +32,7 @@ var cfgFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "chef-load",
-	Short: "`A tool for simulating loading chef data",
+	Short: "A tool for simulating loading chef data",
 	Long: `A tool for simulating load on a Chef Server and/or a Chef Automate Server.
 Complete documentation is available at https://github.com/chef/chef-load`,
 	TraverseChildren: true,
@@ -50,8 +50,9 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.chef-load.toml)")
-	rootCmd.PersistentFlags().StringP("num_nodes", "n", "", "The number of nodes to simulate")
-	rootCmd.PersistentFlags().StringP("num_actions", "a", "", "The number of actions to generate")
+	// TODO: Should we add data_collector_url and chef_server_url to run the tool without the config?
+	rootCmd.PersistentFlags().IntP("num_nodes", "n", 0, "The number of nodes to simulate")
+	rootCmd.PersistentFlags().IntP("num_actions", "a", 0, "The number of actions to generate")
 	rootCmd.PersistentFlags().BoolP("random_data", "r", false, "Generates random data")
 	viper.BindPFlags(rootCmd.PersistentFlags())
 }
