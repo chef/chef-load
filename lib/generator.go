@@ -24,11 +24,8 @@ package chef_load
 import (
 	"fmt"
 	"math/rand"
-	"os"
-	"os/signal"
 	"strconv"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/go-chef/chef"
@@ -37,12 +34,9 @@ import (
 )
 
 func GenerateData(config *Config) error {
-	var amountOfRequests = make(amountOfRequests) // TODO whats up with this¿?
+	var amountOfRequests = make(amountOfRequests)
 
 	go func() {
-		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGUSR1)
-
 		for {
 			select {
 			case req := <-requests:
