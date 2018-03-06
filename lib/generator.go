@@ -34,13 +34,13 @@ import (
 )
 
 func GenerateData(config *Config) error {
-	var amountOfRequests = make(amountOfRequests)
+	var numRequests = make(amountOfRequests)
 
 	go func() {
 		for {
 			select {
 			case req := <-requests:
-				amountOfRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
+				numRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
 			}
 		}
 	}()
@@ -51,7 +51,7 @@ func GenerateData(config *Config) error {
 	//GenerateComplianceReport(config)
 	GenerateCCRs(config)
 
-	printAPIRequestProfile(amountOfRequests)
+	printAPIRequestProfile(numRequests)
 
 	return nil
 }
@@ -84,8 +84,6 @@ func GenerateCCRs(config *Config) (err error) {
 			err = n
 		}
 	}
-
-	//printAPIRequestProfile(amountOfRequests)
 
 	return err
 }

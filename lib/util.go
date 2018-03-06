@@ -135,7 +135,7 @@ func (a amountOfRequests) addRequest(req request) {
 	a[req]++
 }
 
-func printAPIRequestProfile(amountOfRequests map[request]uint64) {
+func printAPIRequestProfile(numRequests map[request]uint64) {
 	log.Info("Printing profile of API requests")
 
 	var (
@@ -144,7 +144,7 @@ func printAPIRequestProfile(amountOfRequests map[request]uint64) {
 		totalAmount uint64
 	)
 
-	for request, amount := range amountOfRequests {
+	for request, amount := range numRequests {
 		requests = append(requests, request)
 		if amount > maxAmount {
 			maxAmount = amount
@@ -177,7 +177,7 @@ func printAPIRequestProfile(amountOfRequests map[request]uint64) {
 	}
 	log.Info(fmt.Sprintf("%% of Total | %-*s | Status | Method | URL", amountFieldWidth, amountHeader))
 	for _, request := range requests {
-		count := amountOfRequests[request]
+		count := numRequests[request]
 		percentOfTotal := float64(count) / float64(totalAmount) * 100.0
 		log.Info(fmt.Sprintf("%-10.2f   %-*d   %-6d   %-6s   %s",
 			percentOfTotal, amountFieldWidth, count, request.StatusCode, request.Method, request.Url))

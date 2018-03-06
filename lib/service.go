@@ -54,12 +54,12 @@ const DateTimeFormat = "2006-01-02T15:04:05Z"
 
 func Start(config *Config) {
 	var (
-		nodeClient       chef.Client
-		ohaiJSON         = map[string]interface{}{}
-		convergeJSON     = map[string]interface{}{}
-		complianceJSON   = map[string]interface{}{}
-		amountOfRequests = make(amountOfRequests)
-		firstRun         = true
+		nodeClient     chef.Client
+		ohaiJSON       = map[string]interface{}{}
+		convergeJSON   = map[string]interface{}{}
+		complianceJSON = map[string]interface{}{}
+		numRequests    = make(amountOfRequests)
+		firstRun       = true
 	)
 
 	if config.RunChefClient {
@@ -104,10 +104,10 @@ func Start(config *Config) {
 		for {
 			select {
 			case req := <-requests:
-				amountOfRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
+				numRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
 			case sig := <-sigs:
 				log.WithFields(log.Fields{"syscall": sig}).Info("Signal received")
-				printAPIRequestProfile(amountOfRequests)
+				printAPIRequestProfile(numRequests)
 				log.Info("Stopping chef-load")
 				os.Exit(0)
 			}
