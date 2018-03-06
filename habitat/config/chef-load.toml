@@ -17,6 +17,7 @@
 log_file = "{{cfg.log_file}}"
 data_collector_token = "{{cfg.data_collector_token}}"
 num_nodes = {{cfg.num_nodes}}
+num_actions = {{cfg.num_actions}}
 interval = {{cfg.interval}}
 node_name_prefix = "{{cfg.node_name_prefix}}"
 chef_environment = "{{cfg.chef_environment}}"
@@ -27,6 +28,7 @@ api_get_requests = {{toToml cfg.api_get_requests}}
 chef_version = "{{cfg.chef_version}}"
 chef_server_creates_client_key = {{cfg.chef_server_creates_client_key}}
 enable_reporting = {{cfg.enable_reporting}}
+random_data = {{cfg.random_data}}
 
 {{#if bind.automate}}
   data_collector_url="{{cfg.data_collector.protocol}}://{{bind.automate.first.sys.ip}}:{{bind.automate.first.cfg.port}}/{{cfg.data_collector.path}}"
