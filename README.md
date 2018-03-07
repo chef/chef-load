@@ -296,12 +296,13 @@ To build chef-load using habitat you have to first, install Habitat: https://www
 
 Get and install chef-load
 ```
-go get github.com/chef/chef-load
+$ git clone https://github.com/chef/chef-load
 ```
 
 Enter the Habitat studio and build chef-load:
 ```
-hab studio enter
+$ cd chef-load
+$ hab studio enter
 [1][default:/src:0]# build
 
    -- truncated-output --
