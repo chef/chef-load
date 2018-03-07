@@ -72,14 +72,14 @@ type Task int
 // Supported Tasks
 const (
 	createTask Task = iota
-	editTask
+	updateTask
 	deleteTask
 )
 
 // Strings of the supported Tasks list above
 var tasksString = map[Task]string{
 	createTask: "create",
-	editTask:   "update",
+	updateTask: "update",
 	deleteTask: "delete",
 }
 
