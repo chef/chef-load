@@ -112,6 +112,8 @@ func Start(config *Config) {
 		}
 	}()
 
+	// TODO: Trigger the load of actions
+
 	for {
 		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)

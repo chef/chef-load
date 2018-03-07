@@ -179,6 +179,17 @@ func ChefClientRun(config *Config, nodeClient chef.Client, nodeName string, firs
 		apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", runStopBody, nil, nil, requests)
 	}
 
+	// Send an Update Action that we just ran a CCR and the node updated itself
+	ccrAction := newActionRequest(nodeAction)
+	ccrAction.SetTask(updateTask)
+	ccrAction.EntityName = nodeName
+	ccrAction.RequestorName = nodeName
+	if config.DataCollectorURL != "" {
+		chefAutomateSendMessage(dataCollectorClient, ccrAction.String(), ccrAction)
+	} else if dataCollectorAvailable {
+		apiRequest(nodeClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests)
+	}
+
 	// Notify Data Collector of compliance report
 	if len(complianceJSON) != 0 {
 		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)

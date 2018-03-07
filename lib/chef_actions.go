@@ -205,14 +205,6 @@ func GenerateChefActions(config *Config, requests chan *request) error {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	for i := 1; i <= config.NumActions; i++ {
-		// TODO: Check the errors
-		chefAction(config, randomActionType(), requests)
-	}
-	return nil
-}
-
-func chefAction(config *Config, aType ActionType, requests chan *request) error {
 	dataCollectorClient, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   config.DataCollectorToken,
 		URL:     config.DataCollectorURL,
@@ -222,6 +214,14 @@ func chefAction(config *Config, aType ActionType, requests chan *request) error 
 		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
 	}
 
+	for i := 1; i <= config.NumActions; i++ {
+		// TODO: Check the errors
+		chefAction(config, randomActionType(), dataCollectorClient)
+	}
+	return nil
+}
+
+func chefAction(config *Config, aType ActionType, dataCollectorClient *DataCollectorClient) error {
 	action := newRandomActionRequest(aType)
 	return chefAutomateSendMessage(dataCollectorClient, action.String(), action)
 }
