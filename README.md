@@ -22,58 +22,72 @@ Prebuilt chef-load binary files are available on chef-load's "Releases" page.
 
 https://github.com/jeremiahsnapp/chef-load/releases
 
+### Install via Habitat
+
+Follow these steps to install the latest version of chef-load from the habitat depot in the `chef` origin:
+
+1. Install Habitat: https://www.habitat.sh/docs/install-habitat/
+2. Install and link chef-load binary
+```
+hab pkg install chef/chef-load
+hab pkg binlink chef/chef-load chef-load
+```
+
 ### Generate a chef-load configuration file.  
 
 The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and documents a lot of the flexibility of chef-load so please read it.
 
 ```
-chef-load --sample-config > chef-load.conf
+chef-load init > chef-load.toml
 ```
 
 chef-load logs all API requests in the file specified by the `log_file` setting in the config file. The default value is `/var/log/chef-load/chef-load.log`.
 
-Make sure chef-load.conf has appropriate settings for applying load to your Chef Server,
+Make sure `chef-load.toml` has appropriate settings for applying load to your Chef Server,
 Automate Server or both.
 
 #### Chef API client
 
 The client defined by "client_name" in the chef-load configuration file needs to be an admin user of the Chef Server organization.
 
-## Various ways to run chef-load
+## Continuous load of nodes, actions and reports
 
 Run chef-load using only the configuration file.
 
 ```
-chef-load --config chef-load.conf
+chef-load start --config chef-load.toml
 ```
 
-You can use the `--prefix` command line option to set the prefix for the node names. This
+You can use the `--node_name_prefix` command line option to set the prefix for the node names. This
 enables easily running multiple instances of chef-load without affecting each others' nodes.
 For example, a value of "chef-load" will result in nodes named "chef-load-1", "chef-load-2", etc.
 
 ```
-chef-load --config chef-load.conf --prefix chef-load-a
+chef-load start --config chef-load.toml --node_name_prefix chef-load-a
 
 # in another terminal you can run the following to create another instance of chef-load
-chef-load --config chef-load.conf --prefix chef-load-b
+chef-load start --config chef-load.toml --node_name_prefix chef-load-b
 ```
 
-You can set the number of nodes using the `--nodes` command line option and the interval using the `--interval` command line option. The default value for both of these options is 30. This is useful for quickly adjusting the load without modifying the configuration file.
+You can set the number of nodes and/or actions using the `--nodes` and `--actions` command line options, as well as the interval using
+the `--interval` command line option. This is useful for quickly adjusting the load without modifying the configuration file.
 
-chef-load will evenly distribute the number of nodes across the desired interval (minutes).
+chef-load will evenly distribute the number of nodes and/or actions across the desired interval (minutes).
 
 Examples:
 
-* 1800 nodes / 30 minute interval = 60 chef-client runs per minute
-* 1800 nodes / 60 minute interval = 30 chef-client runs per minute
+* 1800 nodes & 600 actions / 30 minute interval = 60 chef-client runs & 20 actions per minute
+* 1800 nodes & 600 actions / 60 minute interval = 30 chef-client runs & 10 actions per minute
 
 ```
-chef-load --config chef-load.conf --nodes 1800
+chef-load start --config chef-load.toml --nodes 1800 --actions 500
 ```
 
 ```
-chef-load --config chef-load.conf --nodes 1800 --interval 60
+chef-load start --config chef-load.toml --nodes 1800 --actions 500 --interval 60
 ```
+
+_NOTE: Every chef-client run will automatically trigger a node update action, plus the specified actions._
 
 ### Example chef-load systemd service file
 
@@ -85,7 +99,7 @@ Description=Chef load testing tool
 After=network.target
 
 [Service]
-ExecStart=/home/centos/chef-load -config /home/centos/chef_load.conf
+ExecStart=/home/centos/chef-load start --config /home/centos/chef_load.toml
 Type=simple
 PIDFile=/tmp/chef_load.pid
 Restart=always
@@ -103,7 +117,7 @@ WantedBy=default.target
 chef-load prints an API request profile when it receives a `USR1` signal and when it is terminated.
 
 ```
-root@ip-172-31-17-147:~# ./chef-load -config chef-load.conf -nodes 60 -interval 1 -prefix foo
+root@ip-172-31-17-147:~# ./chef-load start --config chef-load.toml --nodes 60 --interval 1 --node_name_prefix foo
 2017-08-30T20:25:37Z Starting chef-load with 60 nodes distributed evenly across a 1 minute interval
 2017-08-30T20:25:37Z All API requests will be logged in /var/log/chef-load/chef-load.log
 2017-08-30T20:25:44Z Received Signal: USR1
@@ -137,7 +151,7 @@ Total API Requests: 1149
 The `-profile-logs` option will read the specified chef-load log files and print an API request profile. If chef-load receives a `USR1` signal or is terminated before it finishes reading the log files then it will print an API request profile for the data that it read up to that point in time.
 
 ```
-root@ip-172-31-17-147:~# ./chef-load -profile-logs  /var/log/chef-load/*
+root@ip-172-31-17-147:~# ./chef-load start --profile-logs  /var/log/chef-load/*
 2017-08-31T15:04:42Z Reading log file /var/log/chef-load/chef-load.log
 2017-08-31T15:04:43Z Reading log file /var/log/chef-load/chef-load.log.1
 2017-08-31T15:04:43Z Reading log file /var/log/chef-load/chef-load.log.2
@@ -217,7 +231,37 @@ class Chef
 end
 ```
 
+## Generation of nodes, actions and/or reports
+
+Chef-load can also be used to generate a subset of data into a Chef Automate server.
+
+### Generate Nodes (chef-client runs)
+
+```
+chef-load generate --nodes 60 --data_collector_url "https://automate.example.org/data-collector/v0/"
+```
+
+### Generate Chef Actions
+
+```
+chef-load generate --actions 60 --data_collector_url "https://automate.example.org/data-collector/v0/"
+```
+
+### Generate both Chef Actions and Nodes (chef-client runs)
+
+```
+chef-load generate -n 60 -a 60 --data_collector_url "https://automate.example.org/data-collector/v0/"
+```
+
+### Generate data using a config file
+
+```
+chef-load generate --config chef-load.toml
+```
+
 ## Build chef-load from source
+
+### Natively with Go
 
 To build chef-load you must have Go installed.  
 Ref: https://golang.org/dl/
@@ -233,7 +277,7 @@ export GOPATH=~/go-work
 Get and install chef-load
 
 ```
-go get github.com/jeremiahsnapp/chef-load
+go get github.com/chef/chef-load
 ```
 
 It is easy to cross-compile chef-load for other platforms.  
@@ -244,6 +288,30 @@ The following command will create a chef-load executable file for linux amd64 in
 
 ```
 env GOOS=linux GOARCH=amd64 go build github.com/jeremiahsnapp/chef-load
+```
+
+### Natively with Habitat
+
+To build chef-load using habitat you have to first, install Habitat: https://www.habitat.sh/docs/install-habitat/
+
+Get and install chef-load
+```
+$ git clone https://github.com/chef/chef-load
+```
+
+Enter the Habitat studio and build chef-load:
+```
+$ cd chef-load
+$ hab studio enter
+[1][default:/src:0]# build
+
+   -- truncated-output --
+
+   chef-load:
+   chef-load: I love it when a plan.sh comes together.
+   chef-load:
+   chef-load: Build time: 0m35s
+[2][default:/src:0]#
 ```
 
 # License

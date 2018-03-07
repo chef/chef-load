@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 // Random data to use by the generator.go file to create random nodes/ccr's
 

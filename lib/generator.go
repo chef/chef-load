@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,14 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 // This file will have the functions that will generate random data,
 // it involve creating fake Chef Nodes and Chef Runs that can be sent
 // to the data-collector endpoint
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -29,36 +30,72 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
 )
 
-func generateRandomData(chefClient chef.Client, requests amountOfRequests) (err error) {
-	channels := make([]<-chan error, config.NumNodes)
+func GenerateData(config *Config) error {
+	var (
+		numRequests = make(amountOfRequests)
+		requests    = make(chan *request)
+	)
+
+	go func() {
+		for {
+			select {
+			case req := <-requests:
+				numRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
+			}
+		}
+	}()
+
+	// TODO @afiune switch to fan-out fan-in (merge)
+	// TODO catch error
+	GenerateChefActions(config, requests)
+	//GenerateComplianceReport(config)
+	GenerateCCRs(config, requests)
+
+	printAPIRequestProfile(numRequests)
+
+	return nil
+}
+
+func GenerateCCRs(config *Config, requests chan *request) (err error) {
+	var (
+		chefClient chef.Client
+		channels   = make([]<-chan error, config.NumNodes)
+	)
+
+	if config.RunChefClient {
+		chefClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
+	}
+
+	log.WithFields(log.Fields{
+		"nodes":       config.NumNodes,
+		"random_data": config.RandomData,
+	}).Info("Generating chef-client runs")
+
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	for i := 0; i < config.NumNodes; i++ {
 		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i+1)
-		fmt.Printf(".")
-		channels[i] = ccr(chefClient, nodeName)
+		channels[i] = ccr(config, chefClient, nodeName, requests)
 	}
-
-	fmt.Println("\n")
 
 	for n := range merge(channels...) {
 		if n != nil {
-			fmt.Println("Error: ", n)
+			log.WithFields(log.Fields{"error": n}).Error()
 			err = n
 		}
 	}
 
-	printAPIRequestProfile(requests)
-
 	return err
 }
 
-func ccr(chefClient chef.Client, nodeName string) <-chan error {
+func ccr(config *Config, chefClient chef.Client, nodeName string, requests chan *request) <-chan error {
 	out := make(chan error)
 	go func() {
-		randomChefClientRun(chefClient, nodeName)
+		randomChefClientRun(config, chefClient, nodeName, requests)
 		close(out)
 	}()
 	return out
@@ -163,7 +200,7 @@ func randAttributeMapKey(m map[string]interface{}) string {
 	return ""
 }
 
-func randomChefClientRun(chefClient chef.Client, nodeName string) {
+func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string, requests chan *request) error {
 	var (
 		startTime, endTime     = genRandomStartEndTime()
 		runUUID, _             = uuid.NewV4()
@@ -209,67 +246,87 @@ func randomChefClientRun(chefClient chef.Client, nodeName string) {
 		if config.ChefServerCreatesClientKey {
 			clientBody["create_key"] = config.ChefServerCreatesClientKey
 		}
-		apiRequest(chefClient, nodeName, "POST", "clients", clientBody, nil, nil)
+		apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "clients", clientBody, nil, nil, requests)
 
-		res, _ := apiRequest(chefClient, nodeName, "GET", "nodes/"+nodeName, nil, &node, nil)
+		res, _ := apiRequest(chefClient, nodeName, config.ChefVersion, "GET", "nodes/"+nodeName, nil, &node, nil, requests)
 		if res != nil && res.StatusCode == 404 {
-			apiRequest(chefClient, nodeName, "POST", "nodes", node, nil, nil)
+			apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "nodes", node, nil, nil, requests)
 		}
 	}
 
 	if config.RunChefClient {
 		// Expand run_list
-		expandedRunList = runList.expand(&chefClient, nodeName, node.Environment)
+		expandedRunList = runList.expand(&chefClient, nodeName, config.ChefVersion, node.Environment, requests)
 
 		// TODO Check error?
-		apiRequest(chefClient, nodeName, "GET", "environments/"+node.Environment, nil, nil, nil)
+		apiRequest(chefClient, nodeName, config.ChefVersion, "GET", "environments/"+node.Environment, nil, nil, nil, requests)
 
 		// Notify Reporting of run start
 		if config.EnableReporting {
-			res, _ := reportingRunStart(chefClient, nodeName, runUUID, startTime)
+			res, _ := reportingRunStart(chefClient, nodeName, config.ChefVersion, runUUID, startTime, requests)
 			if res != nil && res.StatusCode == 404 {
 				reportingAvailable = false
 			}
 		}
 	}
 
+	dataCollectorClient, err := NewDataCollectorClient(&DataCollectorConfig{
+		Token:   config.DataCollectorToken,
+		URL:     config.DataCollectorURL,
+		SkipSSL: true,
+	}, requests)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
+	}
+
 	// Notify Data Collector of run start
-	runStartBody := dataCollectorRunStart(nodeName, chefServerFQDN, orgName, runUUID, nodeUUID, startTime)
+	runStartBody := dataCollectorRunStart(config, nodeName, chefServerFQDN, orgName, runUUID, nodeUUID, startTime)
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStartBody)
+		chefAutomateSendMessage(dataCollectorClient, nodeName, runStartBody)
 	} else {
 		// TODO Check error?
-		apiRequest(chefClient, nodeName, "POST", "data-collector", runStartBody, nil, nil)
+		apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", runStartBody, nil, nil, requests)
 	}
 
 	if config.RunChefClient {
 		// Calculate cookbook dependencies
-		ckbks := solveRunListDependencies(&chefClient, nodeName, expandedRunList, node.Environment)
+		ckbks := solveRunListDependencies(&chefClient, nodeName, config.ChefVersion, node.Environment, expandedRunList, requests)
 
 		// Download cookbooks
 		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first") {
-			ckbks.download(&chefClient, nodeName)
+			ckbks.download(&chefClient, nodeName, config.ChefVersion, requests)
 		}
 	} else {
 		expandedRunList = runList.toStringSlice()
 	}
 
 	if config.RunChefClient {
-		apiRequest(chefClient, nodeName, "PUT", "nodes/"+nodeName, node, nil, nil)
+		apiRequest(chefClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests)
 
 		// Notify Reporting of run end
 		if config.EnableReporting && reportingAvailable {
-			reportingRunStop(chefClient, nodeName, runUUID, startTime, endTime, runList)
+			reportingRunStop(chefClient, nodeName, config.ChefVersion, runUUID, startTime, endTime, runList, requests)
 		}
 	}
 
 	// Notify Data Collector of run end
-	runStopBody := dataCollectorRunStop(node, nodeName, chefServerFQDN, orgName, status, runList,
+	runStopBody := dataCollectorRunStop(config, node, nodeName, chefServerFQDN, orgName, status, runList,
 		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, runStopBody)
+		chefAutomateSendMessage(dataCollectorClient, nodeName, runStopBody)
 	} else if dataCollectorAvailable {
-		apiRequest(chefClient, nodeName, "POST", "data-collector", runStopBody, nil, nil)
+		apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", runStopBody, nil, nil, requests)
+	}
+
+	// Send an Update Action that we just ran a CCR and the node updated itself
+	ccrAction := newActionRequest(nodeAction)
+	ccrAction.SetTask(updateTask)
+	ccrAction.EntityName = nodeName
+	ccrAction.RequestorName = nodeName
+	if config.DataCollectorURL != "" {
+		chefAutomateSendMessage(dataCollectorClient, ccrAction.String(), ccrAction)
+	} else if dataCollectorAvailable {
+		apiRequest(chefClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests)
 	}
 
 	// TODO: (@afiune) Notify Data Collector of compliance report
@@ -277,9 +334,10 @@ func randomChefClientRun(chefClient chef.Client, nodeName string) {
 	//if len(complianceJSON) != 0 {
 	//complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
 	//if config.DataCollectorURL != "" {
-	//chefAutomateSendMessage(nodeName, config.DataCollectorToken, config.DataCollectorURL, complianceReportBody)
+	//chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
 	//} else {
-	//apiRequest(chefClient, nodeName, "POST", "data-collector", complianceReportBody, nil, nil)
+	//apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", complianceReportBody, nil, nil, requests)
 	//}
 	//}
+	return nil
 }

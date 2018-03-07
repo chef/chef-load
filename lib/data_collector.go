@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 // Cheers! https://github.com/go-chef/chef/blob/master/http.go
 
@@ -44,9 +44,10 @@ type DataCollectorConfig struct {
 
 // DataCollectorClient has our configured HTTP client, our Token and the URL
 type DataCollectorClient struct {
-	Client *http.Client
-	Token  string
-	URL    *url.URL
+	Client   *http.Client
+	Token    string
+	URL      *url.URL
+	Requests chan *request
 }
 
 type expandedRunListItem struct {
@@ -57,7 +58,7 @@ type expandedRunListItem struct {
 }
 
 // NewDataCollectorClient builds our Client struct with our Config
-func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, error) {
+func NewDataCollectorClient(cfg *DataCollectorConfig, reqChan chan *request) (*DataCollectorClient, error) {
 	URL, _ := url.Parse(cfg.URL)
 
 	tr := &http.Transport{
@@ -69,8 +70,9 @@ func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, err
 			Transport: tr,
 			Timeout:   cfg.Timeout * time.Second,
 		},
-		URL:   URL,
-		Token: cfg.Token,
+		URL:      URL,
+		Token:    cfg.Token,
+		Requests: reqChan,
 	}
 	return c, nil
 }
@@ -80,6 +82,7 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	var bodyJSON io.Reader = nil
 	if body != nil {
 		var err error
+		// TODO: @afiune check panic!?
 		bodyJSON, err = chef.JSONReader(body)
 		if err != nil {
 			return nil, err
@@ -101,8 +104,6 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		req.Header.Set("Authorization", "Bearer dev")
 	}
 
-	logger.WithFields(log.Fields{"headers": req.Header}).Info("Auth headers")
-
 	// Do request
 	t0 := time.Now()
 	res, err := dcc.Client.Do(req)
@@ -112,8 +113,15 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		defer res.Body.Close()
 		statusCode = res.StatusCode
 	}
-	requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
-	logger.WithFields(log.Fields{"node_name": nodeName, "method": req.Method, "url": req.URL.String(), "status_code": statusCode, "request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000}).Info("API Request")
+	dcc.Requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
+	logger.WithFields(log.Fields{
+		"name":                 nodeName,
+		"method":               req.Method,
+		"url":                  req.URL.String(),
+		"status_code":          statusCode,
+		"headers":              req.Header,
+		"request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000,
+	}).Info("API Request")
 
 	if res != nil {
 		if !(res.StatusCode >= 200 && res.StatusCode <= 299) {
@@ -129,22 +137,12 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	return res, err
 }
 
-func chefAutomateSendMessage(nodeName string, dataCollectorToken string, dataCollectorURL string, body interface{}) error {
-	client, err := NewDataCollectorClient(&DataCollectorConfig{
-		Token:   dataCollectorToken,
-		URL:     dataCollectorURL,
-		SkipSSL: true,
-	})
-
-	if err != nil {
-		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
-	}
-
-	_, err = client.Update(nodeName, body)
+func chefAutomateSendMessage(client *DataCollectorClient, nodeName string, body interface{}) error {
+	_, err := client.Update(nodeName, body)
 	return err
 }
 
-func dataCollectorRunStart(nodeName, chefServerFQDN, orgName string,
+func dataCollectorRunStart(config *Config, nodeName, chefServerFQDN, orgName string,
 	runUUID, nodeUUID uuid.UUID, startTime time.Time) interface{} {
 
 	if chefServerFQDN == "" {
@@ -162,13 +160,13 @@ func dataCollectorRunStart(nodeName, chefServerFQDN, orgName string,
 		"organization_name": orgName,
 		"run_id":            runUUID.String(),
 		"source":            "chef_client",
-		"start_time":        startTime.Format(iso8601DateTime),
+		"start_time":        startTime.Format(DateTimeFormat),
 	}
 	return body
 }
 
 // TODO: (@afiune) Refactor this so we dont pass so many arguments
-func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName, status string,
+func dataCollectorRunStop(config *Config, node chef.Node, nodeName, chefServerFQDN, orgName, status string,
 	runList, expandedRunList runList, runUUID, nodeUUID uuid.UUID,
 	startTime, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
 
@@ -222,8 +220,8 @@ func dataCollectorRunStop(node chef.Node, nodeName, chefServerFQDN, orgName, sta
 		"organization_name":      orgName,
 		"run_id":                 runUUID.String(),
 		"source":                 "chef_client",
-		"start_time":             startTime.Format(iso8601DateTime),
-		"end_time":               endTime.Format(iso8601DateTime),
+		"start_time":             startTime.Format(DateTimeFormat),
+		"end_time":               endTime.Format(DateTimeFormat),
 		"status":                 status,
 		"run_list":               convergedRunList,
 		"expanded_run_list":      convergedExpandedRunListMap,
@@ -242,7 +240,7 @@ func dataCollectorComplianceReport(nodeName string, chefEnvironment string, repo
 	body["environment"] = chefEnvironment
 	body["report_uuid"] = reportUUID
 	body["node_uuid"] = nodeUUID
-	body["end_time"] = endTime.Format(iso8601DateTime)
+	body["end_time"] = endTime.Format(DateTimeFormat)
 
 	if body["controls"] != nil {
 		delete(body, "controls")

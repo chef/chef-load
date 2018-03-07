@@ -15,10 +15,23 @@
 // limitations under the License.
 //
 
-package main
+package commands
 
-import "github.com/chef/chef-load/commands"
+import (
+	"fmt"
 
-func main() {
-	commands.Execute()
+	chef_load "github.com/chef/chef-load/lib"
+	"github.com/spf13/cobra"
+)
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: fmt.Sprintf("Display the chef-load version"),
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("chef-load", chef_load.VERSION)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(versionCmd)
 }

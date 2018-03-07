@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 import (
 	"encoding/json"
@@ -34,9 +34,9 @@ type role struct {
 	RunList            []string                   `json:"run_list"`
 }
 
-func roleRunListFor(nodeClient *chef.Client, nodeName string, roleName, chefEnvironment string) runList {
+func roleRunListFor(nodeClient *chef.Client, nodeName, chefVersion, roleName, chefEnvironment string, requests chan *request) runList {
 	var r role
-	apiRequest(*nodeClient, nodeName, "GET", "roles/"+roleName, nil, &r, nil)
+	apiRequest(*nodeClient, nodeName, chefVersion, "GET", "roles/"+roleName, nil, &r, nil, requests)
 
 	var roleRunList runList
 	envRunList, envRunListExists := r.EnvRunLists[chefEnvironment]

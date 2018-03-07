@@ -5,6 +5,7 @@ pkg_license=('Apache-2.0')
 pkg_description="A tool that simulates Chef Client API load on a Chef Server and/or a Chef Automate server"
 pkg_upstream_url="https://github.com/chef/chef-load"
 pkg_bin_dirs=(bin)
+pkg_deps=(core/glibc)
 pkg_binds_optional=(
   [automate]="port"
   [chef-server]="port"
@@ -13,7 +14,8 @@ pkg_scaffolding=core/scaffolding-go
 scaffolding_go_base_path=github.com/chef
 scaffolding_go_build_deps=(
  github.com/go-chef/chef
- github.com/naoina/toml
  github.com/satori/go.uuid
  github.com/sirupsen/logrus
+ github.com/spf13/cobra
+ github.com/spf13/viper
 )

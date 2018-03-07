@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 import (
 	"net/http"
@@ -28,18 +28,18 @@ import (
 
 const rubyDateTime = "2006-01-02 15:04:05 -0700"
 
-func reportingRunStart(nodeClient chef.Client, nodeName string, runUUID uuid.UUID, startTime time.Time) (*http.Response, error) {
+func reportingRunStart(nodeClient chef.Client, nodeName, chefVersion string, runUUID uuid.UUID, startTime time.Time, requests chan *request) (*http.Response, error) {
 	body := map[string]string{
 		"action":     "start",
 		"run_id":     runUUID.String(),
 		"start_time": startTime.Format(rubyDateTime),
 	}
 
-	res, err := apiRequest(nodeClient, nodeName, "POST", "reports/nodes/"+nodeName+"/runs", body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
+	res, err := apiRequest(nodeClient, nodeName, chefVersion, "POST", "reports/nodes/"+nodeName+"/runs", body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"}, requests)
 	return res, err
 }
 
-func reportingRunStop(nodeClient chef.Client, nodeName string, runUUID uuid.UUID, startTime time.Time, endTime time.Time, rl runList) (*http.Response, error) {
+func reportingRunStop(nodeClient chef.Client, nodeName, chefVersion string, runUUID uuid.UUID, startTime time.Time, endTime time.Time, rl runList, requests chan *request) (*http.Response, error) {
 	body := map[string]interface{}{
 		"action":          "end",
 		"data":            map[string]interface{}{},
@@ -51,6 +51,6 @@ func reportingRunStop(nodeClient chef.Client, nodeName string, runUUID uuid.UUID
 		"total_res_count": "0",
 	}
 
-	res, err := apiRequest(nodeClient, nodeName, "POST", "reports/nodes/"+nodeName+"/runs/"+runUUID.String(), body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"})
+	res, err := apiRequest(nodeClient, nodeName, chefVersion, "POST", "reports/nodes/"+nodeName+"/runs/"+runUUID.String(), body, nil, map[string]string{"X-Ops-Reporting-Protocol-Version": "0.1.0"}, requests)
 	return res, err
 }

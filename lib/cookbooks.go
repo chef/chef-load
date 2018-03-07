@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 import "github.com/go-chef/chef"
 
@@ -44,42 +44,30 @@ type cookbook struct {
 
 type cookbooks map[string]cookbook
 
-func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName string) {
-	apiRequest(*nodeClient, nodeName, "GET", ckbkFile.URL, nil, nil, nil)
+func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
+	apiRequest(*nodeClient, nodeName, chefVersion, "GET", ckbkFile.URL, nil, nil, nil, requests)
 }
 
-func (ckbk cookbook) download(nodeClient *chef.Client, nodeName string) {
-	for _, ckbkFile := range ckbk.Attributes {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.Definitions {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.Files {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.Libraries {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.Providers {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.Recipes {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.Resources {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.RootFiles {
-		ckbkFile.download(nodeClient, nodeName)
-	}
-	for _, ckbkFile := range ckbk.Templates {
-		ckbkFile.download(nodeClient, nodeName)
+func (ckbk cookbook) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
+	for _, property := range []interface{}{
+		ckbk.Attributes,
+		ckbk.Definitions,
+		ckbk.Files,
+		ckbk.Libraries,
+		ckbk.Recipes,
+		ckbk.Providers,
+		ckbk.Resources,
+		ckbk.RootFiles,
+		ckbk.Templates,
+	} {
+		for _, ckbkFile := range property.([]cookbookFile) {
+			ckbkFile.download(nodeClient, nodeName, chefVersion, requests)
+		}
 	}
 }
 
-func (ckbks cookbooks) download(nodeClient *chef.Client, nodeName string) {
+func (ckbks cookbooks) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
 	for _, ckbk := range ckbks {
-		ckbk.download(nodeClient, nodeName)
+		ckbk.download(nodeClient, nodeName, chefVersion, requests)
 	}
 }

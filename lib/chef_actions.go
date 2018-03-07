@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,16 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 // ActionType will be our enum to identity a list of actions types
@@ -70,14 +72,14 @@ type Task int
 // Supported Tasks
 const (
 	createTask Task = iota
-	editTask
+	updateTask
 	deleteTask
 )
 
 // Strings of the supported Tasks list above
 var tasksString = map[Task]string{
 	createTask: "create",
-	editTask:   "update",
+	updateTask: "update",
 	deleteTask: "delete",
 }
 
@@ -195,7 +197,31 @@ func (ar *actionRequest) String() string {
 	return fmt.Sprintf("%s::%s", ar.EntityType, ar.Task)
 }
 
-func chefAction(aType ActionType) error {
+func GenerateChefActions(config *Config, requests chan *request) error {
+	log.WithFields(log.Fields{
+		"actions":     config.NumActions,
+		"random_data": config.RandomData,
+	}).Info("Generating chef actions")
+
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	dataCollectorClient, err := NewDataCollectorClient(&DataCollectorConfig{
+		Token:   config.DataCollectorToken,
+		URL:     config.DataCollectorURL,
+		SkipSSL: true,
+	}, requests)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
+	}
+
+	for i := 1; i <= config.NumActions; i++ {
+		// TODO: Check the errors
+		chefAction(config, randomActionType(), dataCollectorClient)
+	}
+	return nil
+}
+
+func chefAction(config *Config, aType ActionType, dataCollectorClient *DataCollectorClient) error {
 	action := newRandomActionRequest(aType)
-	return chefAutomateSendMessage(action.String(), config.DataCollectorToken, config.DataCollectorURL, action)
+	return chefAutomateSendMessage(dataCollectorClient, action.String(), action)
 }

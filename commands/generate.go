@@ -15,10 +15,30 @@
 // limitations under the License.
 //
 
-package main
+package commands
 
-import "github.com/chef/chef-load/commands"
+import (
+	chef_load "github.com/chef/chef-load/lib"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+)
 
-func main() {
-	commands.Execute()
+var generateCmd = &cobra.Command{
+	Use:              "generate",
+	Short:            "Generates specific number of chef nodes, actions and/or compliance reports",
+	TraverseChildren: true,
+	Run: func(cmd *cobra.Command, args []string) {
+		config, err := configFromViper()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Fatal("Could not load chef-load config file")
+		}
+
+		chef_load.GenerateData(config)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(generateCmd)
 }

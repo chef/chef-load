@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017 Chef Software, Inc.
+// Copyright:: Copyright 2017-2018 Chef Software, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-package main
+package chef_load
 
 import (
 	"encoding/json"
@@ -33,19 +33,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func apiRequest(nodeClient chef.Client, nodeName string, method, url string, body interface{}, v interface{}, headers map[string]string) (*http.Response, error) {
+func apiRequest(nodeClient chef.Client, nodeName, chefVersion, method, url string,
+	body, v interface{}, headers map[string]string, requests chan *request) (*http.Response, error) {
+
 	var bodyJSON io.Reader = nil
 	if body != nil {
 		var err error
 		bodyJSON, err = chef.JSONReader(body)
 		if err != nil {
-			log.WithField("error", err).Fatal("Could not convert data to JSON")
+			log.WithField("error", err).Error("Could not convert data to JSON")
 		}
 	}
 
 	req, _ := nodeClient.NewRequest(method, url, bodyJSON)
 	req.Header.Set("X-Ops-Server-Api-Version", "1")
-	req.Header.Set("X-Chef-Version", config.ChefVersion)
+	req.Header.Set("X-Chef-Version", chefVersion)
 	for name, value := range headers {
 		req.Header.Set(name, value)
 	}
@@ -57,8 +59,20 @@ func apiRequest(nodeClient chef.Client, nodeName string, method, url string, bod
 		defer res.Body.Close()
 		statusCode = res.StatusCode
 	}
-	requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
-	logger.WithFields(log.Fields{"node_name": nodeName, "method": req.Method, "url": req.URL.String(), "status_code": statusCode, "request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000}).Info("API Request")
+
+	requests <- &request{
+		Method:     req.Method,
+		Url:        req.URL.String(),
+		StatusCode: statusCode,
+	}
+
+	logger.WithFields(log.Fields{
+		"node_name":            nodeName,
+		"method":               req.Method,
+		"url":                  req.URL.String(),
+		"status_code":          statusCode,
+		"request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000,
+	}).Info("API Request")
 
 	if err != nil {
 		return res, err
@@ -78,7 +92,7 @@ func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client 
 		SkipSSL: true,
 	})
 	if err != nil {
-		log.WithField("error", err).Fatal("Could not create API client")
+		log.WithField("error", err).Error("Could not create API client")
 	}
 	return *client
 }
@@ -86,7 +100,7 @@ func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client 
 func getPrivateKey(privateKeyPath string) string {
 	fileContent, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {
-		log.WithField("error", err).Fatalf("Could not read private key %s", privateKeyPath)
+		log.WithField("error", err).Error("Could not read private key %s", privateKeyPath)
 	}
 	privateKey := string(fileContent)
 	return privateKey
@@ -97,14 +111,14 @@ func parseJSONFile(jsonFile string) map[string]interface{} {
 
 	file, err := os.Open(jsonFile)
 	if err != nil {
-		log.WithField("error", err).Fatalf("Could not open JSON file %s", jsonFile)
+		log.WithField("error", err).Error("Could not open JSON file %s", jsonFile)
 		return jsonContent
 	}
 	defer file.Close()
 
 	err = json.NewDecoder(file).Decode(&jsonContent)
 	if err != nil {
-		log.WithField("error", err).Fatalf("Could not decode JSON file %s", jsonFile)
+		log.WithField("error", err).Error("Could not decode JSON file %s", jsonFile)
 		return jsonContent
 	}
 	return jsonContent
@@ -121,13 +135,16 @@ func (a amountOfRequests) addRequest(req request) {
 	a[req]++
 }
 
-func printAPIRequestProfile(amountOfRequests map[request]uint64) {
-	fmt.Printf("%s Printing profile of API requests\n", time.Now().UTC().Format(iso8601DateTime))
+func printAPIRequestProfile(numRequests map[request]uint64) {
+	log.Info("Printing profile of API requests")
 
-	var requests []request
-	var maxAmount uint64
-	var totalAmount uint64
-	for request, amount := range amountOfRequests {
+	var (
+		requests    []request
+		maxAmount   uint64
+		totalAmount uint64
+	)
+
+	for request, amount := range numRequests {
 		requests = append(requests, request)
 		if amount > maxAmount {
 			maxAmount = amount
@@ -152,17 +169,17 @@ func printAPIRequestProfile(amountOfRequests map[request]uint64) {
 		return false
 	})
 
-	fmt.Printf("Total API Requests: %d\n", totalAmount)
-
+	log.Info("Total API Requests: ", totalAmount)
 	amountHeader := "Subtotal"
 	amountFieldWidth := len(amountHeader)
 	if maxAmountWidth := len(strconv.FormatUint(maxAmount, 10)); maxAmountWidth > amountFieldWidth {
 		amountFieldWidth = maxAmountWidth
 	}
-	fmt.Printf("%% of Total | %-*s | Status | Method | URL\n", amountFieldWidth, amountHeader)
+	log.Info(fmt.Sprintf("%% of Total | %-*s | Status | Method | URL", amountFieldWidth, amountHeader))
 	for _, request := range requests {
-		count := amountOfRequests[request]
+		count := numRequests[request]
 		percentOfTotal := float64(count) / float64(totalAmount) * 100.0
-		fmt.Printf("%-10.2f   %-*d   %-6d   %-6s   %s\n", percentOfTotal, amountFieldWidth, count, request.StatusCode, request.Method, request.Url)
+		log.Info(fmt.Sprintf("%-10.2f   %-*d   %-6d   %-6s   %s",
+			percentOfTotal, amountFieldWidth, count, request.StatusCode, request.Method, request.Url))
 	}
 }
