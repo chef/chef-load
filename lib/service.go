@@ -45,10 +45,7 @@ type request struct {
 	StatusCode int    `json:"status_code"`
 }
 
-var (
-	logger   = log.New()
-	requests = make(chan *request)
-)
+var logger = log.New()
 
 const DateTimeFormat = "2006-01-02T15:04:05Z"
 
@@ -59,6 +56,7 @@ func Start(config *Config) {
 		convergeJSON   = map[string]interface{}{}
 		complianceJSON = map[string]interface{}{}
 		numRequests    = make(amountOfRequests)
+		requests       = make(chan *request)
 		firstRun       = true
 	)
 
@@ -117,7 +115,7 @@ func Start(config *Config) {
 	for {
 		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-			go ChefClientRun(config, nodeClient, nodeName, firstRun, ohaiJSON, convergeJSON, complianceJSON)
+			go ChefClientRun(config, nodeClient, nodeName, firstRun, ohaiJSON, convergeJSON, complianceJSON, requests)
 			time.Sleep(delayBetweenNodes)
 		}
 		firstRun = false

@@ -44,11 +44,11 @@ type cookbook struct {
 
 type cookbooks map[string]cookbook
 
-func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName, chefVersion string) {
-	apiRequest(*nodeClient, nodeName, chefVersion, "GET", ckbkFile.URL, nil, nil, nil)
+func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
+	apiRequest(*nodeClient, nodeName, chefVersion, "GET", ckbkFile.URL, nil, nil, nil, requests)
 }
 
-func (ckbk cookbook) download(nodeClient *chef.Client, nodeName, chefVersion string) {
+func (ckbk cookbook) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
 	for _, property := range []interface{}{
 		ckbk.Attributes,
 		ckbk.Definitions,
@@ -61,13 +61,13 @@ func (ckbk cookbook) download(nodeClient *chef.Client, nodeName, chefVersion str
 		ckbk.Templates,
 	} {
 		for _, ckbkFile := range property.([]cookbookFile) {
-			ckbkFile.download(nodeClient, nodeName, chefVersion)
+			ckbkFile.download(nodeClient, nodeName, chefVersion, requests)
 		}
 	}
 }
 
-func (ckbks cookbooks) download(nodeClient *chef.Client, nodeName, chefVersion string) {
+func (ckbks cookbooks) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
 	for _, ckbk := range ckbks {
-		ckbk.download(nodeClient, nodeName, chefVersion)
+		ckbk.download(nodeClient, nodeName, chefVersion, requests)
 	}
 }

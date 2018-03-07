@@ -34,7 +34,7 @@ import (
 )
 
 func apiRequest(nodeClient chef.Client, nodeName, chefVersion, method, url string,
-	body, v interface{}, headers map[string]string) (*http.Response, error) {
+	body, v interface{}, headers map[string]string, requests chan *request) (*http.Response, error) {
 
 	var bodyJSON io.Reader = nil
 	if body != nil {

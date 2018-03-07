@@ -18,6 +18,7 @@
 package chef_load
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -196,7 +197,7 @@ func (ar *actionRequest) String() string {
 	return fmt.Sprintf("%s::%s", ar.EntityType, ar.Task)
 }
 
-func GenerateChefActions(config *Config) error {
+func GenerateChefActions(config *Config, requests chan *request) error {
 	log.WithFields(log.Fields{
 		"actions":     config.NumActions,
 		"random_data": config.RandomData,
@@ -206,12 +207,21 @@ func GenerateChefActions(config *Config) error {
 
 	for i := 1; i <= config.NumActions; i++ {
 		// TODO: Check the errors
-		chefAction(config, randomActionType())
+		chefAction(config, randomActionType(), requests)
 	}
 	return nil
 }
 
-func chefAction(config *Config, aType ActionType) error {
+func chefAction(config *Config, aType ActionType, requests chan *request) error {
+	dataCollectorClient, err := NewDataCollectorClient(&DataCollectorConfig{
+		Token:   config.DataCollectorToken,
+		URL:     config.DataCollectorURL,
+		SkipSSL: true,
+	}, requests)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
+	}
+
 	action := newRandomActionRequest(aType)
-	return chefAutomateSendMessage(action.String(), config.DataCollectorToken, config.DataCollectorURL, action)
+	return chefAutomateSendMessage(dataCollectorClient, action.String(), action)
 }

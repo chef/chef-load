@@ -44,9 +44,10 @@ type DataCollectorConfig struct {
 
 // DataCollectorClient has our configured HTTP client, our Token and the URL
 type DataCollectorClient struct {
-	Client *http.Client
-	Token  string
-	URL    *url.URL
+	Client   *http.Client
+	Token    string
+	URL      *url.URL
+	Requests chan *request
 }
 
 type expandedRunListItem struct {
@@ -57,7 +58,7 @@ type expandedRunListItem struct {
 }
 
 // NewDataCollectorClient builds our Client struct with our Config
-func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, error) {
+func NewDataCollectorClient(cfg *DataCollectorConfig, reqChan chan *request) (*DataCollectorClient, error) {
 	URL, _ := url.Parse(cfg.URL)
 
 	tr := &http.Transport{
@@ -69,8 +70,9 @@ func NewDataCollectorClient(cfg *DataCollectorConfig) (*DataCollectorClient, err
 			Transport: tr,
 			Timeout:   cfg.Timeout * time.Second,
 		},
-		URL:   URL,
-		Token: cfg.Token,
+		URL:      URL,
+		Token:    cfg.Token,
+		Requests: reqChan,
 	}
 	return c, nil
 }
@@ -111,7 +113,7 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		defer res.Body.Close()
 		statusCode = res.StatusCode
 	}
-	requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
+	dcc.Requests <- &request{Method: req.Method, Url: req.URL.String(), StatusCode: statusCode}
 	logger.WithFields(log.Fields{
 		"name":                 nodeName,
 		"method":               req.Method,
@@ -135,18 +137,8 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	return res, err
 }
 
-func chefAutomateSendMessage(nodeName string, dataCollectorToken string, dataCollectorURL string, body interface{}) error {
-	client, err := NewDataCollectorClient(&DataCollectorConfig{
-		Token:   dataCollectorToken,
-		URL:     dataCollectorURL,
-		SkipSSL: true,
-	})
-
-	if err != nil {
-		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
-	}
-
-	_, err = client.Update(nodeName, body)
+func chefAutomateSendMessage(client *DataCollectorClient, nodeName string, body interface{}) error {
+	_, err := client.Update(nodeName, body)
 	return err
 }
 

@@ -57,14 +57,14 @@ func (rl runList) toStringSlice() []string {
 	return stringSlice
 }
 
-func (rl runList) expand(nodeClient *chef.Client, nodeName, chefVersion, chefEnvironment string) []string {
+func (rl runList) expand(nodeClient *chef.Client, nodeName, chefVersion, chefEnvironment string, requests chan *request) []string {
 	recipes := []string{}
 	appliedRoles := map[string]bool{}
-	expandRunList(nodeClient, nodeName, chefVersion, rl, &recipes, &appliedRoles, chefEnvironment)
+	expandRunList(nodeClient, nodeName, chefVersion, rl, &recipes, &appliedRoles, chefEnvironment, requests)
 	return recipes
 }
 
-func expandRunList(nodeClient *chef.Client, nodeName, chefVersion string, rl runList, recipesPtr *[]string, appliedRolesPtr *map[string]bool, chefEnvironment string) {
+func expandRunList(nodeClient *chef.Client, nodeName, chefVersion string, rl runList, recipesPtr *[]string, appliedRolesPtr *map[string]bool, chefEnvironment string, requests chan *request) {
 	var entry runListItem
 	if rl.length() > 0 {
 		entry, rl = rl.shift()
@@ -80,19 +80,19 @@ func expandRunList(nodeClient *chef.Client, nodeName, chefVersion string, rl run
 		case "role":
 			if !(*appliedRolesPtr)[entry.name] {
 				(*appliedRolesPtr)[entry.name] = true
-				roleRunList := roleRunListFor(nodeClient, nodeName, chefVersion, entry.name, chefEnvironment)
-				expandRunList(nodeClient, nodeName, chefVersion, roleRunList, recipesPtr, appliedRolesPtr, chefEnvironment)
+				roleRunList := roleRunListFor(nodeClient, nodeName, chefVersion, entry.name, chefEnvironment, requests)
+				expandRunList(nodeClient, nodeName, chefVersion, roleRunList, recipesPtr, appliedRolesPtr, chefEnvironment, requests)
 			}
 		}
-		expandRunList(nodeClient, nodeName, chefVersion, rl, recipesPtr, appliedRolesPtr, chefEnvironment)
+		expandRunList(nodeClient, nodeName, chefVersion, rl, recipesPtr, appliedRolesPtr, chefEnvironment, requests)
 	}
 }
 
-func solveRunListDependencies(nodeClient *chef.Client, nodeName, chefVersion, chefEnvironment string, expandedRunList []string) cookbooks {
+func solveRunListDependencies(nodeClient *chef.Client, nodeName, chefVersion, chefEnvironment string, expandedRunList []string, requests chan *request) cookbooks {
 	body := map[string][]string{"run_list": expandedRunList}
 
 	var ckbks cookbooks
-	apiRequest(*nodeClient, nodeName, chefVersion, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil)
+	apiRequest(*nodeClient, nodeName, chefVersion, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil, requests)
 	return ckbks
 }
 
