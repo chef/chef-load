@@ -89,12 +89,15 @@ func Start(config *Config) {
 
 	log.WithFields(log.Fields{
 		"nodes":   config.NumNodes,
+		"actions": config.NumActions,
 		"minutes": config.Interval,
 		"log":     config.LogFile,
 	}).Info("Starting chef-load")
 
 	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
+	delayBetweenActions := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumActions))) * time.Nanosecond
 
+	// This goroutine is in charge to read requests and write them to disk
 	go func() {
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGUSR1)
@@ -112,8 +115,21 @@ func Start(config *Config) {
 		}
 	}()
 
-	// TODO: Trigger the load of actions
+	// The Actions goroutine
+	go func() {
+		dataCollectorClient, _ := NewDataCollectorClient(&DataCollectorConfig{
+			Token:   config.DataCollectorToken,
+			URL:     config.DataCollectorURL,
+			SkipSSL: true,
+		}, requests)
 
+		for i := 1; i <= config.NumActions; i++ {
+			go chefAction(config, randomActionType(), dataCollectorClient)
+			time.Sleep(delayBetweenActions)
+		}
+	}()
+
+	// The Nodes (CCRs) goroutine
 	for {
 		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
