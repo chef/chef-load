@@ -26,8 +26,12 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func ChefClientRun(config *Config, nodeClient chef.Client, nodeName string, firstRun bool, ohaiJSON map[string]interface{}, convergeJSON map[string]interface{}, complianceJSON map[string]interface{}, requests chan *request) {
+func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan *request) {
 	var (
+		nodeClient             chef.Client
+		ohaiJSON               = map[string]interface{}{}
+		convergeJSON           = map[string]interface{}{}
+		complianceJSON         = map[string]interface{}{}
 		chefEnvironment        = config.ChefEnvironment
 		runList                = parseRunList(config.RunList)
 		apiGetRequests         = config.APIGetRequests
@@ -46,6 +50,21 @@ func ChefClientRun(config *Config, nodeClient chef.Client, nodeName string, firs
 		expandedRunList        []string
 		node                   chef.Node
 	)
+
+	if config.RunChefClient {
+		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
+	}
+
+	if config.OhaiJSONFile != "" {
+		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
+	}
+	if config.ConvergeStatusJSONFile != "" {
+		convergeJSON = parseJSONFile(config.ConvergeStatusJSONFile)
+	}
+
+	if config.ComplianceStatusJSONFile != "" {
+		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
+	}
 
 	ohaiJSON["fqdn"] = nodeName
 
