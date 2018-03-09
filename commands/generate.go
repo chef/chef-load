@@ -21,6 +21,7 @@ import (
 	chef_load "github.com/chef/chef-load/lib"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var generateCmd = &cobra.Command{
@@ -41,4 +42,6 @@ var generateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
+	generateCmd.Flags().Int("days_back", 0, "The number days back for historical data")
+	viper.BindPFlags(generateCmd.Flags())
 }

@@ -42,7 +42,6 @@ var startCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.Flags().IntP("interval", "i", 30, "Interval between a node's chef-client runs, in minutes")
 	startCmd.Flags().Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
 	viper.BindPFlags(startCmd.Flags())
 }
