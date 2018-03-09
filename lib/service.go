@@ -26,7 +26,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-chef/chef"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -51,31 +50,13 @@ const DateTimeFormat = "2006-01-02T15:04:05Z"
 
 func Start(config *Config) {
 	var (
-		nodeClient     chef.Client
-		ohaiJSON       = map[string]interface{}{}
-		convergeJSON   = map[string]interface{}{}
-		complianceJSON = map[string]interface{}{}
-		numRequests    = make(amountOfRequests)
-		requests       = make(chan *request)
-		firstRun       = true
+		numRequests = make(amountOfRequests)
+		requests    = make(chan *request)
+		firstRun    = true
 	)
 
-	if config.RunChefClient {
-		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
-	}
-
-	if config.OhaiJSONFile != "" {
-		ohaiJSON = parseJSONFile(config.OhaiJSONFile)
-	}
-	if config.ConvergeStatusJSONFile != "" {
-		convergeJSON = parseJSONFile(config.ConvergeStatusJSONFile)
-	}
-
-	if config.ComplianceStatusJSONFile != "" {
-		complianceJSON = parseJSONFile(config.ComplianceStatusJSONFile)
-	}
-
 	logger.Formatter = UTCFormatter{&log.JSONFormatter{}}
+	logger.SetNoLock()
 
 	if err := os.MkdirAll(path.Dir(config.LogFile), 0755); err != nil {
 		log.WithField("error", err).Fatal("Failed to create directory")
@@ -117,7 +98,7 @@ func Start(config *Config) {
 	for {
 		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-			go ChefClientRun(config, nodeClient, nodeName, firstRun, ohaiJSON, convergeJSON, complianceJSON, requests)
+			go ChefClientRun(config, nodeName, firstRun, requests)
 			time.Sleep(delayBetweenNodes)
 		}
 		firstRun = false
