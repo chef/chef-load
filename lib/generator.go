@@ -64,7 +64,20 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	var (
 		chefClient chef.Client
 		channels   = make([]<-chan error, config.NumNodes)
+		ccrsPerDay = 1
+		ccrsTotal  = 1
 	)
+
+	// Calculate how many chef-client runs we need to trigger
+	//
+	// Example: If we have 10 nodes with 30 days of data converging every 30 minutes
+	//
+	// ccrsPerDay = 1440m / 30m = 40 CCR a day
+	// ccrsTotal = ccrsPerDay * 30d = 1200 per Node
+	if config.DaysBack > 0 {
+		ccrsPerDay = 1440 / config.Interval
+		ccrsTotal = ccrsPerDay * config.DaysBack
+	}
 
 	if config.RunChefClient {
 		chefClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
@@ -72,20 +85,24 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 
 	log.WithFields(log.Fields{
 		"nodes":       config.NumNodes,
+		"days_back":   config.DaysBack,
 		"random_data": config.RandomData,
 	}).Info("Generating chef-client runs")
 
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	for i := 0; i < config.NumNodes; i++ {
-		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i+1)
-		channels[i] = ccr(config, chefClient, nodeName, requests)
-	}
+	// For the total of CCRs per node, run a converge
+	for c := 0; c < ccrsTotal; c++ {
+		for i := 0; i < config.NumNodes; i++ {
+			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i+1)
+			channels[i] = ccr(config, chefClient, nodeName, requests)
+		}
 
-	for n := range merge(channels...) {
-		if n != nil {
-			log.WithFields(log.Fields{"error": n}).Error()
-			err = n
+		for n := range merge(channels...) {
+			if n != nil {
+				log.WithFields(log.Fields{"error": n}).Error()
+				err = n
+			}
 		}
 	}
 
@@ -179,13 +196,20 @@ func genRandomAttributes() map[string]interface{} {
 	return randAttributes
 }
 
-func genRandomStartEndTime() (time.Time, time.Time) {
+func genStartEndTime(config *Config) (time.Time, time.Time) {
 	var (
-		minutes         = rand.Intn(60)
-		randDuration, _ = time.ParseDuration(fmt.Sprintf("%dm", minutes))
-		sTime           = time.Now().UTC()
-		eTime           = sTime.Add(randDuration).UTC()
+		sTime time.Time
+		eTime time.Time
 	)
+	if config.DaysBack > 0 {
+		hours := rand.Intn(config.DaysBack) * 24
+		historyDuration, _ := time.ParseDuration(fmt.Sprintf("%dh", hours))
+		sTime = time.Now().UTC().Add(-historyDuration).UTC()
+	}
+	minutes := rand.Intn(60)
+	randDuration, _ := time.ParseDuration(fmt.Sprintf("%dm", minutes))
+	eTime = sTime.Add(randDuration).UTC()
+
 	return sTime, eTime
 }
 
@@ -202,7 +226,7 @@ func randAttributeMapKey(m map[string]interface{}) string {
 
 func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string, requests chan *request) error {
 	var (
-		startTime, endTime     = genRandomStartEndTime()
+		startTime, endTime     = genStartEndTime(config)
 		runUUID, _             = uuid.NewV4()
 		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
 		orgName                = getRandom("organization")

@@ -51,11 +51,13 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.chef-load.toml)")
 	rootCmd.PersistentFlags().StringP("data_collector_url", "d", "", "The data-collector url")
+	// TODO: add the token flag for the data collector
 	rootCmd.PersistentFlags().StringP("chef_server_url", "s", "", "The chef-server url")
 	rootCmd.PersistentFlags().StringP("node_name_prefix", "p", "chef-load", "The nodes name prefix")
 	rootCmd.PersistentFlags().IntP("num_nodes", "n", 0, "The number of nodes to simulate")
 	rootCmd.PersistentFlags().IntP("num_actions", "a", 0, "The number of actions to generate")
 	rootCmd.PersistentFlags().BoolP("random_data", "r", false, "Generates random data")
+	rootCmd.PersistentFlags().IntP("interval", "i", 30, "Interval between a node's chef-client runs, in minutes")
 	viper.BindPFlags(rootCmd.PersistentFlags())
 }
 

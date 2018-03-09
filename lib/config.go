@@ -45,6 +45,7 @@ type Config struct {
 	ChefServerCreatesClientKey bool     `mapstructure:"chef_server_creates_client_key"`
 	RandomData                 bool     `mapstructure:"random_data"`
 	EnableReporting            bool     `mapstructure:"enable_reporting"`
+	DaysBack                   int      `mapstructure:"days_back"`
 }
 
 func Default() Config {
@@ -69,6 +70,7 @@ func Default() Config {
 		EnableReporting:            false,
 		RandomData:                 false,
 		NumActions:                 30,
+		DaysBack:                   0,
 	}
 }
 
@@ -141,6 +143,10 @@ func PrintSampleConfig() {
 # the amount of time a Chef Client takes actually converging all of the run list's resources.
 # sleep_duration is measured in seconds
 # sleep_duration = 0
+
+# days_back is an optional setting that allows the load of historical data. When provided, the tool
+# will use this value to load the data from today to the provided day back.
+# days_back = 30
 
 # download_cookbooks controls which chef-client run downloads cookbook files.
 # Options are: "never", "first" (first chef-client run only), "always"
