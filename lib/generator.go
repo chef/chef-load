@@ -205,6 +205,8 @@ func genStartEndTime(config *Config) (time.Time, time.Time) {
 		hours := rand.Intn(config.DaysBack) * 24
 		historyDuration, _ := time.ParseDuration(fmt.Sprintf("%dh", hours))
 		sTime = time.Now().UTC().Add(-historyDuration).UTC()
+	} else {
+		sTime = time.Now().UTC()
 	}
 	minutes := rand.Intn(60)
 	randDuration, _ := time.ParseDuration(fmt.Sprintf("%dm", minutes))
