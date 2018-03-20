@@ -62,10 +62,18 @@ func GenerateData(config *Config) error {
 
 func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	var (
-		chefClient chef.Client
-		channels   = make([]<-chan error, config.NumNodes)
-		ccrsPerDay = 1
-		ccrsTotal  = 1
+		chefClient   chef.Client
+		chanSize           = 3000 // @afiune: we could play with this number
+		channels           = make([]<-chan int, chanSize)
+		ccrsPerDay   int64 = 1
+		ccrsTotal    int64 = 1
+		c            int64 = 0
+		ccrsIngested int64 = 0
+		ccrsRejected int64 = 0
+		loops        int   = 1
+		code         int   = 999
+		rejects      bool  = false
+		timeMarker         = time.Now()
 	)
 
 	// Calculate how many chef-client runs we need to trigger
@@ -75,8 +83,8 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	// ccrsPerDay = 1440m / 30m = 40 CCR a day
 	// ccrsTotal = ccrsPerDay * 30d = 1200 per Node
 	if config.DaysBack > 0 {
-		ccrsPerDay = 1440 / config.Interval
-		ccrsTotal = ccrsPerDay * config.DaysBack
+		ccrsPerDay = 1440 / int64(config.Interval)
+		ccrsTotal = ccrsPerDay * int64(config.DaysBack)
 	}
 
 	if config.RunChefClient {
@@ -84,49 +92,97 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	}
 
 	log.WithFields(log.Fields{
-		"nodes":       config.NumNodes,
-		"days_back":   config.DaysBack,
-		"random_data": config.RandomData,
+		"nodes":        config.NumNodes,
+		"days_back":    config.DaysBack,
+		"ccr_per_node": ccrsTotal,
+		"total_ccrs":   ccrsTotal * int64(config.NumNodes),
+		"random_data":  config.RandomData,
+		"goroutines":   chanSize,
 	}).Info("Generating chef-client runs")
 
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	// For the total of CCRs per node, run a converge
-	for c := 0; c < ccrsTotal; c++ {
-		for i := 0; i < config.NumNodes; i++ {
-			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i+1)
-			channels[i] = ccr(config, chefClient, nodeName, requests)
-		}
+	// Lets try to use a smaller number of goroutines
+	if config.NumNodes > chanSize {
+		// If the number of nodes is bigger than the channel
+		// size, lets calculate how many loops we need to run
+		loops = config.NumNodes / chanSize
+	}
 
-		for n := range merge(channels...) {
-			if n != nil {
-				log.WithFields(log.Fields{"error": n}).Error()
-				err = n
+	// For the total of CCRs per node, run a converge
+	for c = 0; c < ccrsTotal; c++ {
+
+		// Loops * chanSize = NumNodes (ish)
+		for j := 0; j < loops; j++ {
+
+			for i := 0; i < chanSize; i++ {
+				nodeNum := i + (j * chanSize)
+				// The trick here is to stop the last loop when we reach
+				// the total number of nodes that we want to load
+				if nodeNum > config.NumNodes {
+					break
+				}
+				nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(nodeNum+1)
+				channels[i] = ccr(config, chefClient, nodeName, requests)
+			}
+
+			for code = range merge(channels...) {
+				if code != 200 {
+					rejects = true
+					ccrsRejected++
+					// err = n
+				} else {
+					ccrsIngested++
+				}
+			}
+
+			// When we start rejecting/dropping messages we will wait
+			// an interval of time to let the system digest
+			if rejects {
+				log.WithFields(log.Fields{
+					"ccrs_per_node":       ccrsTotal,
+					"total_ccrs":          ccrsTotal * int64(config.NumNodes),
+					"total_ccrs_ingested": ((c + 1) * int64(config.NumNodes)) + ccrsIngested,
+					"sleep":               "5s",
+					"time_elapsed_since_last_failure": time.Now().Sub(timeMarker),
+					"ccr_ingested_since_last_failure": ccrsIngested,
+					"ccr_rejected_since_last_failure": ccrsRejected,
+					"goroutines":                      chanSize,
+					"nodes":                           config.NumNodes,
+					"days_back":                       config.DaysBack,
+				}).Info("Sleeping")
+				time.Sleep(time.Second * 5)
+
+				rejects = false
+				ccrsIngested = 0
+				ccrsRejected = 0
+				timeMarker = time.Now()
 			}
 		}
 	}
 
-	return err
+	return
 }
 
-func ccr(config *Config, chefClient chef.Client, nodeName string, requests chan *request) <-chan error {
-	out := make(chan error)
+func ccr(config *Config, chefClient chef.Client, nodeName string, requests chan *request) <-chan int {
+	out := make(chan int)
 	go func() {
-		randomChefClientRun(config, chefClient, nodeName, requests)
+		code, _ := randomChefClientRun(config, chefClient, nodeName, requests)
+		out <- code
 		close(out)
 	}()
 	return out
 }
 
-func merge(cs ...<-chan error) <-chan error {
+func merge(cs ...<-chan int) <-chan int {
 	var wg sync.WaitGroup
-	out := make(chan error)
+	out := make(chan int)
 
 	// Start an output goroutine for each input channel in cs.  output
 	// copies values from c to out until c is closed, then calls wg.Done.
-	output := func(c <-chan error) {
-		for err := range c {
-			out <- err
+	output := func(c <-chan int) {
+		for code := range c {
+			out <- code
 		}
 		wg.Done()
 	}
@@ -226,7 +282,7 @@ func randAttributeMapKey(m map[string]interface{}) string {
 	return ""
 }
 
-func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string, requests chan *request) error {
+func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string, requests chan *request) (int, error) {
 	var (
 		startTime, endTime     = genStartEndTime(config)
 		runUUID, _             = uuid.NewV4()
@@ -237,6 +293,7 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 		node                   = chef.NewNode(nodeName) // Our Random Chef Node
 		reportingAvailable     = true
 		dataCollectorAvailable = true
+		code                   int
 		expandedRunList        []string
 		convergeJSON           = map[string]interface{}{ // This is used just for the list of resources
 			"resources": genRandomResourcesTree(),
@@ -302,7 +359,7 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 		SkipSSL: true,
 	}, requests)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
+		return 999, errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
 	}
 
 	// Notify Data Collector of run start
@@ -350,7 +407,7 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	ccrAction.EntityName = nodeName
 	ccrAction.RequestorName = nodeName
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(dataCollectorClient, ccrAction.String(), ccrAction)
+		code, err = chefAutomateSendMessage(dataCollectorClient, ccrAction.String(), ccrAction)
 	} else if dataCollectorAvailable {
 		apiRequest(chefClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests)
 	}
@@ -365,5 +422,5 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	//apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", complianceReportBody, nil, nil, requests)
 	//}
 	//}
-	return nil
+	return code, err
 }

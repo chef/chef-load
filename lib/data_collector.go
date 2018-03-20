@@ -137,9 +137,13 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	return res, err
 }
 
-func chefAutomateSendMessage(client *DataCollectorClient, nodeName string, body interface{}) error {
-	_, err := client.Update(nodeName, body)
-	return err
+func chefAutomateSendMessage(client *DataCollectorClient, nodeName string, body interface{}) (int, error) {
+	code := 999
+	res, err := client.Update(nodeName, body)
+	if res != nil {
+		code = res.StatusCode
+	}
+	return code, err
 }
 
 func dataCollectorRunStart(config *Config, nodeName, chefServerFQDN, orgName string,
