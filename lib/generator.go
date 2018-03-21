@@ -24,6 +24,7 @@ package chef_load
 import (
 	"errors"
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -63,7 +64,7 @@ func GenerateData(config *Config) error {
 func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	var (
 		chefClient   chef.Client
-		channels           = make([]<-chan int, config.Threads)
+		channels     []<-chan int
 		ccrsPerDay   int64 = 1
 		ccrsTotal    int64 = 1
 		c            int64 = 0
@@ -105,7 +106,10 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	if config.NumNodes > config.Threads {
 		// If the number of nodes is bigger than the channel
 		// size, lets calculate how many batches we need to run
-		batches = config.NumNodes / config.Threads
+		batches = int(math.Ceil(float64(config.NumNodes) / float64(config.Threads)))
+		channels = make([]<-chan int, config.Threads)
+	} else {
+		channels = make([]<-chan int, config.NumNodes)
 	}
 
 	// For the total of CCRs per node, run a converge
@@ -114,11 +118,16 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 		// batches * config.Threads = NumNodes (ish)
 		for j := 0; j < batches; j++ {
 
+			if ((j + 1) * config.Threads) > config.NumNodes {
+				size := config.NumNodes % config.Threads
+				channels = make([]<-chan int, size)
+			}
+
 			for i := 0; i < config.Threads; i++ {
 				nodeNum := i + (j * config.Threads)
 				// The trick here is to stop the last loop when we reach
 				// the total number of nodes that we want to load
-				if nodeNum > config.NumNodes {
+				if nodeNum >= config.NumNodes {
 					break
 				}
 				nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(nodeNum+1)
@@ -137,25 +146,32 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 
 			// When we start rejecting/dropping messages we will wait
 			// an interval of time to let the system digest
-			if rejects {
-				log.WithFields(log.Fields{
-					"ccrs_per_node":       ccrsTotal,
-					"total_ccrs":          ccrsTotal * int64(config.NumNodes),
-					"total_ccrs_ingested": ((c + 1) * int64(config.NumNodes)) + ccrsIngested,
-					"sleep":               fmt.Sprintf("%ds", config.SleepTimeOnFailure),
-					"time_elapsed_since_last_failure": time.Now().Sub(timeMarker),
-					"ccr_ingested_since_last_failure": ccrsIngested,
-					"ccr_rejected_since_last_failure": ccrsRejected,
-					"goroutines":                      config.Threads,
-					"nodes":                           config.NumNodes,
-					"days_back":                       config.DaysBack,
-				}).Info("Sleeping")
-				time.Sleep(time.Second * time.Duration(config.SleepTimeOnFailure))
+			if config.DaysBack > 0 {
+				if rejects {
+					log.WithFields(log.Fields{
+						"ccrs_per_node":       ccrsTotal,
+						"total_ccrs":          ccrsTotal * int64(config.NumNodes),
+						"total_ccrs_ingested": (c * int64(config.NumNodes)) + int64(j*config.Threads) + ccrsIngested,
+						"sleep":               fmt.Sprintf("%ds", config.SleepTimeOnFailure),
+						"time_elapsed_since_last_failure": time.Now().Sub(timeMarker),
+						"ccr_ingested_since_last_failure": ccrsIngested,
+						"ccr_rejected_since_last_failure": ccrsRejected,
+						"goroutines":                      config.Threads,
+						"nodes":                           config.NumNodes,
+						"days_back":                       config.DaysBack,
+					}).Info("Sleeping")
+					time.Sleep(time.Second * time.Duration(config.SleepTimeOnFailure))
 
-				rejects = false
-				ccrsIngested = 0
-				ccrsRejected = 0
-				timeMarker = time.Now()
+					rejects = false
+					ccrsIngested = 0
+					ccrsRejected = 0
+					timeMarker = time.Now()
+					if config.NumNodes > config.Threads {
+						channels = make([]<-chan int, config.Threads)
+					} else {
+						channels = make([]<-chan int, config.NumNodes)
+					}
+				}
 			}
 		}
 	}
