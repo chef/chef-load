@@ -43,7 +43,7 @@ var generateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(generateCmd)
 	generateCmd.Flags().Int("days_back", 0, "The number days back for historical data")
-	generateCmd.Flags().Int("chan_size", 3000, "Number of simultaneous goroutines to spawn for historical data")
-	generateCmd.Flags().Int("sleep_time_of_failure", 5, "Time in seconds to sleep when a failure is detected for historical data")
+	generateCmd.Flags().Int("threads", 3000, "Number of simultaneous goroutines to spawn for historical data")
+	generateCmd.Flags().Int("sleep_time_on_failure", 5, "Time in seconds to sleep when a failure is detected for historical data")
 	viper.BindPFlags(generateCmd.Flags())
 }
