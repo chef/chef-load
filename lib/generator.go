@@ -63,8 +63,7 @@ func GenerateData(config *Config) error {
 func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	var (
 		chefClient   chef.Client
-		chanSize           = 3000 // @afiune: we could play with this number
-		channels           = make([]<-chan int, chanSize)
+		channels           = make([]<-chan int, config.Threads)
 		ccrsPerDay   int64 = 1
 		ccrsTotal    int64 = 1
 		c            int64 = 0
@@ -97,26 +96,26 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 		"ccr_per_node": ccrsTotal,
 		"total_ccrs":   ccrsTotal * int64(config.NumNodes),
 		"random_data":  config.RandomData,
-		"goroutines":   chanSize,
+		"goroutines":   config.Threads,
 	}).Info("Generating chef-client runs")
 
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	// Lets try to use a smaller number of goroutines
-	if config.NumNodes > chanSize {
+	if config.NumNodes > config.Threads {
 		// If the number of nodes is bigger than the channel
 		// size, lets calculate how many loops we need to run
-		loops = config.NumNodes / chanSize
+		loops = config.NumNodes / config.Threads
 	}
 
 	// For the total of CCRs per node, run a converge
 	for c = 0; c < ccrsTotal; c++ {
 
-		// Loops * chanSize = NumNodes (ish)
+		// Loops * config.Threads = NumNodes (ish)
 		for j := 0; j < loops; j++ {
 
-			for i := 0; i < chanSize; i++ {
-				nodeNum := i + (j * chanSize)
+			for i := 0; i < config.Threads; i++ {
+				nodeNum := i + (j * config.Threads)
 				// The trick here is to stop the last loop when we reach
 				// the total number of nodes that we want to load
 				if nodeNum > config.NumNodes {
@@ -143,15 +142,15 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 					"ccrs_per_node":       ccrsTotal,
 					"total_ccrs":          ccrsTotal * int64(config.NumNodes),
 					"total_ccrs_ingested": ((c + 1) * int64(config.NumNodes)) + ccrsIngested,
-					"sleep":               "5s",
+					"sleep":               fmt.Sprintf("%ds", config.SleepTimeOnFailure),
 					"time_elapsed_since_last_failure": time.Now().Sub(timeMarker),
 					"ccr_ingested_since_last_failure": ccrsIngested,
 					"ccr_rejected_since_last_failure": ccrsRejected,
-					"goroutines":                      chanSize,
+					"goroutines":                      config.Threads,
 					"nodes":                           config.NumNodes,
 					"days_back":                       config.DaysBack,
 				}).Info("Sleeping")
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * time.Duration(config.SleepTimeOnFailure))
 
 				rejects = false
 				ccrsIngested = 0

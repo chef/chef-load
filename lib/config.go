@@ -46,6 +46,8 @@ type Config struct {
 	RandomData                 bool     `mapstructure:"random_data"`
 	EnableReporting            bool     `mapstructure:"enable_reporting"`
 	DaysBack                   int      `mapstructure:"days_back"`
+	Threads                    int      `mapstructure:"threads"`
+	SleepTimeOnFailure         int      `mapstructure:"sleep_time_on_failure"`
 }
 
 func Default() Config {
@@ -71,6 +73,8 @@ func Default() Config {
 		RandomData:                 false,
 		NumActions:                 30,
 		DaysBack:                   0,
+		Threads:                    3000,
+		SleepTimeOnFailure:         5,
 	}
 }
 
