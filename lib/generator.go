@@ -69,7 +69,7 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 		c            int64 = 0
 		ccrsIngested int64 = 0
 		ccrsRejected int64 = 0
-		loops        int   = 1
+		batches      int   = 1
 		code         int   = 999
 		rejects      bool  = false
 		timeMarker         = time.Now()
@@ -104,15 +104,15 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	// Lets try to use a smaller number of goroutines
 	if config.NumNodes > config.Threads {
 		// If the number of nodes is bigger than the channel
-		// size, lets calculate how many loops we need to run
-		loops = config.NumNodes / config.Threads
+		// size, lets calculate how many batches we need to run
+		batches = config.NumNodes / config.Threads
 	}
 
 	// For the total of CCRs per node, run a converge
 	for c = 0; c < ccrsTotal; c++ {
 
-		// Loops * config.Threads = NumNodes (ish)
-		for j := 0; j < loops; j++ {
+		// batches * config.Threads = NumNodes (ish)
+		for j := 0; j < batches; j++ {
 
 			for i := 0; i < config.Threads; i++ {
 				nodeNum := i + (j * config.Threads)
