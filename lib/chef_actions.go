@@ -221,7 +221,7 @@ func GenerateChefActions(config *Config, requests chan *request) error {
 	return nil
 }
 
-func chefAction(config *Config, aType ActionType, dataCollectorClient *DataCollectorClient) error {
+func chefAction(config *Config, aType ActionType, dataCollectorClient *DataCollectorClient) (int, error) {
 	action := newRandomActionRequest(aType)
 	return chefAutomateSendMessage(dataCollectorClient, action.String(), action)
 }
