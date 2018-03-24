@@ -24,7 +24,6 @@ package chef_load
 import (
 	"errors"
 	"fmt"
-	"math"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -106,7 +105,10 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	if config.NumNodes > config.Threads {
 		// If the number of nodes is bigger than the channel
 		// size, lets calculate how many batches we need to run
-		batches = int(math.Ceil(float64(config.NumNodes) / float64(config.Threads)))
+		batches = int(config.NumNodes / config.Threads)
+		if config.NumNodes%config.Threads != 0 {
+			batches++
+		}
 		channels = make([]<-chan int, config.Threads)
 	} else {
 		channels = make([]<-chan int, config.NumNodes)
