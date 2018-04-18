@@ -130,4 +130,4 @@ organization = "demo"
 protocol = "https"
 # host = "localhost"
 port = 443
-path = "data_collector/v0"
+path = "data-collector/v0"

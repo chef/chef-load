@@ -2,4 +2,4 @@
 
 exec 2>&1
 
-exec chef-load -config "{{pkg.svc_config_path}}/chef-load.toml"
+exec chef-load start --config "{{pkg.svc_config_path}}/chef-load.toml"
