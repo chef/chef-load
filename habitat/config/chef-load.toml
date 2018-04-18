@@ -1,18 +1,18 @@
-{{#if cfg.client_name}}
+{{#if cfg.client_name ~}}
   client_name = "{{cfg.client_name}}"
-{{/if}}
-{{#if cfg.client_key}}
-  client_key = "{{cfg.client_key}}""
-{{/if}}
-{{#if cfg.ohai_json_file}}
+{{/if ~}}
+{{#if cfg.client_key ~}}
+  client_key = "{{cfg.client_key}}"
+{{/if ~}}
+{{#if cfg.ohai_json_file ~}}
   ohai_json_file = "{{cfg.ohai_json_file}}"
-{{/if}}
-{{#if cfg.converge_status_json_file}}
+{{/if ~}}
+{{#if cfg.converge_status_json_file ~}}
   converge_status_json_file = "{{cfg.converge_status_json_file}}"
-{{/if}}
-{{#if cfg.compliance_status_json_file}}
+{{/if ~}}
+{{#if cfg.compliance_status_json_file ~}}
   compliance_status_json_file = "{{cfg.compliance_status_json_file}}"
-{{/if}}
+{{/if ~}}
 
 log_file = "{{cfg.log_file}}"
 data_collector_token = "{{cfg.data_collector_token}}"
@@ -30,16 +30,16 @@ chef_server_creates_client_key = {{cfg.chef_server_creates_client_key}}
 enable_reporting = {{cfg.enable_reporting}}
 random_data = {{cfg.random_data}}
 
-{{#if bind.automate}}
-  data_collector_url="{{cfg.data_collector.protocol}}://{{bind.automate.first.sys.ip}}:{{bind.automate.first.cfg.port}}/{{cfg.data_collector.path}}"
-{{/if}}
-{{#if cfg.data_collector.host}}
-  data_collector_url="{{cfg.data_collector.protocol}}://{{cfg.data_collector.host}}:{{cfg.data_collector.port}}/{{cfg.data_collector.path}}"
-{{/if}}
+{{#if bind.automate ~}}
+  data_collector_url = "{{cfg.data_collector.protocol}}://{{bind.automate.first.sys.ip}}:{{bind.automate.first.cfg.port}}/{{cfg.data_collector.path}}"
+{{/if ~}}
+{{#if cfg.data_collector.host ~}}
+  data_collector_url = "{{cfg.data_collector.protocol}}://{{cfg.data_collector.host}}:{{cfg.data_collector.port}}/{{cfg.data_collector.path}}"
+{{/if ~}}
 
-{{#if bind.chef-server}}
-  chef_server_url="{{cfg.chef_server.protocol}}://{{bind.chef-server.first.sys.ip}}:{{bind.chef-server.first.cfg.port}}/organizations/{{cfg.chef_server.organization}}"
-{{/if}}
-{{#if cfg.chef_server.host}}
-  chef_server_url="{{cfg.chef_server.protocol}}://{{cfg.chef_server.host}}:{{cfg.chef_server.port}}/organizations/{{cfg.chef_server.organization}}"
-{{/if}}
+{{#if bind.chef-server ~}}
+  chef_server_url = "{{cfg.chef_server.protocol}}://{{bind.chef-server.first.sys.ip}}:{{bind.chef-server.first.cfg.port}}/organizations/{{cfg.chef_server.organization}}"
+{{/if ~}}
+{{#if cfg.chef_server.host ~}}
+  chef_server_url = "{{cfg.chef_server.protocol}}://{{cfg.chef_server.host}}:{{cfg.chef_server.port}}/organizations/{{cfg.chef_server.organization}}"
+{{/if ~}}
