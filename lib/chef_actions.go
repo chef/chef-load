@@ -38,32 +38,32 @@ const (
 	environmentAction
 	roleAction
 	policyfileAction
+	groupAction
+	organizationAction
+	permissionAction
+	userAction
+	itemAction
+	clientAction
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//profileAction
-	//scanJobsAction
 )
 
 // Strings of the supported Action Type list above
 var actionTypeString = map[ActionType]string{
-	nodeAction:        "node",
-	cookbookAction:    "cookbook",
-	dataBagAction:     "bag",
-	environmentAction: "environment",
-	roleAction:        "role",
-	policyfileAction:  "policyfile",
-
-	// In the RFC we have more action/entity types
-	// https://github.com/chef/chef-rfc/blob/master/rfc077-mode-agnostic-data-collection.md#action-schema
-	// TODO: (@afiune) How do we handle those?
-	//"user",
-	//"permission",
-	//"item",
-	//"group",
-	//"client",
-
+	nodeAction:         "node",
+	cookbookAction:     "cookbook",
+	dataBagAction:      "bag",
+	environmentAction:  "environment",
+	roleAction:         "role",
+	policyfileAction:   "policyfile",
+	groupAction:        "group",
+	organizationAction: "organization",
+	permissionAction:   "permission",
+	userAction:         "user",
+	itemAction:         "item",
+	clientAction:       "client",
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//profileAction:     "profile",
-	//scanJobsAction:    "scanjobs",
 }
 
 // Task will be our enum to identity a list of tasks
@@ -186,9 +186,14 @@ func (ar *actionRequest) randomize() {
 	case environmentAction:
 	case roleAction:
 	case policyfileAction:
+	case groupAction:
+	case organizationAction:
+	case permissionAction:
+	case userAction:
+	case itemAction:
+	case clientAction:
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//case profileAction:
-	//case scanJobsAction:
 	default:
 	}
 }
