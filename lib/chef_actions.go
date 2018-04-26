@@ -37,7 +37,7 @@ const (
 	dataBagAction
 	environmentAction
 	roleAction
-	policyfileAction
+	policyAction
 	groupAction
 	organizationAction
 	permissionAction
@@ -56,7 +56,7 @@ var actionTypeString = map[ActionType]string{
 	dataBagAction:      "bag",
 	environmentAction:  "environment",
 	roleAction:         "role",
-	policyfileAction:   "policyfile",
+	policyAction:       "policy",
 	groupAction:        "group",
 	organizationAction: "organization",
 	permissionAction:   "permission",
@@ -191,7 +191,10 @@ func (ar *actionRequest) randomize() {
 	case dataBagAction:
 	case environmentAction:
 	case roleAction:
-	case policyfileAction:
+	case policyAction:
+		// Every single policy action has a parent_type called 'policy_group'
+		ar.ParentType = "policy_group"
+		ar.ParentName = randomEntityName()
 	case groupAction:
 	case organizationAction:
 		// When there is an organization action the organization_name must be empty
