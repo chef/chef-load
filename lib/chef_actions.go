@@ -192,6 +192,8 @@ func (ar *actionRequest) randomize() {
 	case policyfileAction:
 	case groupAction:
 	case organizationAction:
+		// When there is an organization action the organization_name must be empty
+		ar.OrganizationName = ""
 	case permissionAction:
 		// Set the parent_type & parent_name to be 'group' action
 		ar.ParentType = actionTypeString[groupAction]
