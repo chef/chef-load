@@ -197,8 +197,11 @@ var (
 	entityNameList = []string{
 		"nginx",
 		"apache",
+		"postgres",
 		"burger",
 		"salsa",
+		"sausage",
+		"bacon",
 	}
 
 	requestorNameList = []string{

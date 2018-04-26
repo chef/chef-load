@@ -37,33 +37,35 @@ const (
 	dataBagAction
 	environmentAction
 	roleAction
-	policyfileAction
+	policyAction
+	groupAction
+	organizationAction
+	permissionAction
+	userAction
+	itemAction
+	versionAction
+	clientAction
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//profileAction
-	//scanJobsAction
 )
 
 // Strings of the supported Action Type list above
 var actionTypeString = map[ActionType]string{
-	nodeAction:        "node",
-	cookbookAction:    "cookbook",
-	dataBagAction:     "bag",
-	environmentAction: "environment",
-	roleAction:        "role",
-	policyfileAction:  "policyfile",
-
-	// In the RFC we have more action/entity types
-	// https://github.com/chef/chef-rfc/blob/master/rfc077-mode-agnostic-data-collection.md#action-schema
-	// TODO: (@afiune) How do we handle those?
-	//"user",
-	//"permission",
-	//"item",
-	//"group",
-	//"client",
-
+	nodeAction:         "node",
+	cookbookAction:     "cookbook",
+	dataBagAction:      "bag",
+	environmentAction:  "environment",
+	roleAction:         "role",
+	policyAction:       "policy",
+	groupAction:        "group",
+	organizationAction: "organization",
+	permissionAction:   "permission",
+	userAction:         "user",
+	itemAction:         "item",
+	versionAction:      "version",
+	clientAction:       "client",
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//profileAction:     "profile",
-	//scanJobsAction:    "scanjobs",
 }
 
 // Task will be our enum to identity a list of tasks
@@ -90,6 +92,8 @@ type actionRequest struct {
 	EntityType       string      `json:"entity_type"`
 	actionType       ActionType  `json:"-"`
 	EntityName       string      `json:"entity_name"`
+	ParentType       string      `json:"parent_type"`
+	ParentName       string      `json:"parent_name"`
 	Task             string      `json:"task"`
 	OrganizationName string      `json:"organization_name"`
 	ServiceHostname  string      `json:"service_hostname"`
@@ -112,6 +116,8 @@ func defaultActionRequest() *actionRequest {
 		actionType:       nodeAction,
 		EntityType:       actionTypeString[nodeAction],
 		EntityName:       "",
+		ParentType:       "",
+		ParentName:       "",
 		Task:             "",
 		OrganizationName: "_default",
 		ServiceHostname:  "",
@@ -185,10 +191,30 @@ func (ar *actionRequest) randomize() {
 	case dataBagAction:
 	case environmentAction:
 	case roleAction:
-	case policyfileAction:
+	case policyAction:
+		// Every single policy action has a parent_type called 'policy_group'
+		ar.ParentType = "policy_group"
+		ar.ParentName = randomEntityName()
+	case groupAction:
+	case organizationAction:
+		// When there is an organization action the organization_name must be empty
+		ar.OrganizationName = ""
+	case permissionAction:
+		// Set the parent_type & parent_name to be 'group' action
+		ar.ParentType = actionTypeString[groupAction]
+		ar.ParentName = randomEntityName()
+	case userAction:
+	case versionAction:
+		// Set the parent_type & parent_name to be 'cookbook' action
+		ar.ParentType = actionTypeString[cookbookAction]
+		ar.ParentName = randomRequestorName()
+	case itemAction:
+		// Set the parent_type & parent_name to be 'bag' action
+		ar.ParentType = actionTypeString[dataBagAction]
+		ar.ParentName = randomEntityName()
+	case clientAction:
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//case profileAction:
-	//case scanJobsAction:
 	default:
 	}
 }
