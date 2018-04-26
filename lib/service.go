@@ -104,9 +104,12 @@ func Start(config *Config) {
 			SkipSSL: true,
 		}, requests)
 
-		for i := 1; i <= config.NumActions; i++ {
-			go chefAction(config, randomActionType(), dataCollectorClient)
-			time.Sleep(delayBetweenActions)
+		// Never stop sending actions
+		for {
+			for i := 1; i <= config.NumActions; i++ {
+				go chefAction(config, randomActionType(), dataCollectorClient)
+				time.Sleep(delayBetweenActions)
+			}
 		}
 	}()
 
