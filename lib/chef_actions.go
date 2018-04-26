@@ -43,6 +43,7 @@ const (
 	permissionAction
 	userAction
 	itemAction
+	versionAction
 	clientAction
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//profileAction
@@ -61,6 +62,7 @@ var actionTypeString = map[ActionType]string{
 	permissionAction:   "permission",
 	userAction:         "user",
 	itemAction:         "item",
+	versionAction:      "version",
 	clientAction:       "client",
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//profileAction:     "profile",
@@ -199,6 +201,10 @@ func (ar *actionRequest) randomize() {
 		ar.ParentType = actionTypeString[groupAction]
 		ar.ParentName = randomEntityName()
 	case userAction:
+	case versionAction:
+		// Set the parent_type & parent_name to be 'cookbook' action
+		ar.ParentType = actionTypeString[cookbookAction]
+		ar.ParentName = randomRequestorName()
 	case itemAction:
 		// Set the parent_type & parent_name to be 'bag' action
 		ar.ParentType = actionTypeString[dataBagAction]
