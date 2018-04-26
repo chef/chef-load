@@ -90,6 +90,8 @@ type actionRequest struct {
 	EntityType       string      `json:"entity_type"`
 	actionType       ActionType  `json:"-"`
 	EntityName       string      `json:"entity_name"`
+	ParentType       string      `json:"parent_type"`
+	ParentName       string      `json:"parent_name"`
 	Task             string      `json:"task"`
 	OrganizationName string      `json:"organization_name"`
 	ServiceHostname  string      `json:"service_hostname"`
@@ -112,6 +114,8 @@ func defaultActionRequest() *actionRequest {
 		actionType:       nodeAction,
 		EntityType:       actionTypeString[nodeAction],
 		EntityName:       "",
+		ParentType:       "",
+		ParentName:       "",
 		Task:             "",
 		OrganizationName: "_default",
 		ServiceHostname:  "",
@@ -191,6 +195,9 @@ func (ar *actionRequest) randomize() {
 	case permissionAction:
 	case userAction:
 	case itemAction:
+		// Set the parent_type & parent_name to be 'bag' action
+		ar.ParentType = actionTypeString[dataBagAction]
+		ar.ParentName = randomEntityName()
 	case clientAction:
 	// TODO: (@afiune) Add latter when compliance joins the pool party
 	//case profileAction:
