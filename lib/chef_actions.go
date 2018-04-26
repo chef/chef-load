@@ -193,6 +193,9 @@ func (ar *actionRequest) randomize() {
 	case groupAction:
 	case organizationAction:
 	case permissionAction:
+		// Set the parent_type & parent_name to be 'group' action
+		ar.ParentType = actionTypeString[groupAction]
+		ar.ParentName = randomEntityName()
 	case userAction:
 	case itemAction:
 		// Set the parent_type & parent_name to be 'bag' action
