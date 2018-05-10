@@ -57,6 +57,7 @@ func init() {
 	rootCmd.PersistentFlags().IntP("num_nodes", "n", 0, "The number of nodes to simulate")
 	rootCmd.PersistentFlags().IntP("num_actions", "a", 0, "The number of actions to generate")
 	rootCmd.PersistentFlags().BoolP("random_data", "r", false, "Generates random data")
+	rootCmd.PersistentFlags().BoolP("liveness_agent", "l", false, "Generates liveness agent data")
 	rootCmd.PersistentFlags().IntP("interval", "i", 30, "Interval between a node's chef-client runs, in minutes")
 	viper.BindPFlags(rootCmd.PersistentFlags())
 }

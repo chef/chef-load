@@ -19,6 +19,7 @@ package chef_load
 
 import (
 	"math"
+	"net/url"
 	"os"
 	"os/signal"
 	"path"
@@ -95,6 +96,32 @@ func Start(config *Config) {
 			}
 		}
 	}()
+
+	if config.LivenessAgent {
+		// The liveness agent goroutine
+		go func() {
+			// TODO Check errors!
+			var (
+				dataCollectorClient, _ = NewDataCollectorClient(&DataCollectorConfig{
+					Token:   config.DataCollectorToken,
+					URL:     config.DataCollectorURL,
+					SkipSSL: true,
+				}, requests)
+
+				chefServerURL, _ = url.ParseRequestURI(config.ChefServerURL)
+			)
+
+			// Never stop sending liveness ping
+			for {
+				for i := 1; i <= config.NumNodes; i++ {
+					nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
+					go livenessPing(nodeName, chefServerURL, dataCollectorClient)
+					// TODO @afiune calculate the liveness agent delay
+					time.Sleep(delayBetweenNodes)
+				}
+			}
+		}()
+	}
 
 	// The Actions goroutine
 	go func() {
