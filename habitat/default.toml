@@ -86,6 +86,9 @@ enable_reporting = false
 # Generate Random Data
 random_data = true
 
+# Generate Liveness Agent Data
+liveness_agent = true
+
 # The chef_server_url, client_name and client_key parameters must be set if you want
 # to make API requests to a Chef Server.
 #
