@@ -77,9 +77,10 @@ func Start(config *Config) {
 	}).Info("Starting chef-load")
 
 	var (
-		delayBetweenNodes                = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
-		delayBetweenActions              = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumActions))) * time.Nanosecond
-		delayBetweenLivenessAgentPing, _ = time.ParseDuration("30m")
+		delayBetweenNodes   = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
+		delayBetweenActions = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumActions))) * time.Nanosecond
+		// hardcode each node's liveness ping interval to 30 minutes
+		delayBetweenLivenessAgentPing = time.Duration(math.Ceil(float64(time.Duration(30)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
 	)
 
 	// This goroutine is in charge to read requests and write them to disk
