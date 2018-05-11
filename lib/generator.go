@@ -52,8 +52,11 @@ func GenerateData(config *Config) error {
 	// TODO @afiune switch to fan-out fan-in (merge)
 	// TODO catch error
 	GenerateChefActions(config, requests)
-	//GenerateComplianceReport(config)
 	GenerateCCRs(config, requests)
+	if config.LivenessAgent {
+		GenerateLivenessData(config, requests)
+	}
+	//GenerateComplianceReport(config, requests)
 
 	printAPIRequestProfile(numRequests)
 

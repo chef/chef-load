@@ -44,6 +44,7 @@ type Config struct {
 	ChefVersion                string   `mapstructure:"chef_version"`
 	ChefServerCreatesClientKey bool     `mapstructure:"chef_server_creates_client_key"`
 	RandomData                 bool     `mapstructure:"random_data"`
+	LivenessAgent              bool     `mapstructure:"liveness_agent"`
 	EnableReporting            bool     `mapstructure:"enable_reporting"`
 	DaysBack                   int      `mapstructure:"days_back"`
 	Threads                    int      `mapstructure:"threads"`
@@ -71,6 +72,7 @@ func Default() Config {
 		ChefServerCreatesClientKey: false,
 		EnableReporting:            false,
 		RandomData:                 false,
+		LivenessAgent:              false,
 		NumActions:                 30,
 		DaysBack:                   0,
 		Threads:                    3000,
@@ -190,6 +192,9 @@ func PrintSampleConfig() {
 
 # Generate Random Data
 # random_data = true
+
+# Generate Liveness Agent Data
+# liveness_agent = true
 `
 	fmt.Print(sampleConfig)
 }

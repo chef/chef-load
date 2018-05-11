@@ -19,6 +19,7 @@ package chef_load
 
 import (
 	"math"
+	"net/url"
 	"os"
 	"os/signal"
 	"path"
@@ -75,8 +76,11 @@ func Start(config *Config) {
 		"log":     config.LogFile,
 	}).Info("Starting chef-load")
 
-	delayBetweenNodes := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
-	delayBetweenActions := time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumActions))) * time.Nanosecond
+	var (
+		delayBetweenNodes                = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
+		delayBetweenActions              = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumActions))) * time.Nanosecond
+		delayBetweenLivenessAgentPing, _ = time.ParseDuration("30m")
+	)
 
 	// This goroutine is in charge to read requests and write them to disk
 	go func() {
@@ -95,6 +99,31 @@ func Start(config *Config) {
 			}
 		}
 	}()
+
+	if config.LivenessAgent {
+		// The liveness agent goroutine
+		go func() {
+			// TODO Check errors!
+			var (
+				dataCollectorClient, _ = NewDataCollectorClient(&DataCollectorConfig{
+					Token:   config.DataCollectorToken,
+					URL:     config.DataCollectorURL,
+					SkipSSL: true,
+				}, requests)
+
+				chefServerURL, _ = url.ParseRequestURI(config.ChefServerURL)
+			)
+
+			// Never stop sending liveness ping
+			for {
+				for i := 1; i <= config.NumNodes; i++ {
+					nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
+					go livenessPing(nodeName, chefServerURL, dataCollectorClient)
+					time.Sleep(delayBetweenLivenessAgentPing)
+				}
+			}
+		}()
+	}
 
 	// The Actions goroutine
 	go func() {

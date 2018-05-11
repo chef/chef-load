@@ -29,6 +29,7 @@ chef_version = "{{cfg.chef_version}}"
 chef_server_creates_client_key = {{cfg.chef_server_creates_client_key}}
 enable_reporting = {{cfg.enable_reporting}}
 random_data = {{cfg.random_data}}
+liveness_agent = {{cfg.liveness_agent}}
 
 {{#if bind.automate ~}}
   data_collector_url = "{{cfg.data_collector.protocol}}://{{bind.automate.first.sys.ip}}:{{bind.automate.first.cfg.port}}/{{cfg.data_collector.path}}"
