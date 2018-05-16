@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -169,6 +170,12 @@ func randomRequestorName() string {
 	return requestorNameList[rand.Intn(len(requestorNameList))]
 }
 
+func randomCookbookVersion() string {
+	return strconv.Itoa(rand.Intn(9)) + "." +
+		strconv.Itoa(rand.Intn(9)) + "." +
+		strconv.Itoa(rand.Intn(9)) + "."
+}
+
 func randomTime() time.Time {
 	return time.Now().AddDate(0, 0, rand.Intn(7)*-1)
 }
@@ -188,6 +195,7 @@ func (ar *actionRequest) randomize() {
 	switch ar.actionType {
 	case nodeAction:
 	case cookbookAction:
+		ar.EntityName = getRandom("cookbook")
 	case dataBagAction:
 	case environmentAction:
 	case roleAction:
@@ -199,6 +207,7 @@ func (ar *actionRequest) randomize() {
 	case organizationAction:
 		// When there is an organization action the organization_name must be empty
 		ar.OrganizationName = ""
+		ar.EntityName = getRandom("organization")
 	case permissionAction:
 		// Set the parent_type & parent_name to be 'group' action
 		ar.ParentType = actionTypeString[groupAction]
@@ -207,7 +216,8 @@ func (ar *actionRequest) randomize() {
 	case versionAction:
 		// Set the parent_type & parent_name to be 'cookbook' action
 		ar.ParentType = actionTypeString[cookbookAction]
-		ar.ParentName = randomRequestorName()
+		ar.ParentName = getRandom("cookbook")
+		ar.EntityName = randomCookbookVersion()
 	case itemAction:
 		// Set the parent_type & parent_name to be 'bag' action
 		ar.ParentType = actionTypeString[dataBagAction]
