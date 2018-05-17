@@ -236,6 +236,8 @@ func getRandom(kind string) string {
 		return sourceFqdns[rand.Intn(len(sourceFqdns))]
 	case "status":
 		return ccrStatus[rand.Intn(len(ccrStatus))]
+	case "cookbook":
+		return randCookbooks[rand.Intn(len(randCookbooks))]
 	default:
 		return ""
 	}
@@ -255,7 +257,7 @@ func genRandomRunList() ([]string, []string) {
 	runList := make([]string, runListSize)
 	recipeList := make([]string, runListSize)
 	for i := 0; i < runListSize; i++ {
-		cb := randCookbooks[rand.Intn(len(randCookbooks))]
+		cb := getRandom("cookbook")
 		runList[i] = fmt.Sprintf("recipe[%s::default]", cb)
 		recipeList[i] = fmt.Sprintf("%s::default", cb)
 	}
