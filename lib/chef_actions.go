@@ -177,7 +177,7 @@ func randomCookbookVersion() string {
 }
 
 func randomTime() time.Time {
-	return time.Now().AddDate(0, 0, rand.Intn(7)*-1)
+	return time.Now().Add(time.Duration(-int(time.Hour) * rand.Intn(7*24)))
 }
 
 // This function will randomize the Chef Action instance depending on the action type
