@@ -178,9 +178,9 @@ func randomCookbookVersion() string {
 
 // Get a random hour for the last week.
 func randomTime() time.Time {
-	numberOfHoursBeforeNow := rand.Intn(7 * 24)
+	numberOfMinutesBeforeNow := rand.Intn(7 * 24 * 60)
 
-	numberOfNanosecondBeforeNow := time.Duration(time.Hour * time.Duration(numberOfHoursBeforeNow))
+	numberOfNanosecondBeforeNow := time.Duration(time.Minute * time.Duration(numberOfMinutesBeforeNow))
 
 	return time.Now().Add(-numberOfNanosecondBeforeNow)
 }
