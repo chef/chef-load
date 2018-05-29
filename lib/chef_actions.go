@@ -176,8 +176,13 @@ func randomCookbookVersion() string {
 		strconv.Itoa(rand.Intn(9)) + "."
 }
 
+// Get a random hour for the last week.
 func randomTime() time.Time {
-	return time.Now().Add(time.Duration(-int(time.Hour) * rand.Intn(7*24)))
+	numberOfMinutesBeforeNow := rand.Intn(7 * 24 * 60)
+
+	numberOfNanosecondBeforeNow := time.Duration(time.Minute * time.Duration(numberOfMinutesBeforeNow))
+
+	return time.Now().Add(-numberOfNanosecondBeforeNow)
 }
 
 // This function will randomize the Chef Action instance depending on the action type
