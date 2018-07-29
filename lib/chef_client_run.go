@@ -38,6 +38,8 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		sleepDuration          = config.SleepDuration
 		runUUID, _             = uuid.NewV4()
 		reportUUID, _          = uuid.NewV4()
+		roles = getRandomStringArray(compRoles)
+		recipes = getRandomStringArray(compRecipes)
 		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
 		startTime              = time.Now().UTC()
 		url, _                 = url.ParseRequestURI(config.ChefServerURL)
@@ -211,7 +213,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 
 	// Notify Data Collector of compliance report
 	if len(complianceJSON) != 0 {
-		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
+		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, roles, recipes, reportUUID, nodeUUID, endTime, complianceJSON)
 		if config.DataCollectorURL != "" {
 			chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
 		} else {

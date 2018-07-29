@@ -94,6 +94,13 @@ func loadSampleReport(config *Config, platform string, format string) map[string
 //func generate_reports(nodes []Node, platforms []string, simulation, handler) {
 func generateReports(config *Config, nodes []Node, requests chan *request) {
 	endTime := time.Now().UTC()
+
+	dataCollectorClient, _ := NewDataCollectorClient(&DataCollectorConfig{
+		Token:   config.DataCollectorToken,
+		URL:     config.DataCollectorURL,
+		SkipSSL: true,
+	}, requests)
+
 	var nodesCount = config.Matrix.Simulation.Nodes
 	if nodesCount < len(nodes) {
 		nodesCount = len(nodes)
@@ -115,13 +122,7 @@ func generateReports(config *Config, nodes []Node, requests chan *request) {
 			report := sampleReport
 			reportUUID, _ := uuid.NewV4()
 			reportEndTime := endTime.Add(time.Duration(-interval*scanIndex) * time.Minute)
-			complianceReportBody := dataCollectorComplianceReport(node.name, node.environment, reportUUID, node.nodeUUID, reportEndTime, report)
-
-			dataCollectorClient, _ := NewDataCollectorClient(&DataCollectorConfig{
-				Token:   config.DataCollectorToken,
-				URL:     config.DataCollectorURL,
-				SkipSSL: true,
-			}, requests)
+			complianceReportBody := dataCollectorComplianceReport(node.name, node.environment, node.roles, node.recipes, reportUUID, node.nodeUUID, reportEndTime, report)
 
 			if config.DataCollectorURL != "" {
 				chefAutomateSendMessage(dataCollectorClient, node.name, complianceReportBody)
