@@ -40,7 +40,7 @@ func GenerateComplianceData(config *Config, requests chan *request) error {
 }
 
 func generateNodeName() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", fake.Color(), strings.Fields(fake.Street())[0]))
+	return strings.ToLower(fmt.Sprintf("%s-%s-%s", fake.Color(), strings.Fields(fake.Street())[0], fake.Color()))
 }
 
 func generateNodes(platforms []Platform, nodesCount int) (nodes []Node) {

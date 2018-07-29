@@ -12,5 +12,5 @@ func TestGenerateNodeName(t *testing.T) {
 	nodeName := generateNodeName()
 
 	nodeNameTokenized := strings.Split(nodeName, "-")
-	assert.Len(t, nodeNameTokenized, 2, "")
+	assert.Len(t, nodeNameTokenized, 3, "")
 }
