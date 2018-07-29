@@ -199,8 +199,12 @@ chef-load's configuration file has the following settings to specify the path to
 * ohai_json_file
 * converge_status_json_file
 * compliance_status_json_file
+* compliance_sample_reports_dir
 
 The chef-load GitHub repo's ["sample-data" directory](https://github.com/jeremiahsnapp/chef-load/tree/master/sample-data) has a file for each type of data that can be used.
+
+#### Get the compliance sample inspec reports
+The samples are located in the chef-load GitHub repo listed above inside of a subdirectory named "inspec-reports".  These are currently used for the generate action (back filling dates)
 
 #### Create your own sample ohai JSON file
 
