@@ -153,7 +153,7 @@ func PrintSampleConfig() {
 # Directory where compliance sample inspec reports live.  Compliance load requires these sample reports
 # Use these as templates for creating the loaded reports for the generate action.
 # See the chef-load README for instructions for obtaining the samples.
-compliance_sample_reports_dir = "/path/to/sample-data/inspec-reports"
+# compliance_sample_reports_dir = "/path/to/sample-data/inspec-reports"
 
 # chef-load will evenly distribute the number of nodes across the desired interval (minutes)
 # Examples:
