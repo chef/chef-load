@@ -49,14 +49,32 @@ func GenerateData(config *Config) error {
 		}
 	}()
 
-	// TODO @afiune switch to fan-out fan-in (merge)
-	// TODO catch error
-	GenerateChefActions(config, requests)
-	GenerateCCRs(config, requests)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		GenerateComplianceData(config, requests)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		GenerateChefActions(config, requests)
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		GenerateCCRs(config, requests)
+	}()
 	if config.LivenessAgent {
-		GenerateLivenessData(config, requests)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			GenerateLivenessData(config, requests)
+		}()
 	}
-	//GenerateComplianceReport(config, requests)
+
+	wg.Wait()
 
 	printAPIRequestProfile(numRequests)
 
@@ -238,8 +256,21 @@ func getRandom(kind string) string {
 		return ccrStatus[rand.Intn(len(ccrStatus))]
 	case "cookbook":
 		return randCookbooks[rand.Intn(len(randCookbooks))]
+	case compEnvironments:
+		return complianceEnv[rand.Intn(len(complianceEnv))]
 	default:
 		return ""
+	}
+}
+
+func getRandomStringArray(kind string) []string {
+	switch kind {
+	case compRecipes:
+		return complianceRecipes[rand.Intn(len(complianceRecipes))]
+	case compRoles:
+		return complianceRoles[rand.Intn(len(complianceRoles))]
+	default:
+		return []string{}
 	}
 }
 
@@ -435,14 +466,16 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	}
 
 	// TODO: (@afiune) Notify Data Collector of compliance report
-	//reportUUID := uuid.NewV4()
-	//if len(complianceJSON) != 0 {
-	//complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, reportUUID, nodeUUID, endTime, complianceJSON)
-	//if config.DataCollectorURL != "" {
-	//chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
-	//} else {
-	//apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", complianceReportBody, nil, nil, requests)
-	//}
+	//reportUUID, _ := uuid.NewV4()
+	//
+	//if len(config.ComplianceStatusJSONFile) != 0 {
+	//	complianceJSON := parseJSONFile(config.ComplianceStatusJSONFile)
+	//	complianceReportBody := dataCollectorComplianceReport(nodeName, "chefEnvironment", reportUUID, nodeUUID, endTime, complianceJSON)
+	//	if config.DataCollectorURL != "" {
+	//		chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
+	//	} else {
+	//		apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", complianceReportBody, nil, nil, requests)
+	//	}
 	//}
 	return code, err
 }

@@ -21,6 +21,31 @@ import (
 	"fmt"
 )
 
+type Platform struct {
+	Name     string   `toml:"name"`
+	Target   string   `toml:"target"`
+	Profiles []string `toml:"profiles"`
+}
+
+type Matrix struct {
+	Samples struct {
+		Platforms []Platform `mapstructure:"platforms"`
+	} `mapstructure:"samples"`
+	Simulation struct {
+		Days          int    `mapstructure:"days"`
+		Nodes         int    `mapstructure:"nodes"`
+		MaxScans      int    `mapstructure:"max_scans"`
+		TotalMaxScans int    `mapstructure:"total_max_scans"`
+		SampleFormat  string `mapstructure:"format"`
+	} `mapstructure:"simulation"`
+	Statistics struct {
+		Sets []struct {
+			Nodes      int `mapstructure:"nodes"`
+			ScanPerDay int `mapstructure:"scan_per_day"`
+		} `mapstructure:"sets"`
+	} `mapstructure:"statistics"`
+}
+
 type Config struct {
 	RunChefClient              bool
 	LogFile                    string   `mapstructure:"log_file"`
@@ -32,6 +57,7 @@ type Config struct {
 	OhaiJSONFile               string   `mapstructure:"ohai_json_file"`
 	ConvergeStatusJSONFile     string   `mapstructure:"converge_status_json_file"`
 	ComplianceStatusJSONFile   string   `mapstructure:"compliance_status_json_file"`
+	ComplianceSampleReportsDir string   `mapstructure:"compliance_sample_reports_dir"`
 	NumActions                 int      `mapstructure:"num_actions"`
 	NumNodes                   int      `mapstructure:"num_nodes"`
 	Interval                   int      `mapstructure:"interval"`
@@ -49,6 +75,7 @@ type Config struct {
 	DaysBack                   int      `mapstructure:"days_back"`
 	Threads                    int      `mapstructure:"threads"`
 	SleepTimeOnFailure         int      `mapstructure:"sleep_time_on_failure"`
+	Matrix                     *Matrix  `mapstructure:"matrix"`
 }
 
 func Default() Config {
@@ -61,6 +88,7 @@ func Default() Config {
 		OhaiJSONFile:               "",
 		ConvergeStatusJSONFile:     "",
 		ComplianceStatusJSONFile:   "",
+		ComplianceSampleReportsDir: "",
 		NumNodes:                   30,
 		Interval:                   30,
 		NodeNamePrefix:             "chef-load",
@@ -121,6 +149,11 @@ func PrintSampleConfig() {
 # for each node's compliance status report that is sent to the Automate server.
 # See the chef-load README for instructions for creating a compliance status JSON file.
 # compliance_status_json_file = "/path/to/example-compliance-status.json"
+
+# Directory where compliance sample inspec reports live.  Compliance load requires these sample reports
+# Use these as templates for creating the loaded reports for the generate action.
+# See the chef-load README for instructions for obtaining the samples.
+# compliance_sample_reports_dir = "/path/to/sample-data/inspec-reports"
 
 # chef-load will evenly distribute the number of nodes across the desired interval (minutes)
 # Examples:
@@ -195,6 +228,132 @@ func PrintSampleConfig() {
 
 # Generate Liveness Agent Data
 # liveness_agent = true
+
+
+# Matrix settings for Compliance Generation
+[matrix]
+
+  [matrix.samples]
+
+    [[matrix.samples.platforms]]
+    name = "c5"
+    target = "ssh://root@0.0.0.0:11032"
+    profiles = [
+      "mylinux-success-1.8.9"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "c6"
+    target = "ssh://root@0.0.0.0:11024"
+    profiles = [
+      "cis-centos6-level1-1.1.0-1.4",
+      "ssh-baseline-2.2.0"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "c7"
+    target = "ssh://root@0.0.0.0:11025"
+    profiles = [
+      "mylinux-success-1.8.9"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "d7"
+    target = "ssh://root@0.0.0.0:11029"
+    profiles = [
+      "apache-baseline-2.0.2"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "d8"
+    target = "ssh://root@0.0.0.0:11028"
+    profiles = [
+      "mylinux-failure-minor-5.2.0"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "d8-2"
+    target = "ssh://root@0.0.0.0:11028"
+    profiles = [
+      "mylinux-failure-major-5.4.4"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "f22"
+    target = "ssh://root@0.0.0.0:11026"
+    profiles = [
+      "linux-baseline-2.2.0",
+      "ssh-baseline-2.2.0",
+      "apache-baseline-2.0.2",
+      "mysql-baseline-2.1.0"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "u12"
+    target = "ssh://root@0.0.0.0:11022"
+    profiles = [
+      "cis-ubuntu12_04lts-level1-1.1.0-2"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "u14"
+    target = "ssh://root@0.0.0.0:11031"
+    profiles = [
+      "mylinux-success-1.8.9"
+    ]
+
+    [[matrix.samples.platforms]]
+    name = "u18"
+    target = "ssh://root@0.0.0.0:11033"
+    profiles = [
+      "linux-baseline-2.2.0",
+      "ssh-baseline-2.2.0"
+    ]
+
+  [matrix.simulation]
+  days = 10
+  nodes = 5000
+  max_scans = 2
+  total_max_scans = 1000000
+  sample_format = "full"
+
+  [matrix.statistics]
+
+    [[matrix.statistics.sets]]
+    nodes = 10
+    scan_per_day = 1
+
+    [[matrix.statistics.sets]]
+    nodes = 10
+    scan_per_day = 24
+
+    [[matrix.statistics.sets]]
+    nodes = 100
+    scan_per_day = 1
+
+    [[matrix.statistics.sets]]
+    nodes = 100
+    scan_per_day = 24
+
+    [[matrix.statistics.sets]]
+    nodes = 1000
+    scan_per_day = 1
+
+    [[matrix.statistics.sets]]
+    nodes = 1000
+    scan_per_day = 24
+
+    [[matrix.statistics.sets]]
+    nodes = 10000
+    scan_per_day = 1
+
+    [[matrix.statistics.sets]]
+    nodes = 10000
+    scan_per_day = 24
+
+    [[matrix.statistics.sets]]
+    nodes = 10000
+    scan_per_day = 96
 `
 	fmt.Print(sampleConfig)
 }

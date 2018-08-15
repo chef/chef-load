@@ -25,6 +25,28 @@ var (
 		"failure",
 	}
 
+	complianceRoles = [][]string{
+		{"base_deb", "apache_deb", "debian-hardening-prod", "dot.role"},
+		{"base_linux", "apache_linux", "linux-hardening-prod", "dot.role"},
+		{"base_windows", "windows-hardening", "best.role.ever"},
+	}
+
+	complianceRecipes = [][]string{
+		{"apache_extras", "apache_extras::harden", "java::default", "nagios::fix"},
+		{"java", "java::test", "java::security", "nagios::fix"},
+		{"linux::harden", "tomcat", "tomcat::setup", "tomcat::configure", "nagios::fix"},
+		{"apache::default", "tomcat", "tomcat::setup", "tomcat::configure", "nagios"},
+	}
+
+	complianceEnv = []string{
+		"DevSec Prod Alpha",
+		"DevSec Test Beta",
+		"DevSec Dev Delta",
+		"DevSec Dev_Gamma",
+		"DevSec Prod Zeta",
+		"Dot.Comma,Big;\"Trouble",
+	}
+
 	environments = []string{
 		"arctic",
 		"coast",

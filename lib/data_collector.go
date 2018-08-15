@@ -237,13 +237,15 @@ func dataCollectorRunStop(config *Config, node chef.Node, nodeName, chefServerFQ
 	return body
 }
 
-func dataCollectorComplianceReport(nodeName string, chefEnvironment string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}) interface{} {
+func dataCollectorComplianceReport(nodeName string, chefEnvironment string, roles []string, recipes []string, reportUUID uuid.UUID, nodeUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}) interface{} {
 	body := complianceJSON
 	body["type"] = "inspec_report"
 	body["node_name"] = nodeName
 	body["environment"] = chefEnvironment
 	body["report_uuid"] = reportUUID
 	body["node_uuid"] = nodeUUID
+	body["roles"] = roles
+	body["recipes"] = recipes
 	body["end_time"] = endTime.Format(DateTimeFormat)
 
 	if body["controls"] != nil {
