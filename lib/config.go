@@ -230,11 +230,13 @@ func PrintSampleConfig() {
 # liveness_agent = true
 
 
-# Matrix settings for Compliance Generation
+# Matrix settings for Compliance Generation - The following specifies the distribution of nodes to be generated 
+from today back.
+
 [matrix]
-
+   #The samples listed in this section (matrix.samples), specify the profiles that each individual node will have 
+   included in their respective scans.
   [matrix.samples]
-
     [[matrix.samples.platforms]]
     name = "c5"
     target = "ssh://root@0.0.0.0:11032"
