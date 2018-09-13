@@ -3,3 +3,5 @@ src
 
 # For VIM devs
 *.swp
+/bin/chef-load
+/.vagrant/
