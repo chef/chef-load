@@ -13,6 +13,7 @@ pkg_binds_optional=(
 pkg_scaffolding=core/scaffolding-go
 scaffolding_go_base_path=github.com/chef
 scaffolding_go_build_deps=(
+ github.com/icrowley/fake
  github.com/go-chef/chef
  github.com/satori/go.uuid
  github.com/sirupsen/logrus
