@@ -9,7 +9,7 @@ function go_build_chef_load() {
   setup_go_workspace
 
   # Create bin folder if missing
-    [[ ! -d /src/bin ]] && mkdir /src/bin
+  [[ ! -d /src/bin ]] && mkdir /src/bin
 
   go build -o /src/bin/chef-load main.go
 }

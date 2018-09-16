@@ -146,8 +146,11 @@ Vagrant.configure('2') do |config|
     aws.access_key_id = "#{ENV['AWS_ACCESS_KEY_ID']}"
     aws.secret_access_key = "#{ENV['AWS_SECRET_ACCESS_KEY']}"
     aws.keypair_name = ENV['AWS_SSH_KEY_NAME']
-    aws.instance_type = 'm5.large'      # 2CPU, 8GB RAM
-    # aws.instance_type = 'm5.xlarge'   # 4CPU, 16GB RAM
+    #aws.instance_type = 't3.nano'       # 1CPU, .5GB RAM
+    #aws.instance_type = 't3.micro'      # 1CPU, 1GB RAM
+    aws.instance_type = 't3.small'      # 1CPU, 2GB RAM
+    #aws.instance_type = 'm5.large'      # 2CPU, 8GB RAM
+    #aws.instance_type = 'm5.xlarge'   # 4CPU, 16GB RAM
     # aws.instance_type = 'm5.2xlarge'  # 8CPU, 32GB RAM
     aws.region = 'us-east-2'            # US East (Ohio)
     aws.ami = 'ami-6a003c0f'            # Ubuntu 16.04 LTS in region 'us-east-2'
