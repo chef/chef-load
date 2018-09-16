@@ -30,6 +30,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(dir)
+	fmt.Printf("-----WORKING DIR %s",dir)
 	commands.Execute()
 }
