@@ -231,6 +231,8 @@ func PrintSampleConfig() {
 
 # Matrix settings for Compliance Generation.  This is to ensure a diversity of nodes/scan/profiles
 # for compliance data. This only applied when running in "this day back" or "generate" mode.
+# In the future, it would be great if we could harmonize this with the converge nodes so that
+# we will have consistancy between that which is ingested between the two
 [matrix]
    #The samples listed in this section (matrix.samples), specify the profiles that each individual node will have included in their respective scans.
   [matrix.samples]
@@ -311,7 +313,7 @@ func PrintSampleConfig() {
 
   [matrix.simulation]
   days = 10
-  nodes = 5000
+  nodes = 50
   max_scans = 2
   total_max_scans = 1000000
   sample_format = "full"
