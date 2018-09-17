@@ -18,18 +18,9 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
-
 	"github.com/chef/chef-load/commands"
 )
 
 func main() {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("-----WORKING DIR %s",dir)
 	commands.Execute()
 }
