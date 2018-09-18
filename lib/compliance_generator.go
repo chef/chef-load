@@ -33,22 +33,22 @@ func GenerateComplianceData(config *Config, requests chan *request) error {
 	nodesCount := config.Matrix.Simulation.Nodes
 
 	log.Infof("generating %d nodes for %d platforms", nodesCount, len(platforms))
-	nodes := generateNodes(platforms, nodesCount)
+	nodes := generateNodes(config.NodeNamePrefix, platforms, nodesCount)
 	log.Infof("nodes %v", nodes)
 	generateReports(config, nodes, requests)
 	return nil
 }
 
-func generateNodeName() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s-%s", fake.Color(), strings.Fields(fake.Street())[0], fake.Color()))
+func generateNodeName(nodeNamePrefix string) string {
+	return strings.ToLower(fmt.Sprintf("%s-%s-%s-%s", nodeNamePrefix, fake.Color(), strings.Fields(fake.Street())[0], fake.Color()))
 }
 
-func generateNodes(platforms []Platform, nodesCount int) (nodes []Node) {
+func generateNodes(nodeNamePrefix string, platforms []Platform, nodesCount int) (nodes []Node) {
 	// add missing nodes until we have enough
 	for len(nodes) < nodesCount {
 		node := Node{
 			// TODO: we can have multiple nodes with the same node name
-			name:        generateNodeName(),
+			name:        generateNodeName(nodeNamePrefix),
 			environment: getRandom(compEnvironments),
 			roles:       getRandomStringArray(compRoles),
 			recipes:     getRandomStringArray(compRecipes),
