@@ -54,7 +54,7 @@ end
 
 $install_hab = <<SCRIPT
 # Install latest habitat
-curl --silent https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.sh | sudo bash -s -- -v #{hab_version_from_manifest}
+curl --silent https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.sh | sudo bash 
 # Install a specific version of habitat
 # curl --silent https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.sh | sudo bash -s -- -v 0.54.0
 SCRIPT
@@ -107,9 +107,6 @@ cat<<EOF >/etc/profile.d/hab_studio_setup.sh
   export HAB_STUDIO_SECRET_GITHUB_TOKEN=#{ENV['GITHUB_TOKEN']}
   export AWS_ACCESS_KEY_ID=#{ENV['AWS_ACCESS_KEY_ID']}
   export AWS_SECRET_ACCESS_KEY=#{ENV['AWS_SECRET_ACCESS_KEY']}
-  export AZURE_CLIENT_ID=#{ENV['AZURE_CLIENT_ID']}
-  export AZURE_CLIENT_SECRET=#{ENV['AZURE_CLIENT_SECRET']}
-  export AZURE_TENANT_ID=#{ENV['AZURE_TENANT_ID']}
 
   cd #{home_dir}/chef-load
   source .envrc
@@ -118,8 +115,6 @@ cat<<EOF >/etc/profile.d/hab_studio_setup.sh
     mkdir -p ~/.hab/etc
     cat<<'EOT' > ~/.hab/etc/cli.toml
 origin = "ubuntu"
-auth_token = "dev444BBB999"
-ctl_secret = "dev333ZZZ111"
 EOT
     hab origin key generate ubuntu
   fi

@@ -27,23 +27,31 @@ type Platform struct {
 	Profiles []string `toml:"profiles"`
 }
 
+type Samples struct {
+	Platforms []Platform `mapstructure:"platforms"`
+}
+
+type Simulation struct {
+	Days          int    `mapstructure:"days"`
+	Nodes         int    `mapstructure:"nodes"`
+	MaxScans      int    `mapstructure:"max_scans"`
+	TotalMaxScans int    `mapstructure:"total_max_scans"`
+	SampleFormat  string `mapstructure:"format"`
+}
+
+type Statistics struct {
+	Sets []Set `mapstructure:"sets"`
+}
+
+type Set struct {
+	Nodes      int `mapstructure:"nodes"`
+	ScanPerDay int `mapstructure:"scan_per_day"`
+}
+
 type Matrix struct {
-	Samples struct {
-		Platforms []Platform `mapstructure:"platforms"`
-	} `mapstructure:"samples"`
-	Simulation struct {
-		Days          int    `mapstructure:"days"`
-		Nodes         int    `mapstructure:"nodes"`
-		MaxScans      int    `mapstructure:"max_scans"`
-		TotalMaxScans int    `mapstructure:"total_max_scans"`
-		SampleFormat  string `mapstructure:"format"`
-	} `mapstructure:"simulation"`
-	Statistics struct {
-		Sets []struct {
-			Nodes      int `mapstructure:"nodes"`
-			ScanPerDay int `mapstructure:"scan_per_day"`
-		} `mapstructure:"sets"`
-	} `mapstructure:"statistics"`
+	Samples    Samples    `mapstructure:"samples"`
+	Simulation Simulation `mapstructure:"simulation"`
+	Statistics Statistics `mapstructure:"statistics"`
 }
 
 type Config struct {
@@ -105,6 +113,37 @@ func Default() Config {
 		DaysBack:                   0,
 		Threads:                    3000,
 		SleepTimeOnFailure:         5,
+		Matrix: &Matrix{
+			Simulation: Simulation{
+				Days:          1,
+				Nodes:         0,
+				MaxScans:      2,
+				TotalMaxScans: 2,
+				SampleFormat:  "full",
+			},
+			Samples: Samples{
+				Platforms: []Platform{
+					{Name: "c5", Profiles: []string{"mylinux-success-1.8.9"}},
+					{Name: "c6", Profiles: []string{"cis-centos6-level1-1.1.0-1.4", "ssh-baseline-2.2.0"}},
+					{Name: "c7", Profiles: []string{"mylinux-success-1.8.9"}},
+					{Name: "d7", Profiles: []string{"apache-baseline-2.0.2"}},
+					{Name: "d8", Profiles: []string{"mylinux-failure-minor-5.2.0"}},
+					{Name: "d8-2", Profiles: []string{"mylinux-failure-major-5.4.4"}},
+					{Name: "f22", Profiles: []string{"linux-baseline-2.2.0", "ssh-baseline-2.2.0",
+						"apache-baseline-2.0.2", "mysql-baseline-2.1.0"}},
+					{Name: "u12", Profiles: []string{"cis-ubuntu12_04lts-level1-1.1.0-2"}},
+					{Name: "u14", Profiles: []string{"mylinux-success-1.8.9"}},
+					{Name: "u18", Profiles: []string{"linux-baseline-2.2.0", "ssh-baseline-2.2.0"}},
+				},
+			},
+			Statistics: Statistics{
+				Sets: []Set{
+					{Nodes: 10, ScanPerDay: 1}, {Nodes: 10, ScanPerDay: 24},
+					{Nodes: 100, ScanPerDay: 1}, {Nodes: 100, ScanPerDay: 24},
+					{Nodes: 1000, ScanPerDay: 1}, {Nodes: 1000, ScanPerDay: 24},
+					{Nodes: 10000, ScanPerDay: 1}, {Nodes: 10000, ScanPerDay: 24}, {Nodes: 10000, ScanPerDay: 96},
+				}},
+		},
 	}
 }
 
@@ -262,7 +301,7 @@ func PrintSampleConfig() {
     name = "d7"
     target = "ssh://root@0.0.0.0:11029"
     profiles = [
-      "apache-baseline-2.0.2"
+      "apache-baseline-1.0.2"
     ]
 
     [[matrix.samples.platforms]]
