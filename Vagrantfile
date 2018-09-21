@@ -122,6 +122,9 @@ EOT
   hab studio enter
 EOF
 STUDIORC="#{home_dir}/chef-load/.studiorc"
+
+echo 'install_if_missing chef/chef-load \033[0m\n'>> $STDIORC
+
 echo 'printf "\033[0;31m>>> ONE MORE STEP NEEDED TO RUN chef-load <<<\033[0m\n"' >> $STUDIORC
 echo 'printf "1. Run this here:\033[1;32m hab pkg install --binlink chef/chef-load \033[0m\n"' >> $STUDIORC
 SCRIPT
@@ -140,9 +143,10 @@ Vagrant.configure('2') do |config|
     aws.access_key_id = "#{ENV['AWS_ACCESS_KEY_ID']}"
     aws.secret_access_key = "#{ENV['AWS_SECRET_ACCESS_KEY']}"
     aws.keypair_name = ENV['AWS_SSH_KEY_NAME']
+    aws.instance_type = ENV['CHEF_LOAD_AWS_INSTANCE_TYPE'] || 't3.micro'
     #aws.instance_type = 't3.nano'       # 1CPU, .5GB RAM
     #aws.instance_type = 't3.micro'      # 1CPU, 1GB RAM
-    aws.instance_type = 't3.small'      # 1CPU, 2GB RAM
+    #aws.instance_type = 't3.small'      # 1CPU, 2GB RAM
     #aws.instance_type = 'm5.large'      # 2CPU, 8GB RAM
     #aws.instance_type = 'm5.xlarge'   # 4CPU, 16GB RAM
     # aws.instance_type = 'm5.2xlarge'  # 8CPU, 32GB RAM
