@@ -33,9 +33,49 @@ hab pkg install chef/chef-load
 hab pkg binlink chef/chef-load chef-load
 ```
 
-### Install onto AWS EC2 with Habitat
+### Install onto AWS EC2
+#### Requirements:
 
-Follow these steps to install onto EC2, the latest version of chef-load from the habitat depot in the `chef` origin:
+##### Install the AWS vagrant plugin
+```
+vagrant plugin install vagrant-aws
+```
+
+##### Import the vagrant AWS dummy box
+```
+vagrant box add aws https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box
+```
+
+##### ENV variables needed
+
+1. `GITHUB_TOKEN` env variable with private repo read access to `chef` org repos
+
+2. `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` of `Chef Engineering AWS` account.
+You can create them by reachable via Okta
+
+##### Load SSH private key identity
+
+Add to the ssh agent the private key that is allowed to clone the `a2` github repo:
+```
+ssh-add
+```
+
+##### Launch the A2 the instance
+
+The Vagrantfile creates the instance in the `us-east-2`(Ohio) region. You will need to specify the AWS SSH key to be used for the instance via env variable `AWS_SSH_KEY_NAME`.
+
+Start it up!
+```
+AWS_SSH_KEY_NAME=<your aws key name> vagrant up
+vagrant ssh
+```
+
+or as a one liner:
+```
+AWS_SSH_KEY_NAME='myawskey' vagrant up; vagrant ssh
+```
+
+Follow these steps to install onto your newly created EC2 instance, the latest version of chef-load from the habitat depot in the `chef` origin:
 
 1. From the root of chef-load, run: `vagrant up; vagrant ssh;`
 2. Install and link chef-load binary
@@ -44,7 +84,9 @@ hab pkg install chef/chef-load
 hab pkg binlink chef/chef-load chef-load
 ```
 
-### Generate a chef-load configuration file.  
+When you no longer need or want to pay for the instance, simply run `vagrant destroy`
+
+### Generate a chef-load configuration file.
 
 The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and documents a lot of the flexibility of chef-load so please read it.
 
