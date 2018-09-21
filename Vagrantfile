@@ -123,7 +123,7 @@ EOT
 EOF
 STUDIORC="#{home_dir}/chef-load/.studiorc"
 
-echo 'install_if_missing chef/chef-load \033[0m\n'>> $STDIORC
+echo 'hab pkg install chef/chef-load \n'>> $STUDIORC
 
 echo 'printf "\033[0;31m>>> ONE MORE STEP NEEDED TO RUN chef-load <<<\033[0m\n"' >> $STUDIORC
 echo 'printf "1. Run this here:\033[1;32m hab pkg install --binlink chef/chef-load \033[0m\n"' >> $STUDIORC
