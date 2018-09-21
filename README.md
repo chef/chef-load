@@ -33,6 +33,17 @@ hab pkg install chef/chef-load
 hab pkg binlink chef/chef-load chef-load
 ```
 
+### Install onto AWS EC2 with Habitat
+
+Follow these steps to install onto EC2, the latest version of chef-load from the habitat depot in the `chef` origin:
+
+1. From the root of chef-load, run: `vagrant up; vagrant ssh;`
+2. Install and link chef-load binary
+```
+hab pkg install chef/chef-load
+hab pkg binlink chef/chef-load chef-load
+```
+
 ### Generate a chef-load configuration file.  
 
 The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and documents a lot of the flexibility of chef-load so please read it.

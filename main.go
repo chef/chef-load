@@ -17,7 +17,9 @@
 
 package main
 
-import "github.com/chef/chef-load/commands"
+import (
+	"github.com/chef/chef-load/commands"
+)
 
 func main() {
 	commands.Execute()
