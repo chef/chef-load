@@ -66,25 +66,18 @@ The Vagrantfile creates the instance in the `us-east-2`(Ohio) region. You will n
 
 Start it up!
 ```
-AWS_SSH_KEY_NAME=<your aws key name> vagrant up
-vagrant ssh
+AWS_SSH_KEY_NAME=<your-aws-key> vagrant up; vagrant ssh
 ```
 
-or as a one liner:
+If you wish to use an aws instance that's larger than the default t3.nano, simply set an ENV var named `CHEF_LOAD_AWS_INSTANCE_TYPE` before running vagrant commands
+
 ```
-AWS_SSH_KEY_NAME='myawskey' vagrant up; vagrant ssh
+CHEF_LOAD_AWS_INSTANCE_TYPE=t3.small AWS_SSH_KEY_NAME=<your-aws-key> vagrant up; vagrant ssh
 ```
 
-Follow these steps to install onto your newly created EC2 instance, the latest version of chef-load from the habitat depot in the `chef` origin:
 
-1. From the root of chef-load, run: `vagrant up; vagrant ssh;`
-2. Install and link chef-load binary
-```
-hab pkg install chef/chef-load
-hab pkg binlink chef/chef-load chef-load
-```
 
-When you no longer need or want to pay for the instance, simply run `vagrant destroy`
+When you no longer want the instance, simply run `vagrant destroy`
 
 ### Generate a chef-load configuration file.
 

@@ -123,10 +123,10 @@ EOT
 EOF
 STUDIORC="#{home_dir}/chef-load/.studiorc"
 
-echo 'hab pkg install chef/chef-load \n'>> $STUDIORC
+echo 'install_if_missing chef/chef-load chef-load' >>  $STUDIORC
 
-echo 'printf "\033[0;31m>>> ONE MORE STEP NEEDED TO RUN chef-load <<<\033[0m\n"' >> $STUDIORC
-echo 'printf "1. Run this here:\033[1;32m hab pkg install --binlink chef/chef-load \033[0m\n"' >> $STUDIORC
+echo 'printf "\033[0;31m>>> Next steps <<<\033[0m\n"' >> $STUDIORC
+echo 'printf "View Readme file to learn how to run chef-load commands\033[1;32m  \033[0m\n\n"' >> $STUDIORC
 SCRIPT
 
 if ENV['AWS_SSH_KEY_PATH'].nil?
