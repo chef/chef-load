@@ -123,6 +123,8 @@ func Default() Config {
 			},
 			Samples: Samples{
 				Platforms: []Platform{
+					{Name: "c5-with-skip-message-depends", Profiles: []string{"mylinux-success-1.8.9","myrapper-child-0.6.2"}},
+					{Name: "c5-with-skip-message", Profiles: []string{"mylinux-success-1.8.9","myprofile1-1.0.0"}},
 					{Name: "c5", Profiles: []string{"mylinux-success-1.8.9"}},
 					{Name: "c6", Profiles: []string{"cis-centos6-level1-1.1.0-1.4", "ssh-baseline-2.2.0"}},
 					{Name: "c7", Profiles: []string{"mylinux-success-1.8.9"}},
