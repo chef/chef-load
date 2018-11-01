@@ -135,7 +135,7 @@ func Default() Config {
 						"apache-baseline-2.0.2", "mysql-baseline-2.1.0"}},
 					{Name: "u12", Profiles: []string{"cis-ubuntu12_04lts-level1-1.1.0-2"}},
 					{Name: "u14", Profiles: []string{"mylinux-success-1.8.9"}},
-					{Name: "u18", Profiles: []string{"linux-baseline-2.2.0", "ssh-baseline-2.2.0"}},
+					{Name: "u18", Profiles: []string{"linux-baseline-2.2.0", "ssh-baseline1-2.2.0"}},
 				},
 			},
 			Statistics: Statistics{
