@@ -172,10 +172,10 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 			if config.DaysBack > 0 {
 				if rejects {
 					log.WithFields(log.Fields{
-						"ccrs_per_node":       ccrsTotal,
-						"total_ccrs":          ccrsTotal * int64(config.NumNodes),
-						"total_ccrs_ingested": (c * int64(config.NumNodes)) + int64(j*config.Threads) + ccrsIngested,
-						"sleep":               fmt.Sprintf("%ds", config.SleepTimeOnFailure),
+						"ccrs_per_node":                   ccrsTotal,
+						"total_ccrs":                      ccrsTotal * int64(config.NumNodes),
+						"total_ccrs_ingested":             (c * int64(config.NumNodes)) + int64(j*config.Threads) + ccrsIngested,
+						"sleep":                           fmt.Sprintf("%ds", config.SleepTimeOnFailure),
 						"time_elapsed_since_last_failure": time.Now().Sub(timeMarker),
 						"ccr_ingested_since_last_failure": ccrsIngested,
 						"ccr_rejected_since_last_failure": ccrsRejected,
@@ -356,7 +356,11 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 
 	node.Environment = getRandom("environment")
 	node.RunList = randRunList
-	node.AutomaticAttributes = map[string]interface{}{}
+	if config.OhaiJSONFile != "" {
+		node.AutomaticAttributes = parseJSONFile(config.OhaiJSONFile)
+	} else {
+		node.AutomaticAttributes = map[string]interface{}{}
+	}
 	node.AutomaticAttributes["fqdn"] = nodeName
 	node.AutomaticAttributes["roles"] = []string{getRandom("role")}
 	node.AutomaticAttributes["platform"] = getRandom("platform")
