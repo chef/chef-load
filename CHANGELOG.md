@@ -1,4 +1,4 @@
-# chef-load Change Log
+# chef-load Change Log 
 
 ## 3.0.0 (2017-08-31)
 
