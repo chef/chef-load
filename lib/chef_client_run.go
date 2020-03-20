@@ -51,6 +51,19 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		dataCollectorAvailable = true
 		expandedRunList        []string
 		node                   chef.Node
+		nodeDetails            = NodeDetails{
+			name:nodeName,ipAddr:generateIpAddress(),
+			environment:chefEnvironment,
+			roles: roles,
+			recipes: recipes,
+			nodeUUID: nodeUUID,
+			sourceFqdn: chefServerFQDN,
+			fqdn: node.Name,
+			orgName: orgName,
+			policyGroup: "hello_policy_group",
+			policyName:  "hello_policy_name",
+			chefTags: []string{"tag1", "tag2", "tag3"},
+		}
 	)
 
 	if config.RunChefClient {
@@ -213,7 +226,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 
 	// Notify Data Collector of compliance report
 	if len(complianceJSON) != 0 {
-		complianceReportBody := dataCollectorComplianceReport(nodeName, chefEnvironment, roles, recipes, reportUUID, nodeUUID, endTime, complianceJSON)
+		complianceReportBody := dataCollectorComplianceReport(nodeDetails, reportUUID, endTime, complianceJSON)
 		if config.DataCollectorURL != "" {
 			chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
 		} else {
