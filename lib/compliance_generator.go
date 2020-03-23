@@ -34,13 +34,6 @@ type NodeDetails struct {
 	policyGroup string
 	orgName     string
 	chefTags    []string
-
-	//// "source_fqdn": "localhost",
-	//  "organization_name": "",
-	//  "policy_group": "",
-	//  "policy_name": "",
-	//  "chef_tags": [],
-	////  "fqdn": "myapache.example.com"
 }
 
 func GenerateComplianceData(config *Config, requests chan *request) error {
@@ -53,13 +46,6 @@ func GenerateComplianceData(config *Config, requests chan *request) error {
 	log.Infof("nodes %v", nodes)
 	generateReports(config, nodes, requests)
 	return nil
-}
-
-func ip2int(ip net.IP) uint32 {
-	if len(ip) == 16 {
-		return binary.BigEndian.Uint32(ip[12:16])
-	}
-	return binary.BigEndian.Uint32(ip)
 }
 
 func int2ip(nn uint32) net.IP {
