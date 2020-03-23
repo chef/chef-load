@@ -147,7 +147,7 @@ func Start(config *Config) {
 	for {
 		for i := 1; i <= config.NumNodes; i++ {
 			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-			go ChefClientRun(config, nodeName, firstRun, requests)
+			go ChefClientRun(config, nodeName, firstRun, requests, uint32(i))
 			time.Sleep(delayBetweenNodes)
 		}
 		firstRun = false

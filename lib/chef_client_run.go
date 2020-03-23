@@ -26,7 +26,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan *request) {
+func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan *request, nodeNumber uint32) {
 	var (
 		nodeClient             chef.Client
 		ohaiJSON               = map[string]interface{}{}
@@ -38,8 +38,8 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		sleepDuration          = config.SleepDuration
 		runUUID, _             = uuid.NewV4()
 		reportUUID, _          = uuid.NewV4()
-		roles = getRandomStringArray(compRoles)
-		recipes = getRandomStringArray(compRecipes)
+		roles                  = getRandomStringArray(compRoles)
+		recipes                = getRandomStringArray(compRecipes)
 		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
 		startTime              = time.Now().UTC()
 		url, _                 = url.ParseRequestURI(config.ChefServerURL)
@@ -52,17 +52,18 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		expandedRunList        []string
 		node                   chef.Node
 		nodeDetails            = NodeDetails{
-			name:nodeName,ipAddr:generateIpAddress(),
-			environment:chefEnvironment,
-			roles: roles,
-			recipes: recipes,
-			nodeUUID: nodeUUID,
-			sourceFqdn: chefServerFQDN,
-			fqdn: node.Name,
-			orgName: orgName,
+			name:        nodeName,
+			ipAddr:      int2ip(nodeNumber).String(),
+			environment: chefEnvironment,
+			roles:       roles,
+			recipes:     recipes,
+			nodeUUID:    nodeUUID,
+			sourceFqdn:  chefServerFQDN,
+			fqdn:        node.Name,
+			orgName:     orgName,
 			policyGroup: "hello_policy_group",
 			policyName:  "hello_policy_name",
-			chefTags: []string{"tag1", "tag2", "tag3"},
+			chefTags:    []string{"tag1", "tag2", "tag3"},
 		}
 	)
 

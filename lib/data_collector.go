@@ -253,6 +253,7 @@ func dataCollectorComplianceReport(node NodeDetails, reportUUID uuid.UUID, endTi
 	body["policy_group"] = node.policyGroup
 	body["policy_name"] = node.policyName
 	body["chef_tags"] = node.chefTags
+	body["ipaddress"] = node.ipAddr
 
 	if body["controls"] != nil {
 		delete(body, "controls")

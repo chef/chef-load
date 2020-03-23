@@ -1,8 +1,10 @@
 package chef_load
 
 import (
+	"encoding/binary"
 	"fmt"
 	"math/rand"
+	"net"
 	"strings"
 
 	"time"
@@ -51,6 +53,19 @@ func GenerateComplianceData(config *Config, requests chan *request) error {
 	log.Infof("nodes %v", nodes)
 	generateReports(config, nodes, requests)
 	return nil
+}
+
+func ip2int(ip net.IP) uint32 {
+	if len(ip) == 16 {
+		return binary.BigEndian.Uint32(ip[12:16])
+	}
+	return binary.BigEndian.Uint32(ip)
+}
+
+func int2ip(nn uint32) net.IP {
+	ip := make(net.IP, 4)
+	binary.BigEndian.PutUint32(ip, nn)
+	return ip
 }
 
 func generateNodeName(nodeNamePrefix string) string {
@@ -146,6 +161,7 @@ func generateNodes(nodeNamePrefix string, platforms []Platform, nodesCount int) 
 			chefTags:    generateChefTags(),
 			policyGroup: generatePolicyGroup(),
 			policyName:  generatePolicyName(),
+			platform:    platforms[rand.Intn(len(platforms))].Name,
 		}
 		node.fqdn = node.name
 		node.nodeUUID = uuid.NewV3(uuid.NamespaceDNS, node.name)
