@@ -6,3 +6,6 @@ src
 /bin/chef-load
 /.vagrant/
 .idea
+
+
+mkmf.log
