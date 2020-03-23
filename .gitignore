@@ -5,3 +5,7 @@ src
 *.swp
 /bin/chef-load
 /.vagrant/
+.idea
+
+
+mkmf.log

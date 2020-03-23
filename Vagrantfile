@@ -1,6 +1,8 @@
 require 'json'
 require 'open-uri'
 require 'vagrant-aws'
+require 'resolv'
+require 'mkmf'
 
 home_dir="/home/ubuntu"
 current_branch=`git rev-parse --abbrev-ref HEAD`
@@ -13,10 +15,80 @@ if !ENV['STOP_HOURS'].nil?
   stop_hours = ENV['STOP_HOURS']
 end
 
+# Extract the AWS credentials from a file without additional dependencies, like toml parsing gem
+def extract_aws_creds(file, profile)
+  key = nil
+  secret = nil
+  token = nil
+  found_profile = false
+  File.open(file).read.each_line do |line|
+    if line =~ /^\s*\[\s*#{Regexp.escape(profile)}s*\]/
+      found_profile = true
+      next
+    end
+    if found_profile
+      if line =~ /^\s*aws_access_key_id\s*=\s*"?(.+)"?/
+        key = $1
+        next
+      end
+      if line =~ /^\s*aws_secret_access_key\s*=\s*"?(.+)"?/
+        secret = $1
+        next
+      end
+      if line =~ /^\s*aws_session_token\s*=\s*"?(.+)"?/
+        token = $1
+        next
+      end
+      if ((key && secret && token) || line =~ /^\s*\[/)
+        # return if we found all properties or we reached another [profile]
+        return key, secret, token
+      end
+    end
+  end
+  return key, secret, token
+end
+
+aws_session_token = ''
+aws_access_key_id = ENV['AWS_ACCESS_KEY_ID']
+aws_secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
+
+# Only run these checks on `vagrant up/ssh/destroy`
+if ['up', 'ssh', 'destroy', 'halt'].include?(ARGV[0])
+  if (aws_access_key_id && aws_secret_access_key)
+    puts " * Using the provided ENV variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to continue..."
+  else
+    aws_profile = ENV['AWS_PROFILE']
+    aws_profile ||= 'chef-engineering'
+    aws_creds_file = "#{ENV['HOME']}/.aws/credentials"
+
+    if find_executable('okta_aws')
+      puts " * okta_aws command detected, using it to refresh the temporary AWS credentials..."
+      unless File.exist?("#{ENV['HOME']}/.okta_aws.toml")
+        raise "#{ENV['HOME']}/.okta_aws.toml is not defined, cannot continue. Please read README.md for an example and usage details."
+      end
+      puts " * You might be prompted for your Okta password now..."
+      `okta_aws "#{aws_profile}"`
+    end
+
+    unless File.exist?(aws_creds_file)
+      raise "Without ENV variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or #{aws_creds_file} the ec2 instances can't be created, aborting..."
+    end
+    puts " * Looking for '#{aws_profile}' AWS credentials in #{aws_creds_file}"
+    aws_access_key_id, aws_secret_access_key, aws_session_token = extract_aws_creds(aws_creds_file, aws_profile)
+    if aws_access_key_id && aws_secret_access_key && aws_session_token
+      puts " * Found AWS credentials in #{aws_creds_file}, moving on..."
+    else
+      raise "Unable to locate '#{aws_profile}' AWS credentials in #{aws_creds_file}, aborting..."
+    end
+  end
+end
+
 # Only run these checks on `vagrant up`
 if ARGV[0] == "up"
-  if ssh_identities.strip == 'The agent has no identities.'
-    raise "No ssh identities are loaded, run `ssh-add` to load the private key that is allowed to clone the a2 repo!"
+  puts '==> Checking for ssh identities needed to clone the chef-load repo...'
+
+  unless system('ssh-add -l')
+    raise "No ssh identities are loaded, run `ssh-add` to load the private key that is allowed to clone the automate repo!"
   end
   if !clean_tree
     puts %q(
@@ -31,10 +103,6 @@ if ARGV[0] == "up"
       ! You have unpushed commits that won't exist when we do the git clone on the remote EC2 instance !
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     )
-  end
-
-  if ENV['AWS_ACCESS_KEY_ID'].nil? || ENV['AWS_SECRET_ACCESS_KEY'].nil?
-    raise "ENV variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be defined for this, aborting..."
   end
 
   if ENV['GITHUB_TOKEN'].nil?
@@ -137,8 +205,9 @@ Vagrant.configure('2') do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.provider 'aws' do |aws, override|
-    aws.access_key_id = "#{ENV['AWS_ACCESS_KEY_ID']}"
-    aws.secret_access_key = "#{ENV['AWS_SECRET_ACCESS_KEY']}"
+    aws.access_key_id = "#{aws_access_key_id}"
+    aws.secret_access_key = "#{aws_secret_access_key}"
+    aws.session_token = "#{aws_session_token}" if aws_session_token
     aws.keypair_name = ENV['AWS_SSH_KEY_NAME']
     #aws.instance_type = 't3.nano'       # 1CPU, .5GB RAM
     #aws.instance_type = 't3.micro'      # 1CPU, 1GB RAM
