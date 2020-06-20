@@ -30,7 +30,7 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -338,8 +338,8 @@ func randAttributeMapKey(m map[string]interface{}) string {
 func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string, requests chan *request) (int, error) {
 	var (
 		startTime, endTime     = genStartEndTime(config)
-		runUUID, _             = uuid.NewV4()
-		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
+		runUUID                = uuid.New()
+		nodeUUID               = uuid.NewMD5(uuid.NameSpaceDNS, []byte(nodeName))
 		orgName                = getRandom("organization")
 		chefServerFQDN         = getRandom("source_fqdn")
 		status                 = getRandom("status")

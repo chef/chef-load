@@ -9,8 +9,8 @@ import (
 
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/icrowley/fake"
-	uuid "github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -150,7 +150,7 @@ func generateNodes(nodeNamePrefix string, platforms []Platform, nodesCount int) 
 			platform:    platforms[rand.Intn(len(platforms))].Name,
 		}
 		node.fqdn = node.name
-		node.nodeUUID = uuid.NewV3(uuid.NamespaceDNS, node.name)
+		node.nodeUUID = uuid.NewMD5(uuid.NameSpaceDNS, []byte(node.name))
 		nodes = append(nodes, node)
 	}
 	return nodes
@@ -213,7 +213,7 @@ func generateReports(config *Config, nodes []NodeDetails, requests chan *request
 		for scanIndex > 0 && totalScans < totalMaxScans {
 			scanIndex -= 1
 			report := sampleReport
-			reportUUID, _ := uuid.NewV4()
+			reportUUID := uuid.New()
 			reportEndTime := endTime.Add(time.Duration(-interval*scanIndex) * time.Minute)
 			complianceReportBody := dataCollectorComplianceReport(node, reportUUID, reportEndTime, report)
 

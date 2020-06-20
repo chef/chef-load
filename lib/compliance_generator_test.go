@@ -9,8 +9,8 @@ import (
 )
 
 func TestGenerateNodeName(t *testing.T) {
-	nodeName := generateNodeName()
+	nodeName := generateNodeName("prefix")
 
 	nodeNameTokenized := strings.Split(nodeName, "-")
-	assert.Len(t, nodeNameTokenized, 3, "")
+	assert.Len(t, nodeNameTokenized, 4, "")
 }

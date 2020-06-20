@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -109,9 +109,9 @@ type actionRequest struct {
 }
 
 func defaultActionRequest() *actionRequest {
-	ID, _ := uuid.NewV4()
+	id := uuid.New()
 	return &actionRequest{
-		ID:               ID,
+		ID:               id,
 		MessageType:      "action",
 		MessageVersion:   "0.1.0",
 		actionType:       nodeAction,

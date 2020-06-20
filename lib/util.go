@@ -100,7 +100,7 @@ func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client 
 func getPrivateKey(privateKeyPath string) string {
 	fileContent, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {
-		log.WithField("error", err).Error("Could not read private key %s", privateKeyPath)
+		log.WithField("error", err).Errorf("Could not read private key %s", privateKeyPath)
 	}
 	privateKey := string(fileContent)
 	return privateKey
@@ -111,14 +111,14 @@ func parseJSONFile(jsonFile string) map[string]interface{} {
 
 	file, err := os.Open(jsonFile)
 	if err != nil {
-		log.WithField("error", err).Error("Could not open JSON file %s", jsonFile)
+		log.WithField("error", err).Errorf("Could not open JSON file %s", jsonFile)
 		return jsonContent
 	}
 	defer file.Close()
 
 	err = json.NewDecoder(file).Decode(&jsonContent)
 	if err != nil {
-		log.WithField("error", err).Error("Could not decode JSON file %s", jsonFile)
+		log.WithField("error", err).Errorf("Could not decode JSON file %s", jsonFile)
 		return jsonContent
 	}
 	return jsonContent

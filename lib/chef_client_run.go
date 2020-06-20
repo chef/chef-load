@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan *request, nodeNumber uint32) {
@@ -36,11 +36,11 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		runList                = parseRunList(config.RunList)
 		apiGetRequests         = config.APIGetRequests
 		sleepDuration          = config.SleepDuration
-		runUUID, _             = uuid.NewV4()
-		reportUUID, _          = uuid.NewV4()
+		runUUID, _             = uuid.NewRandom()
+		reportUUID, _          = uuid.NewRandom()
 		roles                  = getRandomStringArray(compRoles)
 		recipes                = getRandomStringArray(compRecipes)
-		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
+		nodeUUID               = uuid.NewMD5(uuid.NameSpaceDNS, []byte(nodeName))
 		startTime              = time.Now().UTC()
 		url, _                 = url.ParseRequestURI(config.ChefServerURL)
 		chefServerURL, _       = url.Parse(config.ChefServerURL)

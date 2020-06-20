@@ -281,14 +281,6 @@ chef-load generate --config chef-load.toml
 To build chef-load you must have Go installed.  
 Ref: https://golang.org/dl/
 
-Setup a GOPATH if you haven't already.  
-Ref: https://golang.org/doc/install#testing
-
-```
-mkdir ~/go-work
-export GOPATH=~/go-work
-```
-
 Get and install chef-load
 
 ```
@@ -299,10 +291,15 @@ It is easy to cross-compile chef-load for other platforms.
 Options for $GOOS and $GOARCH are listed in the following link.  
 Ref: https://golang.org/doc/install/source#environment
 
-The following command will create a chef-load executable file for linux amd64 in the current working directory.
+The following command will create a chef-load executable file for linux amd64 in `$PWD/bin`:
 
 ```
-env GOOS=linux GOARCH=amd64 go build github.com/jeremiahsnapp/chef-load
+make bin
+```
+
+You can also set the OS and arch:
+```
+make bin GOOS=$GOOS GOARCH=$GOARCH
 ```
 
 ### Natively with Habitat
