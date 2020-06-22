@@ -1,0 +1,5 @@
+---
+origin: chef
+studio_secrets:
+  CI:
+    value: "true"
