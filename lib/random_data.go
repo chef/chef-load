@@ -118,6 +118,17 @@ var (
 		"middleware",
 		"database",
 		"network_device",
+		"seattle",
+		"portland",
+		"vancouver",
+		"denver",
+		"phoenix",
+		"dev",
+		"alpha",
+		"beta",
+		"gamma",
+		"preprod",
+		"prod",
 	}
 
 	randCookbooks = []string{

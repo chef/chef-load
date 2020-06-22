@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 const rubyDateTime = "2006-01-02 15:04:05 -0700"

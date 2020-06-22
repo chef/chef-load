@@ -30,7 +30,7 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -248,8 +248,6 @@ func getRandom(kind string) string {
 		return roles[rand.Intn(len(roles))]
 	case "platform":
 		return platforms[rand.Intn(len(platforms))]
-	case "tag":
-		return tags[rand.Intn(len(tags))]
 	case "source_fqdn":
 		return sourceFqdns[rand.Intn(len(sourceFqdns))]
 	case "status":
@@ -305,6 +303,20 @@ func genRandomAttributes() map[string]interface{} {
 	return randAttributes
 }
 
+func genRandomTags() []string {
+	const instances = 3
+	tagsSize := rand.Intn(10) + 1
+	ts := make([]string, tagsSize)
+	perm := rand.Perm(len(tags))
+	for i := range ts {
+		tag := tags[perm[i]]
+		instance := rand.Intn(instances)
+		ts[i] = fmt.Sprintf("%s%d", tag, instance)
+	}
+
+	return ts
+}
+
 func genStartEndTime(config *Config) (time.Time, time.Time) {
 	var (
 		sTime time.Time
@@ -338,8 +350,8 @@ func randAttributeMapKey(m map[string]interface{}) string {
 func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string, requests chan *request) (int, error) {
 	var (
 		startTime, endTime     = genStartEndTime(config)
-		runUUID, _             = uuid.NewV4()
-		nodeUUID               = uuid.NewV3(uuid.NamespaceDNS, nodeName)
+		runUUID                = uuid.New()
+		nodeUUID               = uuid.NewMD5(uuid.NameSpaceDNS, []byte(nodeName))
 		orgName                = getRandom("organization")
 		chefServerFQDN         = getRandom("source_fqdn")
 		status                 = getRandom("status")
@@ -372,8 +384,7 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	node.AutomaticAttributes["cookbooks"] = map[string]interface{}{}
 	node.AutomaticAttributes["uptime_seconds"] = 0
 	node.NormalAttributes = genRandomAttributes()
-	node.NormalAttributes["tags"] = []string{getRandom("tag")}
-
+	node.NormalAttributes["tags"] = genRandomTags()
 	// This run_list is used by the RunChefClient flag, when there is a ChefServerUrl specified
 	runList := parseRunList(node.RunList)
 

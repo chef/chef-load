@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -50,7 +50,7 @@ func newLivenessPingRequest(nodeName, chefServerFQDN, chefServerOrg string) *Liv
 		ChefServerFQDN:   chefServerFQDN,
 		OrganizationName: chefServerOrg,
 		NodeName:         nodeName,
-		EntityUUID:       uuid.NewV3(uuid.NamespaceDNS, nodeName),
+		EntityUUID:       uuid.NewMD5(uuid.NameSpaceDNS, []byte(nodeName)),
 	}
 }
 

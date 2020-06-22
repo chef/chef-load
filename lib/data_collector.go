@@ -30,7 +30,7 @@ import (
 	"time"
 
 	"github.com/go-chef/chef"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
