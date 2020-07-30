@@ -56,13 +56,13 @@ var (
 		"mountain",
 		"swamp",
 		"underdark",
-		"astral plane",
-		"ethereal plane",
-		"plane of shadow",
+		"astral-plane",
+		"ethereal-plane",
+		"plane-of-shadow",
 		"feywild",
 		"shadowfell",
-		"mirror plane",
-		"outer space",
+		"mirror-plane",
+		"outer-space",
 		"acceptance-org-proj-master",
 	}
 
