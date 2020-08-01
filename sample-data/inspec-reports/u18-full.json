@@ -1341,6 +1341,7 @@
 
           ],
           "tags": {
+            "plat_type": ["u18", "ubuntu"]
           },
           "code": "control 'sysctl-15' do\n  impact 1.0\n  title 'Disable acceptance of all secure redirected packets'\n  desc 'Disable acceptance of all secure redirected packets these prevents Man-in-the-Middle attacks.'\n  describe kernel_parameter('net.ipv4.conf.all.secure_redirects') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv4.conf.default.secure_redirects') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
