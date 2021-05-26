@@ -34,6 +34,7 @@ type NodeDetails struct {
 	policyGroup string
 	orgName     string
 	chefTags    []string
+	cookbooks   map[string]interface{}
 }
 
 func GenerateComplianceData(config *Config, requests chan *request) error {
@@ -148,6 +149,7 @@ func generateNodes(nodeNamePrefix string, platforms []Platform, nodesCount int) 
 			policyGroup: generatePolicyGroup(),
 			policyName:  generatePolicyName(),
 			platform:    platforms[rand.Intn(len(platforms))].Name,
+			cookbooks:   cookbooksData,
 		}
 		node.fqdn = node.name
 		node.nodeUUID = uuid.NewMD5(uuid.NameSpaceDNS, []byte(node.name))

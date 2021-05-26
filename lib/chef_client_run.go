@@ -64,6 +64,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			policyGroup: "hello_policy_group",
 			policyName:  "hello_policy_name",
 			chefTags:    []string{"tag1", "tag2", "tag3"},
+			cookbooks:   cookbooksData,
 		}
 	)
 

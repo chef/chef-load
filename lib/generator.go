@@ -381,7 +381,7 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	//"platform_family": "rhel",
 
 	node.AutomaticAttributes["recipes"] = randRecipes
-	node.AutomaticAttributes["cookbooks"] = map[string]interface{}{}
+	node.AutomaticAttributes["cookbooks"] = cookbooksData
 	node.AutomaticAttributes["uptime_seconds"] = 0
 	node.NormalAttributes = genRandomAttributes()
 	node.NormalAttributes["tags"] = genRandomTags()

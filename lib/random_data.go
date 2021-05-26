@@ -47,6 +47,16 @@ var (
 		"Dot.Comma,Big;\"Trouble",
 	}
 
+	cookbooksData = map[string]interface{}{
+		"chef-client":     map[string]interface{}{"version": "8.1.1"},
+		"cron":            map[string]interface{}{"version": "4.1.1"},
+		"compat_resource": map[string]interface{}{"version": "12.19.0"},
+		"logrotate":       map[string]interface{}{"version": "2.1.0"},
+		"windows":         map[string]interface{}{"version": "3.0.5"},
+		"ohai":            map[string]interface{}{"version": "5.1.0"},
+		"audit":           map[string]interface{}{"version": "4.0.0"},
+	}
+
 	environments = []string{
 		"arctic",
 		"coast",
