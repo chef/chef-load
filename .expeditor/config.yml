@@ -3,22 +3,21 @@ github:
   # This deletes the GitHub PR branch after successfully merged into the release
   delete_branch_on_merge: true
 
-merge_actions:
-  - trigger_pipeline:habitat/build:
-      ignore_labels:
-        - "Expeditor: Skip Habitat"
-        - "Expeditor: Skip All"
-
 pipelines:
   - habitat/build:
       definition: .expeditor/build.habitat.yml
 
-promote:
-  channels:
-    - unstable
-    - stable
+artifact_channels:
+  - unstable
+  - stable
 
 subscriptions:
   - workload: project_promoted:{{agent_id}}:*
     actions:
       - built_in:promote_habitat_packages
+  - workload: pull_request_merged:{{github_repo}}:{{release_branch}}:*
+    actions:
+      - trigger_pipeline:habitat/build:
+          ignore_labels:
+            - "Expeditor: Skip Habitat"
+            - "Expeditor: Skip All"
