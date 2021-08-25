@@ -2,7 +2,7 @@
   <configuration default="false" name="go build run generate" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="chef-load" />
     <working_directory value="$PROJECT_DIR$/" />
-    <parameters value="generate --config $USER_HOME$/cl.toml -N150000 -D10 -T1500000 -M1" />
+    <parameters value="generate --config $USER_HOME$/cl.toml -N100 -D1 -T10000 -M10" />
     <kind value="PACKAGE" />
     <package value="github.com/chef/chef-load" />
     <method v="2" />

@@ -46,6 +46,12 @@
             "line": 2,
             "ref": "controls/failure.rb"
           },
+          "waiver_data": {
+            "justification": "Sound reasoning",
+            "run": true,
+            "skipped_due_to_waiver": false,
+            "message": ""
+          },
           "results": [
             {
               "status": "failed",

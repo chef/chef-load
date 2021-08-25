@@ -144,14 +144,17 @@ func Default() Config {
 					{Name: "u12", Profiles: []string{"cis-ubuntu12_04lts-level1-1.1.0-2"}},
 					{Name: "u14", Profiles: []string{"mylinux-success-1.8.9"}},
 					{Name: "u18", Profiles: []string{"linux-baseline-2.2.0", "ssh-baseline-2.2.0"}},
+					{Name: "osx17-7", Profiles: []string{"linux-baseline-2.2.0", "ssh-baseline-2.2.0"}},
 				},
 			},
 			Statistics: Statistics{
 				Sets: []Set{
-					{Nodes: 10, ScanPerDay: 1}, {Nodes: 10, ScanPerDay: 24},
-					{Nodes: 100, ScanPerDay: 1}, {Nodes: 100, ScanPerDay: 24},
-					{Nodes: 1000, ScanPerDay: 1}, {Nodes: 1000, ScanPerDay: 24},
-					{Nodes: 10000, ScanPerDay: 1}, {Nodes: 10000, ScanPerDay: 24}, {Nodes: 10000, ScanPerDay: 96},
+					{Nodes: 1, ScanPerDay: 24},
+					{Nodes: 10, ScanPerDay: 24},
+					{Nodes: 100, ScanPerDay: 24},
+					{Nodes: 1000, ScanPerDay: 24},
+					{Nodes: 10000, ScanPerDay: 24},
+					{Nodes: 10000, ScanPerDay: 96},
 				}},
 		},
 	}

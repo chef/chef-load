@@ -8,7 +8,7 @@
       "name": "mylinux-success",
       "version": "1.8.9",
       "sha256": "1de944869a847da87d3774feaacb41829935a2f46b558f7fc34b4da21586ae27",
-      "title": "My Demo Linux successful profile",
+      "title": "My Demo Linux success profile",
       "maintainer": "Chef Software, Inc.",
       "summary": "Demonstrates the use of InSpec Compliance Profile",
       "license": "Apache 2 license",

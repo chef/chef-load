@@ -1,0 +1,147 @@
+{
+  "platform": {
+    "name": "mac_os_x",
+    "release": "17.7.0"
+  },
+  "profiles": [
+    {
+      "name": "myprofile2",
+      "version": "1.0.5",
+      "sha256": "447542ecfb8a8800ed0146039da3af8fed047f575f6037cfba75f3b664a97ea5",
+      "title": "My Profile 2 title",
+      "maintainer": "Demo, Inc.",
+      "summary": "My Profile 2 summary",
+      "license": "Apache-2.0",
+      "copyright": "Demo, Inc.",
+      "copyright_email": "support@example.com",
+      "supports": [],
+      "attributes": [],
+      "groups": [
+        {
+          "id": "controls/profile1.rb",
+          "controls": [
+            "pro2-con1"
+          ]
+        }
+      ],
+      "controls": [
+        {
+          "id": "os-04",
+          "code": "control 'os-04' do\n  impact 1.0\n  title 'Dot in PATH variable'\n  desc 'Do not include the current working directory in PATH variable. This makes it easier for an attacker to gain extensive rigths by executing a Trojan program'\n  describe os_env('PATH') do\n    its('split') { should_not include('') }\n    its('split') { should_not include('.') }\n  end\nend\n",
+          "desc": "Do not include the current working directory in PATH variable. This makes it easier for an attacker to gain extensive rigths by executing a Trojan program",
+          "impact": 1,
+          "title": "Dot in PATH variable",
+          "source_location": {
+            "ref": "./.tmp/profiles/dist/unpacked/linux-baseline-2.0.1.tar.gz/linux-baseline-2.0.1/controls/os_spec.rb",
+            "line": 69
+          },
+          "refs": [],
+          "tags": {},
+          "waiver_data": {
+            "expiration_date": "1977-06-01",
+            "justification": "Necessity",
+            "run": false,
+            "skipped_due_to_waiver": false,
+            "message": "Waiver expired on 1977-06-01, evaluating control normally"
+          },
+          "results": [
+            {
+              "status": "passed",
+              "code_desc": "Environment variable PATH split should not include \"\"",
+              "run_time": 0.000134,
+              "start_time": "2018-02-09T10:17:23+01:00"
+            },
+            {
+              "status": "passed",
+              "code_desc": "Environment variable PATH split should not include \".\"",
+              "run_time": 9.8e-05,
+              "start_time": "2018-02-09T10:17:23+01:00"
+            }
+          ]
+        },
+        {
+          "id": "apache-01",
+          "code": "control 'apache-01' do\n  impact 1.0\n  title 'Apache should be running'\n  desc 'Apache should be running.'\n  describe service(apache.service) do\n    it { should be_installed }\n    it { should be_running }\n  end\nend\n",
+          "desc": "Apache should be running.",
+          "impact": 1,
+          "title": "Apache should be running",
+          "source_location": {
+            "ref": "./.tmp/profiles/dist/unpacked/apache-baseline-2.0.1.tar.gz/apache-baseline-2.0.1/controls/apache_spec.rb",
+            "line": 29
+          },
+          "refs": [],
+          "tags": {},
+          "waiver_data": {
+            "expiration_date": "2025-06-01",
+            "justification": "Whimsy",
+            "run": false,
+            "skipped_due_to_waiver": true,
+            "message": ""
+          },
+          "results": [
+            {
+              "status": "skipped",
+              "code_desc": "No-op",
+              "run_time": 7e-06,
+              "start_time": "2018-02-09T10:17:23+01:00",
+              "resource": "No-op",
+              "skip_message": "Skipped control due to waiver condition: Whimsy"
+            }
+          ]
+        },
+        {
+          "id": "pro2-con1",
+          "title": "Profile 2 - Control 1",
+          "desc": null,
+          "descriptions": [],
+          "impact": 0.8,
+          "refs": [],
+          "tags": {},
+          "code": "control 'pro2-con1' do\n  impact 0.8\n  title 'Profile 2 - Control 1'\n  describe file('/etc/hosts11111') do\n    its('mode') { should eq 0644 }\n  end\nend\n",
+          "source_location": {
+            "line": 1,
+            "ref": "/Users/apop/git/mycompliance-profile/myprofile1/controls/profile1.rb"
+          },
+          "waiver_data": {
+            "justification": "Sound reasoning",
+            "run": true,
+            "skipped_due_to_waiver": false,
+            "message": ""
+          },
+          "results": [
+            {
+              "status": "failed",
+              "code_desc": "File /etc/hosts11111 mode should eq 420",
+              "run_time": 0.064682,
+              "start_time": "2019-10-18T17:44:39+01:00",
+              "message": "\nexpected: 420\n     got: nil\n\n(compared using ==)\n"
+            }
+          ]
+        }
+      ],
+      "status": "loaded"
+    }
+  ],
+  "statistics": {
+    "duration": 0.074509
+  },
+  "version": "4.18.5",
+  "type": "inspec_report",
+  "job_uuid": "12345678-1234-123e-dddd-999999999999",
+  "roles": [ "base_osx", "apache_osx" ],
+  "recipes": [],
+  "other_checks": [],
+  "policy_name": "",
+  "policy_group": "",
+  "organization_name": "",
+  "source_fqdn": "localhost",
+  "chef_tags": [],
+  "ipaddress": "192.168.56.66",
+  "fqdn": "osx-workstation.example.com",
+
+  "node_name": "to_be_generated",
+  "node_uuid": "to_be_generated",
+  "report_uuid": "to_be_generated",
+  "end_time": "to_be_generated",
+  "environment": "to_be_generated"
+}

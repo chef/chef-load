@@ -2,7 +2,7 @@
   <configuration default="false" name="go build run start" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="chef-load" />
     <working_directory value="$PROJECT_DIR$/" />
-    <parameters value="start --config $USER_HOME$/cl.toml -n 100 --interval 1" />
+    <parameters value="start --config $USER_HOME$/cl.toml -n 3000 --interval 15" />
     <kind value="PACKAGE" />
     <package value="github.com/chef/chef-load" />
     <method v="2" />
