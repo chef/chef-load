@@ -55,64 +55,74 @@ type Matrix struct {
 }
 
 type Config struct {
-	RunChefClient              bool
-	LogFile                    string   `mapstructure:"log_file"`
-	ChefServerURL              string   `mapstructure:"chef_server_url"`
-	ClientName                 string   `mapstructure:"client_name"`
-	ClientKey                  string   `mapstructure:"client_key"`
-	DataCollectorURL           string   `mapstructure:"data_collector_url"`
-	DataCollectorToken         string   `mapstructure:"data_collector_token"`
-	OhaiJSONFile               string   `mapstructure:"ohai_json_file"`
-	ConvergeStatusJSONFile     string   `mapstructure:"converge_status_json_file"`
-	ComplianceStatusJSONFile   string   `mapstructure:"compliance_status_json_file"`
-	ComplianceSampleReportsDir string   `mapstructure:"compliance_sample_reports_dir"`
-	NumActions                 int      `mapstructure:"num_actions"`
-	NumNodes                   int      `mapstructure:"num_nodes"`
-	Interval                   int      `mapstructure:"interval"`
-	NodeNamePrefix             string   `mapstructure:"node_name_prefix"`
-	ChefEnvironment            string   `mapstructure:"chef_environment"`
-	RunList                    []string `mapstructure:"run_list"`
-	SleepDuration              int      `mapstructure:"sleep_duration"`
-	DownloadCookbooks          string   `mapstructure:"download_cookbooks"`
-	APIGetRequests             []string `mapstructure:"api_get_requests"`
-	ChefVersion                string   `mapstructure:"chef_version"`
-	ChefServerCreatesClientKey bool     `mapstructure:"chef_server_creates_client_key"`
-	RandomData                 bool     `mapstructure:"random_data"`
-	LivenessAgent              bool     `mapstructure:"liveness_agent"`
-	EnableReporting            bool     `mapstructure:"enable_reporting"`
-	DaysBack                   int      `mapstructure:"days_back"`
-	Threads                    int      `mapstructure:"threads"`
-	SleepTimeOnFailure         int      `mapstructure:"sleep_time_on_failure"`
-	Matrix                     *Matrix  `mapstructure:"matrix"`
+	RunChefClient                bool
+	LogFile                      string     `mapstructure:"log_file"`
+	ChefServerURL                string     `mapstructure:"chef_server_url"`
+	ClientName                   string     `mapstructure:"client_name"`
+	ClientKey                    string     `mapstructure:"client_key"`
+	DataCollectorURL             string     `mapstructure:"data_collector_url"`
+	DataCollectorToken           string     `mapstructure:"data_collector_token"`
+	OhaiJSONFile                 string     `mapstructure:"ohai_json_file"`
+	ConvergeStatusJSONFile       string     `mapstructure:"converge_status_json_file"`
+	ComplianceStatusJSONFile     string     `mapstructure:"compliance_status_json_file"`
+	ComplianceSampleReportsDir   string     `mapstructure:"compliance_sample_reports_dir"`
+	NumActions                   int        `mapstructure:"num_actions"`
+	NumNodes                     int        `mapstructure:"num_nodes"`
+	Interval                     int        `mapstructure:"interval"`
+	NodeNamePrefix               string     `mapstructure:"node_name_prefix"`
+	ChefEnvironment              string     `mapstructure:"chef_environment"`
+	RunList                      []string   `mapstructure:"run_list"`
+	RunLists                     [][]string `mapstructure:"run_lists"`
+	SleepDuration                int        `mapstructure:"sleep_duration"`
+	DownloadCookbooks            string     `mapstructure:"download_cookbooks"`
+	DownloadCookbooksScaleFactor float64    `mapstructure:"download_cookbooks_scale_factor"`
+	APIGetRequests               []string   `mapstructure:"api_get_requests"`
+	ChefVersion                  string     `mapstructure:"chef_version"`
+	ChefServerCreatesClientKey   bool       `mapstructure:"chef_server_creates_client_key"`
+	NodeSaveFrequency            float64    `mapstructure:"node_save_frequency"`
+	RandomData                   bool       `mapstructure:"random_data"`
+	LivenessAgent                bool       `mapstructure:"liveness_agent"`
+	EnableReporting              bool       `mapstructure:"enable_reporting"`
+	DaysBack                     int        `mapstructure:"days_back"`
+	Threads                      int        `mapstructure:"threads"`
+	SleepTimeOnFailure           int        `mapstructure:"sleep_time_on_failure"`
+	Matrix                       *Matrix    `mapstructure:"matrix"`
+	SkipClientCreation           bool       `mapstructure:"skip_client_creation"`
+	NodeReplacementRate          float64    `mapstructure:"node_replacement_rate"`
 }
 
 func Default() Config {
 	return Config{
-		RunChefClient:              false,
-		LogFile:                    "/var/log/chef-load/chef-load.log",
-		ChefServerURL:              "",
-		DataCollectorURL:           "",
-		DataCollectorToken:         "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
-		OhaiJSONFile:               "",
-		ConvergeStatusJSONFile:     "",
-		ComplianceStatusJSONFile:   "",
-		ComplianceSampleReportsDir: "",
-		NumNodes:                   30,
-		Interval:                   30,
-		NodeNamePrefix:             "chef-load",
-		ChefEnvironment:            "_default",
-		RunList:                    make([]string, 0),
-		SleepDuration:              0,
-		DownloadCookbooks:          "never",
-		ChefVersion:                "13.2.20",
-		ChefServerCreatesClientKey: false,
-		EnableReporting:            false,
-		RandomData:                 false,
-		LivenessAgent:              false,
-		NumActions:                 30,
-		DaysBack:                   0,
-		Threads:                    3000,
-		SleepTimeOnFailure:         5,
+		RunChefClient:                false,
+		LogFile:                      "/var/log/chef-load/chef-load.log",
+		ChefServerURL:                "",
+		DataCollectorURL:             "",
+		DataCollectorToken:           "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
+		OhaiJSONFile:                 "",
+		ConvergeStatusJSONFile:       "",
+		ComplianceStatusJSONFile:     "",
+		ComplianceSampleReportsDir:   "",
+		NumNodes:                     30,
+		Interval:                     30,
+		NodeNamePrefix:               "chef-load",
+		ChefEnvironment:              "_default",
+		RunList:                      make([]string, 0),
+		RunLists:                     make([][]string, 0),
+		SleepDuration:                0,
+		DownloadCookbooks:            "never",
+		DownloadCookbooksScaleFactor: 1.0,
+		ChefVersion:                  "13.2.20",
+		NodeSaveFrequency:            1.0,
+		ChefServerCreatesClientKey:   false,
+		EnableReporting:              false,
+		RandomData:                   false,
+		LivenessAgent:                false,
+		NumActions:                   30,
+		DaysBack:                     0,
+		Threads:                      3000,
+		SleepTimeOnFailure:           5,
+		SkipClientCreation:           false,
+		NodeReplacementRate:          0.0,
 		Matrix: &Matrix{
 			Simulation: Simulation{
 				Days:          1,
@@ -201,7 +211,8 @@ func PrintSampleConfig() {
 # num_nodes = 30
 # interval = 30
 
-# During the same interval of time, it is also possible to load a number of Chef actions
+# During the same interval of time, generate and submit this number of Chef actions
+# Ignored if data_collector_url is not set.
 # num_actions = 30
 
 # This prefix will go at the beginning of each node name.
@@ -217,6 +228,15 @@ func PrintSampleConfig() {
 # The default value is an empty run_list.
 # run_list = [ ]
 
+# Alternatively, you can provide several run lists which will be chosen randomly on each run.
+# TODO future - allow weighting to determine frequency of each run list
+# If this value is provided, run_list is ignored.
+# This is an array of an array of strings. For example:
+# run_lists = [ [ "role[role_name]", "recipe_name"],  [ "role[role_name_1]", "role[role_name_2] " ] ]
+# The default value is empty
+
+# run_lists = [ ]
+
 # sleep_duration is an optional setting that is available to provide a delay to simulate
 # the amount of time a Chef Client takes actually converging all of the run list's resources.
 # sleep_duration is measured in seconds
@@ -227,13 +247,22 @@ func PrintSampleConfig() {
 # days_back = 30
 
 # download_cookbooks controls which chef-client run downloads cookbook files.
-# Options are: "never", "first" (first chef-client run only), "always"
+# Options are: "never", "first" (first chef-client run only), "always""
 #
 # Downloading cookbooks can significantly increase the number of API requests that chef-load
 # makes depending on the run_list. If you aren't concerned with simulating the download of cookbook files
 # then the recommendation is to use "never" or "first".
 #
 # download_cookbooks = "never"
+
+
+# What percent of required cookbooks will be downloaded on each run
+# For example if there are 10 cookbooks in the run list and scale factor is 0.1,
+# on average one cookbook will be downloaded per run. If download_cookbooks == "first",
+# then this is ignored and all cookbooks are downloaded.
+#
+# download_cookbooks_scale_factor = 1.0
+
 
 # api_get_requests is an optional list of API GET requests that are made during the chef-client run.
 # This is used to simulate the API requests that the cookbooks would make.
@@ -258,6 +287,21 @@ func PrintSampleConfig() {
 # chef-load simulates this behavior. However, if you want chef-load to ask the Chef Server to create a client key
 # when the client object is created then set chef_server_creates_client_key to true.
 # chef_server_creates_client_key = false
+
+# Specify how often to save nodes at the end of the chef client run.
+# 0.0 is never, 1.0 is always, and a number in between represents the percent of runs
+# which will save the node.
+# node_save_frequency = 1.0
+
+# When true, clients are not created for new nodes. If this is true, node_replacement_rate
+# is ignored.
+# skip_client_creation = false
+
+# Frequency with which old nodes are no longer used and new nodes (and clients)
+# are generated.  Value is probability with 0.0 being never, and 1.0
+# which will force every chef-client run to be from a new node/client.
+
+# node_replacement_rate = 0.0
 
 # Send data to the Chef server's Reporting service
 # enable_reporting = false

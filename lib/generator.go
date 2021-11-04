@@ -38,6 +38,7 @@ func GenerateData(config *Config) error {
 	var (
 		numRequests = make(amountOfRequests)
 		requests    = make(chan *request)
+		startTime   = time.Now()
 	)
 
 	go func() {
@@ -76,7 +77,7 @@ func GenerateData(config *Config) error {
 
 	wg.Wait()
 
-	printAPIRequestProfile(numRequests)
+	printAPIRequestProfile(startTime, numRequests)
 
 	return nil
 }
@@ -440,12 +441,12 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	}
 
 	if config.RunChefClient {
-		// Calculate cookbook dependencies
 		ckbks := solveRunListDependencies(&chefClient, nodeName, config.ChefVersion, node.Environment, expandedRunList, requests)
 
-		// Download cookbooks
+		// This behaves differently than client run because we don't track a first run here.
+		// TODO - move the download_cookbooks_scale_factor to a) a better name, b) the 'run' command
 		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first") {
-			ckbks.download(&chefClient, nodeName, config.ChefVersion, requests)
+			ckbks.download(&chefClient, nodeName, config.ChefVersion, config.DownloadCookbooksScaleFactor, requests)
 		}
 	} else {
 		expandedRunList = runList.toStringSlice()

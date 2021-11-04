@@ -96,6 +96,14 @@ func solveRunListDependencies(nodeClient *chef.Client, nodeName, chefVersion, ch
 	return ckbks
 }
 
+func parseRunLists(unparsedRunLists [][]string) []runList {
+	var rls []runList
+	for _, item := range unparsedRunLists {
+		rls = append(rls, parseRunList(item))
+	}
+	return rls
+}
+
 func parseRunList(unparsedRunList []string) runList {
 	var qualifiedRecipeRegExp = regexp.MustCompile(`^recipe\[([^\]@]+)(@([0-9]+(\.[0-9]+){1,2}))?\]$`)
 	var qualifiedRoleRegExp = regexp.MustCompile(`^role\[([^\]]+)\]$`)
