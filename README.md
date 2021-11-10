@@ -49,7 +49,7 @@ hab pkg binlink chef/chef-load chef-load
 The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and documents a lot of the flexibility of chef-load so please read it.
 
 ```
-chef-load -sample-config > chef-load.toml
+chef-load init > chef-load.toml
 ```
 
 chef-load logs all API requests in the file specified by the `log_file` setting in the config file. The default value is `/var/log/chef-load/chef-load.log`.
