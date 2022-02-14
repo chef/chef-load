@@ -126,16 +126,22 @@ func parseJSONFile(jsonFile string) map[string]interface{} {
 
 type amountOfRequests map[request]uint64
 
-func (a amountOfRequests) addRequest(req request) {
-	re := regexp.MustCompile("/bookshelf/.*")
-	req.Url = re.ReplaceAllString(req.Url, "/bookshelf/<...>")
+var bookshelfRE = regexp.MustCompile("/bookshelf/.*")
+var nodeRE = regexp.MustCompile("(/nodes/.*-)\\d+(/.*)?")
+var rolesRE = regexp.MustCompile("/roles/.*")
 
-	re = regexp.MustCompile("(/nodes/.*-)\\d+(/.*)?")
-	req.Url = re.ReplaceAllString(req.Url, "$1<N>$2")
+func (a amountOfRequests) addRequest(req request) {
+	// bookshelf/anything -> bookshelf/<...>
+	req.Url = bookshelfRE.ReplaceAllString(req.Url, "/bookshelf/<...>")
+	// nodes/prefix-number[/object] -> nodes/prefix<N>[/object]
+	req.Url = nodeRE.ReplaceAllString(req.Url, "$1<N>$2")
+	// We may want to further aggregate based on object type
+	// roles/anything -> roles/<ROLENAME>
+	req.Url = rolesRE.ReplaceAllString(req.Url, "/roles/<ROLENAME>")
 	a[req]++
 }
 
-func printAPIRequestProfile(numRequests map[request]uint64) {
+func printAPIRequestProfile(startTime time.Time, numRequests map[request]uint64) {
 	log.Info("Printing profile of API requests")
 
 	var (
@@ -168,8 +174,8 @@ func printAPIRequestProfile(numRequests map[request]uint64) {
 		}
 		return false
 	})
-
-	log.Info("Total API Requests: ", totalAmount)
+	elapsed := time.Since(startTime)
+	log.Info(fmt.Sprintf("Total API Requests: %d over %s. RPS: %d", totalAmount, elapsed, int32(float64(totalAmount)/elapsed.Seconds())))
 	amountHeader := "Subtotal"
 	amountFieldWidth := len(amountHeader)
 	if maxAmountWidth := len(strconv.FormatUint(maxAmount, 10)); maxAmountWidth > amountFieldWidth {

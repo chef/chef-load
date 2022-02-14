@@ -17,7 +17,11 @@
 
 package chef_load
 
-import "github.com/go-chef/chef"
+import (
+	"math/rand"
+
+	"github.com/go-chef/chef"
+)
 
 type cookbookFile struct {
 	Checksum    string `json:"checksum"`
@@ -44,11 +48,15 @@ type cookbook struct {
 
 type cookbooks map[string]cookbook
 
-func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
-	apiRequest(*nodeClient, nodeName, chefVersion, "GET", ckbkFile.URL, nil, nil, nil, requests)
+// Note that go-chef provides the ability to download cookbooks, but we've kept our custom implementation
+// since that has our modifications to only download a percentage of total files
+func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName, chefVersion string, fileDlProbability float64, requests chan *request) {
+	if rand.Float64() < fileDlProbability {
+		apiRequest(*nodeClient, nodeName, chefVersion, "GET", ckbkFile.URL, nil, nil, nil, requests)
+	}
 }
 
-func (ckbk cookbook) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
+func (ckbk cookbook) download(nodeClient *chef.Client, nodeName, chefVersion string, fileDlProbability float64, requests chan *request) {
 	for _, property := range []interface{}{
 		ckbk.Attributes,
 		ckbk.Definitions,
@@ -61,13 +69,13 @@ func (ckbk cookbook) download(nodeClient *chef.Client, nodeName, chefVersion str
 		ckbk.Templates,
 	} {
 		for _, ckbkFile := range property.([]cookbookFile) {
-			ckbkFile.download(nodeClient, nodeName, chefVersion, requests)
+			ckbkFile.download(nodeClient, nodeName, chefVersion, fileDlProbability, requests)
 		}
 	}
 }
 
-func (ckbks cookbooks) download(nodeClient *chef.Client, nodeName, chefVersion string, requests chan *request) {
+func (ckbks cookbooks) download(nodeClient *chef.Client, nodeName, chefVersion string, fileDlProbability float64, requests chan *request) {
 	for _, ckbk := range ckbks {
-		ckbk.download(nodeClient, nodeName, chefVersion, requests)
+		ckbk.download(nodeClient, nodeName, chefVersion, fileDlProbability, requests)
 	}
 }

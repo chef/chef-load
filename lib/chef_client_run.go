@@ -18,6 +18,7 @@
 package chef_load
 
 import (
+	"math/rand"
 	"net/url"
 	"strings"
 	"time"
@@ -26,7 +27,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan *request, nodeNumber uint32) {
+func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan *request, done chan int, nodeNumber uint32) {
 	var (
 		nodeClient             chef.Client
 		ohaiJSON               = map[string]interface{}{}
@@ -34,10 +35,12 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		complianceJSON         = map[string]interface{}{}
 		chefEnvironment        = config.ChefEnvironment
 		runList                = parseRunList(config.RunList)
+		runLists               = parseRunLists(config.RunLists)
 		apiGetRequests         = config.APIGetRequests
 		sleepDuration          = config.SleepDuration
 		runUUID, _             = uuid.NewRandom()
 		reportUUID, _          = uuid.NewRandom()
+		skipClientCreation     = config.SkipClientCreation
 		roles                  = getRandomStringArray(compRoles)
 		recipes                = getRandomStringArray(compRecipes)
 		nodeUUID               = uuid.NewMD5(uuid.NameSpaceDNS, []byte(nodeName))
@@ -66,6 +69,13 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			chefTags:    []string{"tag1", "tag2", "tag3"},
 		}
 	)
+	// Notify orchestrator when done.  THere's probably a cleaner way to
+	// do this.
+	closer := func() {
+		// log.info(fmt.Printf("[node: %s] simulated converge time: %s", nodeName, time.Since(startTime)))
+		done <- int(nodeNumber)
+	}
+	defer closer()
 
 	if config.RunChefClient {
 		nodeClient = getAPIClient(config.ClientName, config.ClientKey, config.ChefServerURL)
@@ -93,7 +103,8 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	}
 
 	if config.RunChefClient {
-		if firstRun {
+
+		if firstRun && !skipClientCreation {
 			clientBody := map[string]interface{}{
 				"admin":     false,
 				"name":      nodeName,
@@ -126,8 +137,12 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 
 	if config.RunChefClient {
 		// Expand run_list
-		expandedRunList = runList.expand(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, requests)
-
+		numLists := len(runLists)
+		rl := runList
+		if numLists > 0 {
+			rl = runLists[rand.Intn(numLists)]
+		}
+		expandedRunList = rl.expand(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, requests)
 		apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "environments/"+chefEnvironment, nil, nil, nil, requests)
 
 		// Notify Reporting of run start
@@ -165,12 +180,18 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	}
 
 	if config.RunChefClient {
-		// Calculate cookbook dependencies
+		// Request resolved expanded runlist from the server
 		ckbks := solveRunListDependencies(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, expandedRunList, requests)
-
 		// Download cookbooks
-		if config.DownloadCookbooks == "always" || (config.DownloadCookbooks == "first" && firstRun) {
-			ckbks.download(&nodeClient, nodeName, config.ChefVersion, requests)
+		var dlCookbookFileChance = config.DownloadCookbooksScaleFactor
+		var doDownload = false
+		if config.DownloadCookbooks == "first" && firstRun {
+			doDownload = true
+			dlCookbookFileChance = 1.0
+		}
+
+		if doDownload || config.DownloadCookbooks == "always" {
+			ckbks.download(&nodeClient, nodeName, config.ChefVersion, dlCookbookFileChance, requests)
 		}
 
 		for _, apiGetRequest := range apiGetRequests {
@@ -197,7 +218,9 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
 	if config.RunChefClient {
-		apiRequest(nodeClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests)
+		if rand.Float64() <= config.NodeSaveFrequency {
+			apiRequest(nodeClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests)
+		}
 
 		// Notify Reporting of run end
 		if config.EnableReporting && reportingAvailable {

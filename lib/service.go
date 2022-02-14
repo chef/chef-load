@@ -18,7 +18,9 @@
 package chef_load
 
 import (
+	"fmt"
 	"math"
+	"math/rand"
 	"net/url"
 	"os"
 	"os/signal"
@@ -39,6 +41,11 @@ func (u UTCFormatter) Format(e *log.Entry) ([]byte, error) {
 	return u.Formatter.Format(e)
 }
 
+type runner struct {
+	NodeName string `json:"string"`
+	FirstRun bool
+}
+
 type request struct {
 	Method     string `json:"method"`
 	Url        string `json:"url"`
@@ -51,9 +58,8 @@ const DateTimeFormat = "2006-01-02T15:04:05Z"
 
 func Start(config *Config) {
 	var (
-		numRequests = make(amountOfRequests)
-		requests    = make(chan *request)
-		firstRun    = true
+		requestAggregator = make(amountOfRequests)
+		requests          = make(chan *request)
 	)
 
 	logger.Formatter = UTCFormatter{&log.JSONFormatter{}}
@@ -70,20 +76,29 @@ func Start(config *Config) {
 	}
 
 	log.WithFields(log.Fields{
-		"nodes":   config.NumNodes,
-		"actions": config.NumActions,
-		"minutes": config.Interval,
-		"log":     config.LogFile,
+		"nodes":               config.NumNodes,
+		"actions":             config.NumActions,
+		"interval":            config.Interval,
+		"prefix":              config.NodeNamePrefix,
+		"skip-create-clients": config.SkipClientCreation,
 	}).Info("Starting chef-load")
 
 	var (
-		delayBetweenNodes   = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
-		delayBetweenActions = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumActions))) * time.Nanosecond
+		delayBetweenConverges = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
+
 		// hardcode each node's liveness ping interval to 30 minutes
 		delayBetweenLivenessAgentPing = time.Duration(math.Ceil(float64(time.Duration(30)*(time.Minute/time.Nanosecond))/float64(config.NumNodes))) * time.Nanosecond
 	)
 
-	// This goroutine is in charge to read requests and write them to disk
+	log.Printf("Delay between converges = %s\n", delayBetweenConverges)
+	var delayBetweenActions time.Duration
+	if config.NumActions > 0 {
+		delayBetweenActions = time.Duration(math.Ceil(float64(time.Duration(config.Interval)*(time.Minute/time.Nanosecond))/float64(config.NumActions))) * time.Nanosecond
+	}
+
+	var startTime = time.Now()
+	// This goroutine aggregates API requests and handles and handles interrupt
+	// to display a final report.
 	go func() {
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGUSR1)
@@ -91,10 +106,10 @@ func Start(config *Config) {
 		for {
 			select {
 			case req := <-requests:
-				numRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
+				requestAggregator.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
 			case sig := <-sigs:
 				log.WithFields(log.Fields{"syscall": sig}).Info("Signal received")
-				printAPIRequestProfile(numRequests)
+				printAPIRequestProfile(startTime, requestAggregator)
 				log.Info("Stopping chef-load")
 				os.Exit(0)
 			}
@@ -127,29 +142,60 @@ func Start(config *Config) {
 	}
 
 	// The Actions goroutine
-	go func() {
-		dataCollectorClient, _ := NewDataCollectorClient(&DataCollectorConfig{
-			Token:   config.DataCollectorToken,
-			URL:     config.DataCollectorURL,
-			SkipSSL: true,
-		}, requests)
+	if config.DataCollectorURL != "" && config.NumActions > 0 {
+		go func() {
+			dataCollectorClient, _ := NewDataCollectorClient(&DataCollectorConfig{
+				Token:   config.DataCollectorToken,
+				URL:     config.DataCollectorURL,
+				SkipSSL: true,
+			}, requests)
 
-		// Never stop sending actions
-		for {
-			for i := 1; i <= config.NumActions; i++ {
-				go chefAction(config, randomActionType(), dataCollectorClient)
-				time.Sleep(delayBetweenActions)
+			// Never stop sending actions
+			for {
+				for i := 1; i <= config.NumActions; i++ {
+					go chefAction(config, randomActionType(), dataCollectorClient)
+					time.Sleep(delayBetweenActions)
+				}
 			}
-		}
-	}()
+		}()
+	}
+	// Cleanup: split these sections into their own functions
 
 	// The Nodes (CCRs) goroutine
+	// var nodeNames = make([]string, config.NumNodes)
+	var ccrCompletion = make(chan int, config.NumNodes)
+	// var replaceNode = false
+	var nodeNameIdx = 0
+
+	// Create initial group of runs at the scheduled interval
+	var nodes = make([]runner, config.NumNodes)
+	for i := 0; i < config.NumNodes; i++ {
+		nodes[i] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx), FirstRun: true}
+		nodeNameIdx++
+		ccrCompletion <- i // trigger the first run for node 'i'
+	}
+
+	var timeout = false
+	//var lastRunStart = time.Now()
 	for {
-		for i := 1; i <= config.NumNodes; i++ {
-			nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-			go ChefClientRun(config, nodeName, firstRun, requests, uint32(i))
-			time.Sleep(delayBetweenNodes)
+		if !timeout {
+			time.Sleep(delayBetweenConverges)
 		}
-		firstRun = false
+		select {
+		case n := <-ccrCompletion:
+			timeout = false
+			if rand.Float64() < config.NodeReplacementRate {
+				nodes[n] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx), FirstRun: true}
+				nodeNameIdx++
+			}
+			// confirming that throttle effect ensures we have a maximum of NumNodes concurrent CCRs happening
+			// log.Printf("[node %s] starting CCR. Elapsed since most recent CCR on any node: %s", nodes[n].NodeName, time.Since(lastRunStart))
+			// lastRunStart = time.Now()
+			go ChefClientRun(config, nodes[n].NodeName, nodes[n].FirstRun, requests, ccrCompletion, uint32(n))
+			nodes[n].FirstRun = false
+		case <-time.After(time.Millisecond * 100):
+			fmt.Println("All clients busy, waiting for one to complete before next run. Server may be responding slowly")
+			timeout = true
+		}
 	}
 }

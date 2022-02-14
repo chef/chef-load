@@ -64,6 +64,10 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("random_data", "r", false, "Generates random data")
 	rootCmd.PersistentFlags().BoolP("liveness_agent", "l", false, "Generates liveness agent data")
 	rootCmd.PersistentFlags().IntP("interval", "i", 30, "Interval between a node's chef-client runs, in minutes")
+	// TODO unless these apply globally (they don't yet) they should be added to the "start" command.
+	rootCmd.PersistentFlags().Float64P("download_cookbooks_scale_factor", "C", 1.0, "What probability (0.0 - 1.0) that any given cookbook will need to be downloaded")
+	rootCmd.PersistentFlags().BoolP("skip_client_creation", "S", false, "Skips creation of client during each node's initial chef-client run")
+	rootCmd.PersistentFlags().Float64P("node_replacement_rate", "R", 0.0, "How frequently (0.0 - 1.0) are new nodes generated and old ones no longer run. Default 0.0")
 	viper.BindPFlags(rootCmd.PersistentFlags())
 }
 
