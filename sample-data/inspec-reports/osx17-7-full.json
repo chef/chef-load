@@ -114,7 +114,7 @@
               "code_desc": "File /etc/hosts11111 mode should eq 420",
               "run_time": 0.064682,
               "start_time": "2019-10-18T17:44:39+01:00",
-              "message": "\nexpected: 420\n     got: nil\n\n(compared using ==)\n"
+              "message": "\nexpected: 420\n    , got: nil\n\n(compared using ==)\n"
             }
           ]
         }

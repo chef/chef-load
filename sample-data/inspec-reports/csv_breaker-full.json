@@ -1,0 +1,72 @@
+{
+  "platform": {
+    "name": "arch",
+    "release": "5.15.23-2-lts"
+  },
+  "profiles": [
+    {
+      "name": "csv_breaker",
+      "version": "0.1.1",
+      "sha256": "adbc1ad0fbe8e2bec1d657ad389102e3901b7713d88f9c9391cd263707f89727",
+      "title": "InSpec Profile",
+      "maintainer": "The Authors",
+      "summary": "An InSpec Compliance Profile",
+      "license": "Apache-2.0",
+      "copyright": "The Authors",
+      "copyright_email": "you@example.com",
+      "supports": [
+        {
+          "platform": "os"
+        }
+      ],
+      "attributes": [],
+      "groups": [
+        {
+          "id": "controls/example.rb",
+          "controls": [
+            "bad csv"
+          ]
+        }
+      ],
+      "controls": [
+        {
+          "id": "bad csv",
+          "title": "Inspec results should be properly wrapped",
+          "desc": "Fields with embedded commas and line breaks need to be wrapped to prevent them being miinterpreted as field and line seperators",
+          "descriptions": [
+            {
+              "label": "default",
+              "data": "Fields with embedded commas and line breaks need to be wrapped to prevent them being miinterpreted as field and line seperators"
+            }
+          ],
+          "impact": 1.0,
+          "refs": [],
+          "tags": {},
+          "code": "control \"bad csv\" do\n  impact 1.0\n  title \"Inspec results should be properly wrapped\"\n  desc \"Fields with embedded commas and line breaks need to be wrapped to prevent them being miinterpreted as field and line seperators\"\n\n  myTestResult =  <<~TESTRESULT\n  Here's a field that contains\n   , , , and \" and\n  ,,\n  line breaks\n  TESTRESULT\n\n  describe myTestResult do\n    it { should eq \"Bongos\" }\n  end\nend \n",
+          "source_location": {
+            "line": 2,
+            "ref": "controls/example.rb"
+          },
+          "waiver_data": {},
+          "results": [
+            {
+              "status": "failed",
+              "code_desc": "Here's a field that contains\n , , , and \" and\n,,\nline breaks\n is expected to eq \"Bongos\"",
+              "run_time": 0.010275757,
+              "start_time": "2022-02-16T12:29:12-05:00",
+              "message": "\nexpected: \"Bongos\"\n     got: \"Here's a field that contains\\n , , , and \\\" and\\n,,\\nline breaks\\n\"\n\n(compared using ==)\n\nDiff:\n@@ -1,4 +1,7 @@\n-Bongos\n+Here's a field that contains\n+ , , , and \" and\n+,,\n+line breaks\n",
+              "resource_class": "Object",
+              "resource_params": "[]"
+            }
+          ]
+        }
+      ],
+      "status": "loaded",
+      "status_message": ""
+    }
+  ],
+  "statistics": {
+    "duration": 0.011675077
+  },
+  "version": "4.24.32"
+}

@@ -422,6 +422,7 @@
   "statistics": {
     "duration": 0.001481
   },
+  "chef_tags": ["mylinux", "my.tag", "some=tag"],
   "version": "2.2.20",
   "node_name": "to_be_generated",
   "node_uuid": "to_be_generated",
