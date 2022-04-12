@@ -263,6 +263,7 @@
 
           ],
           "tags": {
+            "scope": ["yashvi","jain","bansal"]
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_2.3_Set_nosuid_option_for_tmp_Partition\" do\n  title \"Set nosuid option for /tmp Partition\"\n  desc  \"\n    The nosuid mount option specifies that the filesystem cannot contain set userid files.\n    \n    Rationale: Since the /tmp filesystem is only intended for temporary file storage, set this option to ensure that users cannot create set userid files in /tmp.\n  \"\n  impact 1.0\n  describe bash(\"egrep \\\"^[^#]\\\" /etc/fstab | awk '($2 == \\\"/tmp\\\") { print $4 }'\") do\n    its(\"stdout\") { should match(/nosuid/) }\n  end\nend\n",
           "source_location": {

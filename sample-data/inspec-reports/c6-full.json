@@ -260,6 +260,7 @@
 
           ],
           "tags": {
+            "focus_area": ["focus-c6"]
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_1.1.3_Set_nosuid_option_for_tmp_Partition\" do\n  title \"Set nosuid option for /tmp Partition\"\n  desc  \"\n    The nosuid mount option specifies that the filesystem cannot contain set userid files.\n    \n    Rationale: Since the /tmp filesystem is only intended for temporary file storage, set this option to ensure that users cannot create set userid files in /tmp.\n    \n    # mount -o remount,nosuid /tmp\n  \"\n  impact 1.0\n  describe mount(\"/tmp\") do\n    it { should be_mounted }\n  end\n  describe mount(\"/tmp\") do\n    its(\"options\") { should include \"nosuid\" }\n  end\nend\n",
           "source_location": {
@@ -292,6 +293,7 @@
 
           ],
           "tags": {
+            "focus_area": ["focus-c6-Set_noexec_option_for_tmp_Partition"]
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_1.1.4_Set_noexec_option_for_tmp_Partition\" do\n  title \"Set noexec option for /tmp Partition\"\n  desc  \"\n    The noexec mount option specifies that the filesystem cannot contain executable binaries.\n    \n    Rationale: Since the /tmp filesystem is only intended for temporary file storage, set this option to ensure that users cannot run executable binaries from /tmp.\n  \"\n  impact 1.0\n  describe mount(\"/tmp\") do\n    it { should be_mounted }\n  end\n  describe mount(\"/tmp\") do\n    its(\"options\") { should include \"noexec\" }\n  end\nend\n",
           "source_location": {
@@ -324,6 +326,7 @@
 
           ],
           "tags": {
+            "focus_area": ["focus-c6-Set_Create_Separate_Partition_for_var"]
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_1.1.5_Create_Separate_Partition_for_var\" do\n  title \"Create Separate Partition for /var\"\n  desc  \"\n    The /var directory is used by daemons and other system services to temporarily store dynamic data. Some directories created by these processes may be world-writable.\n    \n    Rationale: Since the /var directory may contain world-writable files and directories, there is a risk of resource exhaustion if it is not bound to a separate partition.\n  \"\n  impact 1.0\n  describe mount(\"/var\") do\n    it { should be_mounted }\n  end\nend\n",
           "source_location": {
@@ -349,6 +352,7 @@
 
           ],
           "tags": {
+            "focus_area": ["focus-c6-Bind_Mount_the_vartmp_directory_to_tmp"]
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_1.1.6_Bind_Mount_the_vartmp_directory_to_tmp\" do\n  title \"Bind Mount the /var/tmp directory to /tmp\"\n  desc  \"\n    The /var/tmp directory is normally a standalone directory in the /var file system. Binding /var/tmp to /tmp establishes an unbreakable link to /tmp that cannot be removed (even by the root user). It also allows /var/tmp to inherit the same mount options that /tmp owns, allowing /var/tmp to be protected in the same /tmp is protected. It will also prevent /var from filling up with temporary files as the contents of /var/tmp will actually reside in the file system containing /tmp.\n    \n    Rationale: All programs that use /var/tmp and /tmp to read/write temporary files will always be written to the /tmp file system, preventing a user from running the /var file system out of space or trying to perform operations that have been blocked in the /tmp filesystem.\n  \"\n  impact 1.0\n  describe file(\"/etc/fstab\") do\n    its(\"content\") { should match(/$\\s*\\/tmp\\s+\\/var\\/tmp\\s+none\\s+bind\\s+0\\s+0\\s*$/) }\n  end\nend\n",
           "source_location": {
@@ -374,6 +378,7 @@
 
           ],
           "tags": {
+
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_1.1.7_Create_Separate_Partition_for_varlog\" do\n  title \"Create Separate Partition for /var/log\"\n  desc  \"\n    The /var/log directory is used by system services to store log data .\n    \n    Rationale: There are two important reasons to ensure that system logs are stored on a separate partition: protection against resource exhaustion (since logs can grow quite large) and protection of audit data.\n  \"\n  impact 1.0\n  describe mount(\"/var/log\") do\n    it { should be_mounted }\n  end\nend\n",
           "source_location": {

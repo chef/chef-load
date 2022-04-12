@@ -39,6 +39,7 @@
 
           ],
           "tags": {
+            "scope": ["yashvi","jain"]
           },
           "code": "control '/etc/passwd must exist' do\n  title 'Checking for /etc/passwd'\n  desc 'Checking for /etc/passwd desc'\n  impact 0.6\n  describe file('/etc/passwd') do\n    it { should be_file }\n  end\nend\n",
           "source_location": {
@@ -63,6 +64,7 @@
 
           ],
           "tags": {
+            "scope": ["oracle","ubuntu"]
           },
           "code": "control '/etc/group must exist' do\n  title 'Checking for /etc/group'\n  desc 'Checking for /etc/group desc'\n  impact 0.3\n  describe file('/etc/group') do\n    it { should be_file }\n  end\nend\n",
           "source_location": {
