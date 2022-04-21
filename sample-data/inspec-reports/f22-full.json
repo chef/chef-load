@@ -182,7 +182,7 @@
           ],
           "tags": {
           },
-          "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
+          "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"Rhosts/hosts.equiv files are a weak implemenation of authentication. Disabling the .rhosts and hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe command('find / -name \\'.rhosts\\'') do\n    its('stdout') { should be_empty }\n  end\n  describe command('find / -name \\'hosts.equiv\\' ') do\n    its('stdout') { should be_empty }\n  end\n  tag 'web'\n  tag 'scope': 'OS'\n  tag 'gtitle': 'TitleVal'\n  tag 'satisfies': ['SRG-00006', 'SRG-00007']\n  tag 'stig_id': 'RHEL-07-010050'\n  tag 'cci': ['CCI-000048']\n  tag 'hashhash': { \"bad.one\": [6] }\n  tag 'documentable': false\n  tag 'our_criticality': 8\nend\n  ",
           "source_location": {
             "line": 37,
             "ref": "linux-baseline-2.2.0/controls/os_spec.rb"
@@ -206,7 +206,7 @@
           ],
           "tags": {
           },
-          "code": "control 'os-02' do\n  impact 1.0\n  title 'Check owner and permissions for /etc/shadow'\n  desc 'Check periodically the owner and permissions for /etc/shadow'\n  describe file('/etc/shadow') do\n    it { should exist }\n    it { should be_file }\n    it { should be_owned_by 'root' }\n    its('group') { should eq shadow_group }\n    it { should_not be_executable }\n    it { should_not be_readable.by('other') }\n  end\n  if os.redhat?\n    describe file('/etc/shadow') do\n      it { should_not be_writable.by('owner') }\n      it { should_not be_readable.by('owner') }\n    end\n  else\n    describe file('/etc/shadow') do\n      it { should be_writable.by('owner') }\n      it { should be_readable.by('owner') }\n    end\n  end\n  if os.debian? || os.suse?\n    describe file('/etc/shadow') do\n      it { should be_readable.by('group') }\n    end\n  else\n    describe file('/etc/shadow') do\n      it { should_not be_readable.by('group') }\n    end\n  end\nend\n",
+          "code": "control 'os-02' do\n  impact 1.0\n  title 'Check owner and permissions for /etc/shadow'\n  desc 'Check periodically the owner and permissions for /etc/shadow'\n  describe file('/etc/shadow') do\n    it { should exist }\n    it { should be_file }\n    it { should be_owned_by 'root' }\n    its('group') { should eq 'root' }\n    it { should_not be_executable }\n    it { should be_writable.by('owner') }\n    it { should be_readable.by('owner') }\n    it { should_not be_readable.by('group') }\n    it { should_not be_readable.by('other') }\n  end\n  tag 'tag1': 'value1'\nend\n",
           "source_location": {
             "line": 46,
             "ref": "linux-baseline-2.2.0/controls/os_spec.rb"
@@ -3886,8 +3886,9 @@
 
           ],
           "tags": {
+            "scoop": "icecream"
           },
-          "code": "control 'apache-01' do\n  impact 1.0\n  title 'Apache should be running'\n  desc 'Apache should be running.'\n  describe service(apache.service) do\n    it { should be_installed }\n    it { should be_running }\n  end\nend\n",
+          "code": "control 'apache-01' do\n  impact 1.0\n  title 'Apache should be running'\n  desc 'Apache should be running.'\n  describe service(apache.service) do\n    it { should be_installed }\n    it { should be_running }\n  end\n  tag 'scoop': 'icecream'\nend\n",
           "source_location": {
             "line": 29,
             "ref": "apache-baseline-2.0.2/controls/apache_spec.rb"
@@ -3912,8 +3913,9 @@
 
           ],
           "tags": {
+            "Scoops": "ices gelato"
           },
-          "code": "control 'apache-02' do\n  impact 1.0\n  title 'Apache should be enabled'\n  desc 'Configure apache service to be automatically started at boot time'\n  only_if { os[:family] != 'ubuntu' && os[:release] != '16.04' } || only_if { os[:family] != 'debian' && os[:release] != '8' }\n  describe service(apache.service) do\n    it { should be_enabled }\n  end\nend\n",
+          "code": "control 'apache-02' do\n  impact 1.0\n  title 'Apache should be enabled'\n  desc 'Configure apache service to be automatically started at boot time'\n  only_if { os[:family] != 'ubuntu' && os[:release] != '16.04' } || only_if { os[:family] != 'debian' && os[:release] != '8' }\n  describe service(apache.service) do\n    it { should be_enabled }\n  end\n  tag 'Scoops': 'icey gelato'\nend\n",
           "source_location": {
             "line": 39,
             "ref": "apache-baseline-2.0.2/controls/apache_spec.rb"
@@ -3938,8 +3940,10 @@
 
           ],
           "tags": {
+            "web": null,
+            "scope": "Apache"
           },
-          "code": "control 'apache-03' do\n  title 'Apache should start max. 1 root-task'\n  desc 'The Apache service in its own non-privileged account. If the web server process runs with administrative privileges, an attack who obtains control over the apache process may control the entire system.'\n  total_tasks = command(\"ps aux | grep #{apache.service} | grep -v grep | grep root | wc -l | tr -d [:space:]\").stdout.to_i\n  describe total_tasks do\n    it { should eq 1 }\n  end\nend\n",
+          "code": "control 'apache-03' do\n  title 'Apache should start max. 1 root-task'\n  desc 'The Apache service in its own non-privileged account. If the web server process runs with administrative privileges, an attack who obtains control over the apache process may control the entire system.'\n  total_tasks = command(\"ps aux | grep #{apache.service} | grep -v grep | grep root | wc -l | tr -d [:space:]\").stdout.to_i\n  describe total_tasks do\n    it { should eq 1 }\n  end\n  tag 'web'\n  tag 'scope': 'Apache'\nend\n",
           "source_location": {
             "line": 49,
             "ref": "apache-baseline-2.0.2/controls/apache_spec.rb"
@@ -3964,8 +3968,10 @@
 
           ],
           "tags": {
+            "scoop": "italian gelato",
+            "satisfies": ["apache-03", "apache-04"]
           },
-          "code": "control 'apache-04' do\n  impact 1.0\n  title 'Check Apache config folder owner, group and permissions.'\n  desc 'The Apache config folder should owned and grouped by root, be writable, readable and executable by owner. It should be readable, executable by group and not readable, not writeable by others.'\n  describe file(apache.conf_dir) do\n    it { should be_owned_by 'root' }\n    it { should be_grouped_into 'root' }\n    it { should be_readable.by('owner') }\n    it { should be_writable.by('owner') }\n    it { should be_executable.by('owner') }\n    it { should be_readable.by('group') }\n    it { should_not be_writable.by('group') }\n    it { should be_executable.by('group') }\n    it { should_not be_readable.by('others') }\n    it { should_not be_writable.by('others') }\n    it { should be_executable.by('others') }\n  end\nend\n",
+          "code": "control 'apache-04' do\n  impact 1.0\n  title 'Check Apache config folder owner, group and permissions.'\n  desc 'The Apache config folder should owned and grouped by root, be writable, readable and executable by owner. It should be readable, executable by group and not readable, not writeable by others.'\n  describe file(apache.conf_dir) do\n    it { should be_owned_by 'root' }\n    it { should be_grouped_into 'root' }\n    it { should be_readable.by('owner') }\n    it { should be_writable.by('owner') }\n    it { should be_executable.by('owner') }\n    it { should be_readable.by('group') }\n    it { should_not be_writable.by('group') }\n    it { should be_executable.by('group') }\n    it { should_not be_readable.by('others') }\n    it { should_not be_writable.by('others') }\n    it { should be_executable.by('others') }\n  end\n  tag 'scoop': 'hot icetea'\nend\n",
           "source_location": {
             "line": 58,
             "ref": "apache-baseline-2.0.2/controls/apache_spec.rb"
@@ -4094,6 +4100,8 @@
 
           ],
           "tags": {
+            "web": ["web1", "web2"],
+            "musicians": ["Claypool", "Waits", "John Lennon", "Hendrix", "blAck sAbbath", "Santana", "Satriani", "Led Zeppelin"]
           },
           "code": "control 'apache-09' do\n  impact 1.0\n  title 'Disable TRACE-methods'\n  desc 'The web server doesn’t allow TRACE request and help in blocking Cross Site Tracing attack.'\n\n  describe file(File.join(apache.conf_dir, '/conf-enabled/security.conf')) do\n    its('content') { should match(/^\\s*?TraceEnable\\s+?Off/) }\n  end\n\n  # open bug https://github.com/chef/inspec/issues/786, if the bug solved use this test\n  # describe apache_conf do\n  #   its('TraceEnable') { should eq 'Off' }\n  # end\nend\n",
           "source_location": {

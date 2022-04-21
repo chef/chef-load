@@ -4,6 +4,19 @@ require 'vagrant-aws'
 require 'resolv'
 require 'mkmf'
 
+#Undefined HashMap method except with Vagrant 2.2.7
+# work around was found here: https://github.com/mitchellh/vagrant-aws/issues/566#issuecomment-580812210
+class Hash
+  def slice(*keep_keys)
+    h = {}
+    keep_keys.each { |key| h[key] = fetch(key) if has_key?(key) }
+    h
+  end unless Hash.method_defined?(:slice)
+  def except(*less_keys)
+    slice(*keys - less_keys)
+  end unless Hash.method_defined?(:except)
+end
+
 home_dir="/home/ubuntu"
 current_branch=`git rev-parse --abbrev-ref HEAD`
 latest_head_commit=`git rev-parse HEAD`
@@ -117,15 +130,13 @@ end
 def hab_version_from_manifest
   manifest = JSON.parse(open("https://packages.chef.io/manifests/dev/automate/latest.json").read)
   hab = manifest["hab"]
-  hab.find {|x| x.start_with?("core/hab/") }.gsub("core/hab/", "")
+  hab.find {|x| x.start_with?("core/hab/") }.split("/")[2]
 end
 
 $install_hab = <<SCRIPT
-# Install latest habitat
-curl --silent https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.sh | sudo bash 
-# Install a specific version of habitat
-# curl --silent https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.sh | sudo bash -s -- -v 0.54.0
+curl --silent https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.sh | sudo bash -s -- -v #{hab_version_from_manifest}
 SCRIPT
+
 
 $install_victorias_bits = <<SCRIPT
 apt-get install git -y

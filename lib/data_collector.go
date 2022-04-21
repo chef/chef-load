@@ -123,6 +123,8 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		"request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000,
 	}).Info("API Request")
 
+	//logger.Infof(req.)
+
 	if res != nil {
 		if !(res.StatusCode >= 200 && res.StatusCode <= 299) {
 			return res, errors.New(fmt.Sprintf("POST %s: %s", dcc.URL.String(), res.Status))

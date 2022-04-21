@@ -193,6 +193,7 @@
 
           ],
           "tags": {
+            "plat_type": ["u12", "ubuntu"]
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_1.1_Install_Updates_Patches_and_Additional_Security_Software\" do\n  title \"Install Updates, Patches and Additional Security Software\"\n  desc  \"\n    Periodically patches are released for included software either due to security flaws or to include additional functionality.\n    \n    Rationale: Newer patches may contain security enhancements that would not be available through the latest full update. As a result, it is recommended that the latest software patches be used to\n     take advantage of the latest functionality. As with any software installation, organizations need to determine if a given update meets their requirements and verify the compatibility and\n                                    supportability of any additional software against the update revision that is selected.\n  \"\n  impact 0.0\nend\n",
           "source_location": {
