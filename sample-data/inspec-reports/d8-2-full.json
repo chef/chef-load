@@ -40,18 +40,12 @@
 
           ],
           "tags": {
-            "focus_areas" : "oracle"
+            "focus_area" : "oracle"
           },
           "code": "control 'Checking /etc/missing5.rb' do\n  impact 0.5\n  title \"Check /etc/missing5.rb\"\n  desc \"File test in failure.rb desc\"\n  describe file('/etc/missing5.rb') do\n    it { should be_file }\n  end\nend\n",
           "source_location": {
             "line": 2,
             "ref": "controls/failure.rb"
-          },
-          "waiver_data": {
-            "justification": "Sound reasoning",
-            "run": true,
-            "skipped_due_to_waiver": false,
-            "message": ""
           },
           "results": [
             {

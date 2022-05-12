@@ -176,9 +176,11 @@
           "id": "os-01",
           "title": "Trusted hosts login",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -197,9 +199,11 @@
           "id": "test-12345",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -218,9 +222,11 @@
           "id": "test-12346",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -239,9 +245,11 @@
           "id": "test-12347",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -260,9 +268,11 @@
           "id": "test-12348",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -281,9 +291,11 @@
           "id": "test-12348",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -302,9 +314,11 @@
           "id": "test-12340",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -323,9 +337,11 @@
           "id": "test-123450",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -344,9 +360,11 @@
           "id": "test-123451",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -365,9 +383,11 @@
           "id": "test-12342",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -386,9 +406,11 @@
           "id": "test-123453",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -407,9 +429,11 @@
           "id": "test-123456",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -428,9 +452,11 @@
           "id": "test-123457",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -449,9 +475,11 @@
           "id": "test-123458",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -470,9 +498,11 @@
           "id": "test-123459",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -491,9 +521,11 @@
           "id": "test-123460",
           "title": "Trusted hosts login test 1234",
           "desc": "hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-01' do\n  impact 1.0\n  title 'Trusted hosts login'\n  desc \"hosts.equiv file is a weak implemenation of authentication. Disabling the hosts.equiv support helps to prevent users from subverting the system's normal access control mechanisms of the system.\"\n  describe file('/etc/hosts.equiv') do\n    it { should_not exist }\n  end\nend\n",
           "source_location": {
             "line": 37,
@@ -512,11 +544,10 @@
           "id": "os-02",
           "title": "Check owner and permissions for /etc/shadow",
           "desc": "Check periodically the owner and permissions for /etc/shadow",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'os-02' do\n  impact 1.0\n  title 'Check owner and permissions for /etc/shadow'\n  desc 'Check periodically the owner and permissions for /etc/shadow'\n  describe file('/etc/shadow') do\n    it { should exist }\n    it { should be_file }\n    it { should be_owned_by 'root' }\n    its('group') { should eq shadow_group }\n    it { should_not be_executable }\n    it { should_not be_readable.by('other') }\n  end\n  if os.redhat?\n    describe file('/etc/shadow') do\n      it { should_not be_writable.by('owner') }\n      it { should_not be_readable.by('owner') }\n    end\n  else\n    describe file('/etc/shadow') do\n      it { should be_writable.by('owner') }\n      it { should be_readable.by('owner') }\n    end\n  end\n  if os.debian? || os.suse?\n    describe file('/etc/shadow') do\n      it { should be_readable.by('group') }\n    end\n  else\n    describe file('/etc/shadow') do\n      it { should_not be_readable.by('group') }\n    end\n  end\nend\n",
           "source_location": {
@@ -584,11 +615,13 @@
           "id": "os-03",
           "title": "Check owner and permissions for /etc/passwd",
           "desc": "Check periodically the owner and permissions for /etc/passwd",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "scope": [
+              "u1",
+              "u2"
+            ]
           },
           "code": "control 'os-03' do\n  impact 1.0\n  title 'Check owner and permissions for /etc/passwd'\n  desc 'Check periodically the owner and permissions for /etc/passwd'\n  describe file('/etc/passwd') do\n    it { should exist }\n    it { should be_file }\n    it { should be_owned_by 'root' }\n    its('group') { should eq 'root' }\n    it { should_not be_executable }\n    it { should be_writable.by('owner') }\n    it { should_not be_writable.by('group') }\n    it { should_not be_writable.by('other') }\n    it { should be_readable.by('owner') }\n    it { should be_readable.by('group') }\n    it { should be_readable.by('other') }\n  end\nend\n",
           "source_location": {
@@ -623,19 +656,19 @@
             {
               "status": "passed",
               "code_desc": "File /etc/passwd should be writable by owner",
-              "run_time": 8.1e-05,
+              "run_time": 0.000081,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/passwd should not be writable by group",
-              "run_time": 7.7e-05,
+              "run_time": 0.000077,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/passwd should not be writable by other",
-              "run_time": 7.4e-05,
+              "run_time": 0.000074,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -647,19 +680,19 @@
             {
               "status": "passed",
               "code_desc": "File /etc/passwd should be readable by group",
-              "run_time": 7.2e-05,
+              "run_time": 0.000072,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/passwd should be readable by other",
-              "run_time": 6.9e-05,
+              "run_time": 0.000069,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/passwd group should eq \"root\"",
-              "run_time": 8.0e-05,
+              "run_time": 0.00008,
               "start_time": "2018-06-27T15:02:28+01:00"
             }
           ]
@@ -668,9 +701,11 @@
           "id": "os-04",
           "title": "Dot in PATH variable",
           "desc": "Do not include the current working directory in PATH variable. This makes it easier for an attacker to gain extensive rigths by executing a Trojan program",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-04' do\n  impact 1.0\n  title 'Dot in PATH variable'\n  desc 'Do not include the current working directory in PATH variable. This makes it easier for an attacker to gain extensive rigths by executing a Trojan program'\n  describe os_env('PATH') do\n    its('split') { should_not include('') }\n    its('split') { should_not include('.') }\n  end\nend\n",
           "source_location": {
             "line": 99,
@@ -695,9 +730,11 @@
           "id": "os-05",
           "title": "Check login.defs",
           "desc": "Check owner and permissions for login.defs. Also check the configured PATH variable and umask in login.defs",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-05' do\n  impact 1.0\n  title 'Check login.defs'\n  desc 'Check owner and permissions for login.defs. Also check the configured PATH variable and umask in login.defs'\n  describe file('/etc/login.defs') do\n    it { should exist }\n    it { should be_file }\n    it { should be_owned_by 'root' }\n    its('group') { should eq 'root' }\n    it { should_not be_executable }\n    it { should be_readable.by('owner') }\n    it { should be_readable.by('group') }\n    it { should be_readable.by('other') }\n  end\n  describe login_defs do\n    its('ENV_SUPATH') { should include('/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin') }\n    its('ENV_PATH') { should include('/usr/local/bin:/usr/bin:/bin') }\n    its('UMASK') { should include(login_defs_umask) }\n    its('PASS_MAX_DAYS') { should eq login_defs_passmaxdays }\n    its('PASS_MIN_DAYS') { should eq login_defs_passmindays }\n    its('PASS_WARN_AGE') { should eq login_defs_passwarnage }\n    its('LOGIN_RETRIES') { should eq '5' }\n    its('LOGIN_TIMEOUT') { should eq '60' }\n    its('UID_MIN') { should eq '1000' }\n    its('GID_MIN') { should eq '1000' }\n  end\nend\n",
           "source_location": {
             "line": 109,
@@ -737,19 +774,19 @@
             {
               "status": "passed",
               "code_desc": "File /etc/login.defs should be readable by group",
-              "run_time": 7.3e-05,
+              "run_time": 0.000073,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/login.defs should be readable by other",
-              "run_time": 6.8e-05,
+              "run_time": 0.000068,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/login.defs group should eq \"root\"",
-              "run_time": 7.8e-05,
+              "run_time": 0.000078,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -761,7 +798,7 @@
             {
               "status": "passed",
               "code_desc": "login.defs ENV_PATH should include \"/usr/local/bin:/usr/bin:/bin\"",
-              "run_time": 9.1e-05,
+              "run_time": 0.000091,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -788,13 +825,13 @@
             {
               "status": "passed",
               "code_desc": "login.defs PASS_WARN_AGE should eq \"7\"",
-              "run_time": 7.0e-05,
+              "run_time": 0.00007,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "login.defs LOGIN_RETRIES should eq \"5\"",
-              "run_time": 6.8e-05,
+              "run_time": 0.000068,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -806,13 +843,13 @@
             {
               "status": "passed",
               "code_desc": "login.defs UID_MIN should eq \"1000\"",
-              "run_time": 6.9e-05,
+              "run_time": 0.000069,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "login.defs GID_MIN should eq \"1000\"",
-              "run_time": 6.6e-05,
+              "run_time": 0.000066,
               "start_time": "2018-06-27T15:02:28+01:00"
             }
           ]
@@ -821,11 +858,10 @@
           "id": "os-05b",
           "title": "Check login.defs - RedHat specific",
           "desc": "Check owner and permissions for login.defs. Also check the configured PATH variable and umask in login.defs",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'os-05b' do\n  impact 1.0\n  title 'Check login.defs - RedHat specific'\n  desc 'Check owner and permissions for login.defs. Also check the configured PATH variable and umask in login.defs'\n  describe file('/etc/login.defs') do\n    it { should_not be_writable }\n  end\n  describe login_defs do\n    its('SYS_UID_MIN') { should eq '201' }\n    its('SYS_UID_MAX') { should eq '999' }\n    its('SYS_GID_MIN') { should eq '201' }\n    its('SYS_GID_MAX') { should eq '999' }\n  end\n  only_if { os.redhat? }\nend\n",
           "source_location": {
@@ -836,7 +872,7 @@
             {
               "status": "skipped",
               "code_desc": "Operating System Detection",
-              "run_time": 5.0e-06,
+              "run_time": 0.000005,
               "start_time": "2018-06-27T15:02:28+01:00",
               "resource": "Operating System Detection",
               "skip_message": "Skipped control due to only_if condition."
@@ -847,11 +883,10 @@
           "id": "os-06",
           "title": "Check for SUID/ SGID blacklist",
           "desc": "Find blacklisted SUID and SGID files to ensure that no rogue SUID and SGID files have been introduced into the system",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'os-06' do\n  impact 1.0\n  title 'Check for SUID/ SGID blacklist'\n  desc 'Find blacklisted SUID and SGID files to ensure that no rogue SUID and SGID files have been introduced into the system'\n\n  describe suid_check(blacklist) do\n    its('diff') { should be_empty }\n  end\nend\n",
           "source_location": {
@@ -871,11 +906,10 @@
           "id": "os-07",
           "title": "Unique uid and gid",
           "desc": "Check for unique uids gids",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'os-07' do\n  impact 1.0\n  title 'Unique uid and gid'\n  desc 'Check for unique uids gids'\n  describe passwd do\n    its('uids') { should_not contain_duplicates }\n  end\n  describe etc_group do\n    its('gids') { should_not contain_duplicates }\n  end\nend\n",
           "source_location": {
@@ -901,9 +935,11 @@
           "id": "os-08",
           "title": "Entropy",
           "desc": "Check system has enough entropy - greater than 1000",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-08' do\n  impact 1.0\n  title 'Entropy'\n  desc 'Check system has enough entropy - greater than 1000'\n  describe file('/proc/sys/kernel/random/entropy_avail').content.to_i do\n    it { should >= 1000 }\n  end\nend\n",
           "source_location": {
             "line": 175,
@@ -922,9 +958,11 @@
           "id": "os-09",
           "title": "Check for .rhosts and .netrc file",
           "desc": "Find .rhosts and .netrc files - CIS Benchmark 9.2.9-10",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-09' do\n  impact 1.0\n  title 'Check for .rhosts and .netrc file'\n  desc 'Find .rhosts and .netrc files - CIS Benchmark 9.2.9-10'\n  output = command('find / -maxdepth 3 \\( -iname .rhosts -o -iname .netrc \\) -print 2>/dev/null | grep -v \\'^find:\\'')\n  out = output.stdout.split(/\\r?\\n/)\n  describe out do\n    it { should be_empty }\n  end\nend\n",
           "source_location": {
             "line": 184,
@@ -934,7 +972,7 @@
             {
               "status": "passed",
               "code_desc": "[] should be empty",
-              "run_time": 8.3e-05,
+              "run_time": 0.000083,
               "start_time": "2018-06-27T15:02:28+01:00"
             }
           ]
@@ -943,9 +981,11 @@
           "id": "os-10",
           "title": "CIS: Disable unused filesystems",
           "desc": "1.1.1 Ensure mounting of cramfs, freevxfs, jffs2, hfs, hfsplus, squashfs, udf, FAT",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'os-10' do\n  impact 1.0\n  title 'CIS: Disable unused filesystems'\n  desc '1.1.1 Ensure mounting of cramfs, freevxfs, jffs2, hfs, hfsplus, squashfs, udf, FAT'\n  describe file('/etc/modprobe.d/dev-sec.conf') do\n    its(:content) { should match 'install cramfs /bin/true' }\n    its(:content) { should match 'install freevxfs /bin/true' }\n    its(:content) { should match 'install jffs2 /bin/true' }\n    its(:content) { should match 'install hfs /bin/true' }\n    its(:content) { should match 'install hfsplus /bin/true' }\n    its(:content) { should match 'install squashfs /bin/true' }\n    its(:content) { should match 'install udf /bin/true' }\n    its(:content) { should match 'install vfat /bin/true' }\n  end\nend\n",
           "source_location": {
             "line": 195,
@@ -990,7 +1030,7 @@
             {
               "status": "failed",
               "code_desc": "File /etc/modprobe.d/dev-sec.conf content should match \"install squashfs /bin/true\"",
-              "run_time": 9.3e-05,
+              "run_time": 0.000093,
               "start_time": "2018-06-27T15:02:28+01:00",
               "message": "expected nil to match \"install squashfs /bin/true\""
             },
@@ -1004,7 +1044,7 @@
             {
               "status": "failed",
               "code_desc": "File /etc/modprobe.d/dev-sec.conf content should match \"install vfat /bin/true\"",
-              "run_time": 9.2e-05,
+              "run_time": 0.000092,
               "start_time": "2018-06-27T15:02:28+01:00",
               "message": "expected nil to match \"install vfat /bin/true\""
             }
@@ -1014,11 +1054,10 @@
           "id": "os-11",
           "title": "Protect log-directory",
           "desc": "The log-directory /var/log should belong to root",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'os-11' do\n  impact 1.0\n  title 'Protect log-directory'\n  desc 'The log-directory /var/log should belong to root'\n  describe file('/var/log') do\n    it { should be_directory }\n    it { should be_owned_by 'root' }\n    it { should be_grouped_into log_dir_group }\n  end\nend\n",
           "source_location": {
@@ -1051,9 +1090,11 @@
           "id": "package-01",
           "title": "Do not run deprecated inetd or xinetd",
           "desc": "http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.1",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'package-01' do\n  impact 1.0\n  title 'Do not run deprecated inetd or xinetd'\n  desc 'http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.1'\n  describe package('inetd') do\n    it { should_not be_installed }\n  end\n  describe package('xinetd') do\n    it { should_not be_installed }\n  end\nend\n",
           "source_location": {
             "line": 22,
@@ -1078,9 +1119,11 @@
           "id": "package-02",
           "title": "Do not install Telnet server",
           "desc": "Telnet protocol uses unencrypted communication, that means the password and other sensitive data are unencrypted. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.2",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'package-02' do\n  impact 1.0\n  title 'Do not install Telnet server'\n  desc 'Telnet protocol uses unencrypted communication, that means the password and other sensitive data are unencrypted. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.2'\n  describe package('telnetd') do\n    it { should_not be_installed }\n  end\nend\n",
           "source_location": {
             "line": 34,
@@ -1099,9 +1142,11 @@
           "id": "package-03",
           "title": "Do not install rsh server",
           "desc": "The r-commands suffers same problem as telnet. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.3",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'package-03' do\n  impact 1.0\n  title 'Do not install rsh server'\n  desc 'The r-commands suffers same problem as telnet. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.3'\n  describe package('telnetd') do\n    it { should_not be_installed }\n  end\nend\n",
           "source_location": {
             "line": 43,
@@ -1120,9 +1165,11 @@
           "id": "package-05",
           "title": "Do not install ypserv server (NIS)",
           "desc": "Network Information Service (NIS) has some security design weaknesses like inadequate protection of important authentication information. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.4",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'package-05' do\n  impact 1.0\n  title 'Do not install ypserv server (NIS)'\n  desc 'Network Information Service (NIS) has some security design weaknesses like inadequate protection of important authentication information. http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.4'\n  describe package('ypserv') do\n    it { should_not be_installed }\n  end\nend\n",
           "source_location": {
             "line": 52,
@@ -1141,11 +1188,10 @@
           "id": "package-06",
           "title": "Do not install tftp server",
           "desc": "tftp-server provides little security http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.5",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'package-06' do\n  impact 1.0\n  title 'Do not install tftp server'\n  desc 'tftp-server provides little security http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf, Chapter 3.2.5'\n  describe package('tftp-server') do\n    it { should_not be_installed }\n  end\nend\n",
           "source_location": {
@@ -1165,11 +1211,10 @@
           "id": "package-07",
           "title": "Install syslog server package",
           "desc": "Syslog server is required to receive system and applications logs",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'package-07' do\n  impact 1.0\n  title 'Install syslog server package'\n  desc 'Syslog server is required to receive system and applications logs'\n  describe package(val_syslog_pkg) do\n    it { should be_installed }\n  end\n  # Fedora doesn't install with a syslogger out of the box and instead uses\n  # systemd journal; as there is there is no affinity towards either rsyslog\n  # or syslog-ng, we'll skip this check on Fedora hosts.\n  only_if { os.name != 'fedora' }\nend\n",
           "source_location": {
@@ -1190,9 +1235,11 @@
           "id": "package-08",
           "title": "Install auditd",
           "desc": "auditd provides extended logging capacities on recent distribution",
-          "impact": 1.0,
+          "impact": 1,
           "refs": [],
-          "tags": {},
+          "tags": {
+            "focus_area": "test_control_linux"
+          },
           "code": "control 'package-08' do\n  impact 1.0\n  title 'Install auditd'\n  desc 'auditd provides extended logging capacities on recent distribution'\n  audit_pkg = os.redhat? || os.suse? || os.name == 'amazon' || os.name == 'fedora' ? 'audit' : 'auditd'\n  describe package(audit_pkg) do\n    it { should be_installed }\n  end\n  describe auditd_conf do\n    its('log_file') { should cmp '/var/log/audit/audit.log' }\n    its('log_format') { should cmp 'raw' }\n    its('flush') { should match(/^INCREMENTAL|INCREMENTAL_ASYNC$/) }\n    its('max_log_file_action') { should cmp 'keep_logs' }\n    its('space_left') { should cmp 75 }\n    its('action_mail_acct') { should cmp 'root' }\n    its('space_left_action') { should cmp 'SYSLOG' }\n    its('admin_space_left') { should cmp 50 }\n    its('admin_space_left_action') { should cmp 'SUSPEND' }\n    its('disk_full_action') { should cmp 'SUSPEND' }\n    its('disk_error_action') { should cmp 'SUSPEND' }\n  end\nend\n",
           "source_location": {
             "line": 83,
@@ -1209,7 +1256,7 @@
             {
               "status": "skipped",
               "code_desc": "Audit Daemon Config",
-              "run_time": 6.0e-06,
+              "run_time": 0.000006,
               "start_time": "2018-06-27T15:02:28+01:00",
               "resource": "Audit Daemon Config",
               "skip_message": "Can't find file: /etc/audit/auditd.conf"
@@ -1220,11 +1267,10 @@
           "id": "package-09",
           "title": "CIS: Additional process hardening",
           "desc": "1.5.4 Ensure prelink is disabled",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'package-09' do\n  impact 1.0\n  title 'CIS: Additional process hardening'\n  desc '1.5.4 Ensure prelink is disabled'\n  describe package('prelink') do\n    it { should_not be_installed }\n  end\nend\n",
           "source_location": {
@@ -1244,11 +1290,10 @@
           "id": "sysctl-01",
           "title": "IPv4 Forwarding",
           "desc": "If you're not intending for your system to forward traffic between interfaces, or if you only have a single interface, the forwarding function must be disable.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'sysctl-01' do\n  impact 1.0\n  title 'IPv4 Forwarding'\n  desc \"If you're not intending for your system to forward traffic between interfaces, or if you only have a single interface, the forwarding function must be disable.\"\n  describe kernel_parameter('net.ipv4.ip_forward') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv4.conf.all.forwarding') do\n    its(:value) { should eq 0 }\n  end\n  only_if { sysctl_forwarding == false }\nend\n",
           "source_location": {
@@ -1276,11 +1321,10 @@
           "id": "sysctl-02",
           "title": "Reverse path filtering",
           "desc": "The rp_filter can reject incoming packets if their source address doesn't match the network interface that they're arriving on, which helps to prevent IP spoofing.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'sysctl-02' do\n  impact 1.0\n  title 'Reverse path filtering'\n  desc \"The rp_filter can reject incoming packets if their source address doesn't match the network interface that they're arriving on, which helps to prevent IP spoofing.\"\n  describe kernel_parameter('net.ipv4.conf.all.rp_filter') do\n    its(:value) { should eq 1 }\n  end\n  describe kernel_parameter('net.ipv4.conf.default.rp_filter') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1306,11 +1350,10 @@
           "id": "sysctl-03",
           "title": "ICMP ignore bogus error responses",
           "desc": "Sometimes routers send out invalid responses to broadcast frames. This is a violation of RFC 1122 and the kernel will logged this. To avoid filling up your logfile with unnecessary stuff, you can tell the kernel not to issue these warnings",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'sysctl-03' do\n  impact 1.0\n  title 'ICMP ignore bogus error responses'\n  desc 'Sometimes routers send out invalid responses to broadcast frames. This is a violation of RFC 1122 and the kernel will logged this. To avoid filling up your logfile with unnecessary stuff, you can tell the kernel not to issue these warnings'\n  describe kernel_parameter('net.ipv4.icmp_ignore_bogus_error_responses') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1330,11 +1373,10 @@
           "id": "sysctl-04",
           "title": "ICMP echo ignore broadcasts",
           "desc": "Blocking ICMP ECHO requests to broadcast addresses",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'sysctl-04' do\n  impact 1.0\n  title 'ICMP echo ignore broadcasts'\n  desc 'Blocking ICMP ECHO requests to broadcast addresses'\n  describe kernel_parameter('net.ipv4.icmp_echo_ignore_broadcasts') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1354,11 +1396,10 @@
           "id": "sysctl-05",
           "title": "ICMP ratelimit",
           "desc": "icmp_ratelimit defines how many packets that match the icmp_ratemask per second",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'sysctl-05' do\n  impact 1.0\n  title 'ICMP ratelimit'\n  desc 'icmp_ratelimit defines how many packets that match the icmp_ratemask per second'\n  describe kernel_parameter('net.ipv4.icmp_ratelimit') do\n    its(:value) { should eq 100 }\n  end\nend\n",
           "source_location": {
@@ -1379,11 +1420,10 @@
           "id": "sysctl-06",
           "title": "ICMP ratemask",
           "desc": "Ratemask is a logical OR of all ICMP codes to rate limit",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "test_control_linux"
           },
           "code": "control 'sysctl-06' do\n  impact 1.0\n  title 'ICMP ratemask'\n  desc 'Ratemask is a logical OR of all ICMP codes to rate limit'\n  describe kernel_parameter('net.ipv4.icmp_ratemask') do\n    its(:value) { should eq 88089 }\n  end\nend\n",
           "source_location": {
@@ -1404,11 +1444,10 @@
           "id": "sysctl-07",
           "title": "TCP timestamps",
           "desc": "It is possible to estimate the current uptime of a Linux system. It's preferable to disable TCP timestamps on your systems.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-07' do\n  impact 1.0\n  title 'TCP timestamps'\n  desc \"It is possible to estimate the current uptime of a Linux system. It's preferable to disable TCP timestamps on your systems.\"\n  describe kernel_parameter('net.ipv4.tcp_timestamps') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1429,11 +1468,10 @@
           "id": "sysctl-08",
           "title": "ARP ignore",
           "desc": "Reply only if the target IP address is local address configured on the incoming interface.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-08' do\n  impact 1.0\n  title 'ARP ignore'\n  desc 'Reply only if the target IP address is local address configured on the incoming interface.'\n  describe kernel_parameter('net.ipv4.conf.all.arp_ignore') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1454,11 +1492,10 @@
           "id": "sysctl-09",
           "title": "ARP announce",
           "desc": "Always use the best local address for this target. In this mode we ignore the source address in the IP packet and try to select local address that we prefer for talks with\tthe target host.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-09' do\n  impact 1.0\n  title 'ARP announce'\n  desc 'Always use the best local address for this target. In this mode we ignore the source address in the IP packet and try to select local address that we prefer for talks with\tthe target host.'\n  describe kernel_parameter('net.ipv4.conf.all.arp_announce') do\n    its(:value) { should eq 2 }\n  end\nend\n",
           "source_location": {
@@ -1479,11 +1516,10 @@
           "id": "sysctl-10",
           "title": "TCP RFC1337 Protect Against TCP Time-Wait",
           "desc": "This enables a fix for time-wait assassination hazards in tcp, described in RFC 1337. If enabled, this causes the kernel to drop RST packets for sockets in the time-wait state.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-10' do\n  impact 1.0\n  title 'TCP RFC1337 Protect Against TCP Time-Wait'\n  desc 'This enables a fix for time-wait assassination hazards in tcp, described in RFC 1337. If enabled, this causes the kernel to drop RST packets for sockets in the time-wait state.'\n  describe kernel_parameter('net.ipv4.tcp_rfc1337') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1504,11 +1540,10 @@
           "id": "sysctl-11",
           "title": "Protection against SYN flood attacks",
           "desc": "A SYN-Attack is a denial of service (DoS) attack that consumes resources on your system forcing you to reboot.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-11' do\n  impact 1.0\n  title 'Protection against SYN flood attacks'\n  desc 'A SYN-Attack is a denial of service (DoS) attack that consumes resources on your system forcing you to reboot.'\n  describe kernel_parameter('net.ipv4.tcp_syncookies') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1528,11 +1563,10 @@
           "id": "sysctl-12",
           "title": "Shared Media IP Architecture",
           "desc": "Send(router) or accept(host) RFC1620 shared media redirects. If it is not set the kernel does not assume that different subnets on this device can communicate directly.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-12' do\n  impact 1.0\n  title 'Shared Media IP Architecture'\n  desc 'Send(router) or accept(host) RFC1620 shared media redirects. If it is not set the kernel does not assume that different subnets on this device can communicate directly.'\n  describe kernel_parameter('net.ipv4.conf.all.shared_media') do\n    its(:value) { should eq 1 }\n  end\n  describe kernel_parameter('net.ipv4.conf.default.shared_media') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1558,11 +1592,10 @@
           "id": "sysctl-13",
           "title": "Disable Source Routing",
           "desc": "The accept_source_route option causes network interfaces to accept packets with the Strict Source Route (SSR) or Loose Source Routing (LSR) option set. An attacker is able to send a source routed packet into the network, then he could intercept the replies and your server might not know that it is not communicating with a trusted server",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-13' do\n  impact 1.0\n  title 'Disable Source Routing'\n  desc 'The accept_source_route option causes network interfaces to accept packets with the Strict Source Route (SSR) or Loose Source Routing (LSR) option set. An attacker is able to send a source routed packet into the network, then he could intercept the replies and your server might not know that it is not communicating with a trusted server'\n  describe kernel_parameter('net.ipv4.conf.all.accept_source_route') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv4.conf.default.accept_source_route') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1588,11 +1621,10 @@
           "id": "sysctl-14",
           "title": "Disable acceptance of all IPv4 redirected packets",
           "desc": "Disable acceptance of all redirected packets these prevents Man-in-the-Middle attacks.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-14' do\n  impact 1.0\n  title 'Disable acceptance of all IPv4 redirected packets'\n  desc 'Disable acceptance of all redirected packets these prevents Man-in-the-Middle attacks.'\n  describe kernel_parameter('net.ipv4.conf.default.accept_redirects') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv4.conf.all.accept_redirects') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1618,11 +1650,10 @@
           "id": "sysctl-15",
           "title": "Disable acceptance of all secure redirected packets",
           "desc": "Disable acceptance of all secure redirected packets these prevents Man-in-the-Middle attacks.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-15' do\n  impact 1.0\n  title 'Disable acceptance of all secure redirected packets'\n  desc 'Disable acceptance of all secure redirected packets these prevents Man-in-the-Middle attacks.'\n  describe kernel_parameter('net.ipv4.conf.all.secure_redirects') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv4.conf.default.secure_redirects') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1650,11 +1681,10 @@
           "id": "sysctl-16",
           "title": "Disable sending of redirects packets",
           "desc": "Disable sending of redirects packets",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-16' do\n  impact 1.0\n  title 'Disable sending of redirects packets'\n  desc 'Disable sending of redirects packets'\n  describe kernel_parameter('net.ipv4.conf.default.send_redirects') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv4.conf.all.send_redirects') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1681,11 +1711,10 @@
           "id": "sysctl-17",
           "title": "Disable log martians",
           "desc": "log_martians can cause a denial of service attack to the host",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-17' do\n  impact 1.0\n  title 'Disable log martians'\n  desc 'log_martians can cause a denial of service attack to the host'\n  describe kernel_parameter('net.ipv4.conf.all.log_martians') do\n    its(:value) { should eq 1 }\n  end\n  describe kernel_parameter('net.ipv4.conf.default.log_martians') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1713,11 +1742,10 @@
           "id": "sysctl-18",
           "title": "Disable IPv6 if it is not needed",
           "desc": "Disable IPv6 if it is not needed",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-18' do\n  impact 1.0\n  title 'Disable IPv6 if it is not needed'\n  desc 'Disable IPv6 if it is not needed'\n  describe kernel_parameter('net.ipv6.conf.all.disable_ipv6') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -1737,11 +1765,10 @@
           "id": "sysctl-19",
           "title": "IPv6 Forwarding",
           "desc": "If you're not intending for your system to forward traffic between interfaces, or if you only have a single interface, the forwarding function must be disable.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-19' do\n  impact 1.0\n  title 'IPv6 Forwarding'\n  desc \"If you're not intending for your system to forward traffic between interfaces, or if you only have a single interface, the forwarding function must be disable.\"\n  describe kernel_parameter('net.ipv6.conf.all.forwarding') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1761,11 +1788,10 @@
           "id": "sysctl-20",
           "title": "Disable acceptance of all IPv6 redirected packets",
           "desc": "Disable acceptance of all redirected packets these prevents Man-in-the-Middle attacks.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-20' do\n  impact 1.0\n  title 'Disable acceptance of all IPv6 redirected packets'\n  desc 'Disable acceptance of all redirected packets these prevents Man-in-the-Middle attacks.'\n  describe kernel_parameter('net.ipv6.conf.default.accept_redirects') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv6.conf.all.accept_redirects') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1793,11 +1819,10 @@
           "id": "sysctl-21",
           "title": "Disable acceptance of IPv6 router solicitations messages",
           "desc": "The router solicitations setting determines how many router solicitations are sent when bringing up the interface. If addresses are statically assigned, there is no need to send any solicitations.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-21' do\n  impact 1.0\n  title 'Disable acceptance of IPv6 router solicitations messages'\n  desc 'The router solicitations setting determines how many router solicitations are sent when bringing up the interface. If addresses are statically assigned, there is no need to send any solicitations.'\n  describe kernel_parameter('net.ipv6.conf.default.router_solicitations') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1818,11 +1843,10 @@
           "id": "sysctl-22",
           "title": "Disable Accept Router Preference from router advertisement",
           "desc": "Disable Accept Router Preference from router advertisement",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-22' do\n  impact 1.0\n  title 'Disable Accept Router Preference from router advertisement'\n  desc 'Disable Accept Router Preference from router advertisement'\n  describe kernel_parameter('net.ipv6.conf.default.accept_ra_rtr_pref') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1843,11 +1867,10 @@
           "id": "sysctl-23",
           "title": "Disable learning Prefix Information from router advertisement",
           "desc": "The accept_ra_pinfo setting controls whether the system will accept prefix info from the router.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-23' do\n  impact 1.0\n  title 'Disable learning Prefix Information from router advertisement'\n  desc 'The accept_ra_pinfo setting controls whether the system will accept prefix info from the router.'\n  describe kernel_parameter('net.ipv6.conf.default.accept_ra_pinfo') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1868,11 +1891,10 @@
           "id": "sysctl-24",
           "title": "Disable learning Hop limit from router advertisement",
           "desc": "The accept_ra_defrtr setting controls whether the system will accept Hop Limit settings from a router advertisement. Setting it to 0 prevents a router from changing your default IPv6 Hop Limit for outgoing packets.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-24' do\n  impact 1.0\n  title 'Disable learning Hop limit from router advertisement'\n  desc 'The accept_ra_defrtr setting controls whether the system will accept Hop Limit settings from a router advertisement. Setting it to 0 prevents a router from changing your default IPv6 Hop Limit for outgoing packets.'\n  describe kernel_parameter('net.ipv6.conf.default.accept_ra_defrtr') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1893,11 +1915,10 @@
           "id": "sysctl-25",
           "title": "Disable the system`s acceptance of router advertisement",
           "desc": "Setting controls whether the system will accept router advertisement",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-25' do\n  impact 1.0\n  title 'Disable the system`s acceptance of router advertisement'\n  desc 'Setting controls whether the system will accept router advertisement'\n  describe kernel_parameter('net.ipv6.conf.all.accept_ra') do\n    its(:value) { should eq 0 }\n  end\n  describe kernel_parameter('net.ipv6.conf.default.accept_ra') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1925,11 +1946,10 @@
           "id": "sysctl-26",
           "title": "Disable IPv6 autoconfiguration",
           "desc": "The autoconf setting controls whether router advertisements can cause the system to assign a global unicast address to an interface.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-26' do\n  impact 1.0\n  title 'Disable IPv6 autoconfiguration'\n  desc 'The autoconf setting controls whether router advertisements can cause the system to assign a global unicast address to an interface.'\n  describe kernel_parameter('net.ipv6.conf.default.autoconf') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1950,11 +1970,10 @@
           "id": "sysctl-27",
           "title": "Disable neighbor solicitations to send out per address",
           "desc": "The dad_transmits setting determines how many neighbor solicitations to send out per address (global and link-local) when bringing up an interface to ensure the desired address is unique on the network.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-27' do\n  impact 1.0\n  title 'Disable neighbor solicitations to send out per address'\n  desc 'The dad_transmits setting determines how many neighbor solicitations to send out per address (global and link-local) when bringing up an interface to ensure the desired address is unique on the network.'\n  describe kernel_parameter('net.ipv6.conf.default.dad_transmits') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -1975,11 +1994,10 @@
           "id": "sysctl-28",
           "title": "Assign one global unicast IPv6 addresses to each interface",
           "desc": "The max_addresses setting determines how many global unicast IPv6 addresses can be assigned to each interface. The default is 16, but it should be set to exactly the number of statically configured global addresses required.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-28' do\n  impact 1.0\n  title 'Assign one global unicast IPv6 addresses to each interface'\n  desc 'The max_addresses setting determines how many global unicast IPv6 addresses can be assigned to each interface. The default is 16, but it should be set to exactly the number of statically configured global addresses required.'\n  describe kernel_parameter('net.ipv6.conf.default.max_addresses') do\n    its(:value) { should eq 1 }\n  end\nend\n",
           "source_location": {
@@ -2000,11 +2018,10 @@
           "id": "sysctl-29",
           "title": "Disable loading kernel modules",
           "desc": "The sysctl key kernel.modules_disabled is very straightforward. If it contains a \"1\" it will disable loading new modules, where a \"0\" will still allow loading them. Using this option will be a great protection against loading malicious kernel modules.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-29' do\n  impact 1.0\n  title 'Disable loading kernel modules'\n  desc 'The sysctl key kernel.modules_disabled is very straightforward. If it contains a \"1\" it will disable loading new modules, where a \"0\" will still allow loading them. Using this option will be a great protection against loading malicious kernel modules.'\n  describe kernel_parameter('kernel.modules_disabled') do\n    its(:value) { should eq kernel_modules_disabled }\n  end\nend\n",
           "source_location": {
@@ -2024,11 +2041,10 @@
           "id": "sysctl-30",
           "title": "Magic SysRq",
           "desc": "Kernel.sysreg is a 'magical' key combo you can hit which the kernel will respond to regardless of whatever else it is doing, unless it is completely locked up.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-30' do\n  impact 1.0\n  title 'Magic SysRq'\n  desc \"Kernel.sysreg is a 'magical' key combo you can hit which the kernel will respond to regardless of whatever else it is doing, unless it is completely locked up.\"\n  describe kernel_parameter('kernel.sysrq') do\n    its(:value) { should eq 0 }\n  end\nend\n",
           "source_location": {
@@ -2049,11 +2065,10 @@
           "id": "sysctl-31a",
           "title": "Secure Core Dumps - dump settings",
           "desc": "Ensure that core dumps can never be made by setuid programs",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-31a' do\n  impact 1.0\n  title 'Secure Core Dumps - dump settings'\n  desc 'Ensure that core dumps can never be made by setuid programs'\n\n  describe kernel_parameter('fs.suid_dumpable') do\n    its(:value) { should cmp(/(0|2)/) }\n  end\nend\n",
           "source_location": {
@@ -2073,11 +2088,10 @@
           "id": "sysctl-31b",
           "title": "Secure Core Dumps - dump path",
           "desc": "Ensure that core dumps are done with fully qualified path",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-31b' do\n  impact 1.0\n  title 'Secure Core Dumps - dump path'\n  desc 'Ensure that core dumps are done with fully qualified path'\n  only_if { kernel_parameter('fs.suid_dumpable').value == 2 }\n\n  describe kernel_parameter('kernel.core_pattern') do\n    its(:value) { should match %r{^/.*} }\n  end\nend\n",
           "source_location": {
@@ -2088,7 +2102,7 @@
             {
               "status": "skipped",
               "code_desc": "Operating System Detection",
-              "run_time": 5.0e-06,
+              "run_time": 0.000005,
               "start_time": "2018-06-27T15:02:28+01:00",
               "resource": "Operating System Detection",
               "skip_message": "Skipped control due to only_if condition."
@@ -2099,11 +2113,10 @@
           "id": "sysctl-32",
           "title": "kernel.randomize_va_space",
           "desc": "kernel.randomize_va_space",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-32' do\n  impact 1.0\n  title 'kernel.randomize_va_space'\n  desc 'kernel.randomize_va_space'\n  describe kernel_parameter('kernel.randomize_va_space') do\n    its(:value) { should eq 2 }\n  end\nend\n",
           "source_location": {
@@ -2123,11 +2136,10 @@
           "id": "sysctl-33",
           "title": "CPU No execution Flag or Kernel ExecShield",
           "desc": "Kernel features and CPU flags provide a protection against buffer overflows. The CPU NX Flag and the kernel parameter exec-shield prevents code execution on a per memory page basis. If the CPU supports the NX-Flag then this should be used instead of the kernel parameter exec-shield.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sysctl-33' do\n  impact 1.0\n  title 'CPU No execution Flag or Kernel ExecShield'\n  desc 'Kernel features and CPU flags provide a protection against buffer overflows. The CPU NX Flag and the kernel parameter exec-shield prevents code execution on a per memory page basis. If the CPU supports the NX-Flag then this should be used instead of the kernel parameter exec-shield.'\n\n  # parse for cpu flags\n  flags = parse_config_file('/proc/cpuinfo', assignment_regex: /^([^:]*?)\\s+:\\s+(.*?)$/).flags\n  flags ||= ''\n  flags = flags.split(' ')\n\n  describe '/proc/cpuinfo' do\n    it 'Flags should include NX' do\n      expect(flags).to include('nx')\n    end\n  end\n\n  unless flags.include?('nx')\n    # if no nx flag is present, we require exec-shield\n    describe kernel_parameter('kernel.exec-shield') do\n      its(:value) { should eq 1 }\n    end\n  end\nend\n",
           "source_location": {
@@ -2138,7 +2150,7 @@
             {
               "status": "passed",
               "code_desc": "/proc/cpuinfo Flags should include NX",
-              "run_time": 8.5e-05,
+              "run_time": 0.000085,
               "start_time": "2018-06-27T15:02:28+01:00"
             }
           ]
@@ -2160,9 +2172,7 @@
           "os-family": "unix"
         }
       ],
-      "attributes": [
-
-      ],
+      "attributes": [],
       "groups": [
         {
           "id": "controls/ssh_spec.rb",
@@ -2250,11 +2260,10 @@
           "id": "ssh-01",
           "title": "client: Check ssh_config owner, group and permissions.",
           "desc": "The ssh_config should owned by root, only be writable by owner and readable to all.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-01' do\n  impact 1.0\n  title 'client: Check ssh_config owner, group and permissions.'\n  desc 'The ssh_config should owned by root, only be writable by owner and readable to all.'\n\n  describe file('/etc/ssh/ssh_config') do\n    it { should exist }\n    it { should be_file }\n    it { should be_owned_by 'root' }\n    it { should be_grouped_into os.darwin? ? 'wheel' : 'root' }\n    it { should_not be_executable }\n    it { should be_readable.by('owner') }\n    it { should be_readable.by('group') }\n    it { should be_readable.by('other') }\n    it { should be_writable.by('owner') }\n    it { should_not be_writable.by('group') }\n    it { should_not be_writable.by('other') }\n  end\nend\n",
           "source_location": {
@@ -2301,13 +2310,13 @@
             {
               "status": "passed",
               "code_desc": "File /etc/ssh/ssh_config should be readable by group",
-              "run_time": 7.2e-05,
+              "run_time": 0.000072,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/ssh/ssh_config should be readable by other",
-              "run_time": 7.0e-05,
+              "run_time": 0.00007,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -2319,7 +2328,7 @@
             {
               "status": "passed",
               "code_desc": "File /etc/ssh/ssh_config should not be writable by group",
-              "run_time": 7.6e-05,
+              "run_time": 0.000076,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -2334,11 +2343,10 @@
           "id": "ssh-02",
           "title": "Client: Specify the AddressFamily to your need",
           "desc": "OpenSSH should be configured to the network family. Set it to inet if you use IPv4 only. For IPv6 only set it to inet6.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-02' do\n  impact 1.0\n  title 'Client: Specify the AddressFamily to your need'\n  desc 'OpenSSH should be configured to the network family. Set it to inet if you use IPv4 only. For IPv6 only set it to inet6.'\n  describe ssh_config do\n    its('AddressFamily') { should match(/inet|inet6|any/) }\n  end\nend\n",
           "source_location": {
@@ -2359,11 +2367,10 @@
           "id": "ssh-03",
           "title": "Client: Specify expected ssh port",
           "desc": "Always specify which port the SSH client should connect. Prevent unexpected settings.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-03' do\n  impact 1.0\n  title 'Client: Specify expected ssh port'\n  desc 'Always specify which port the SSH client should connect. Prevent unexpected settings.'\n  describe ssh_config do\n    its('Port') { should eq('22') }\n  end\nend\n",
           "source_location": {
@@ -2384,11 +2391,10 @@
           "id": "ssh-04",
           "title": "Client: Specify protocol version 2",
           "desc": "Only SSH protocol version 2 connections should be permitted. Version 1 of the protocol contains security vulnerabilities. Don't use legacy insecure SSHv1 connections anymore.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-04' do\n  impact 1.0\n  title 'Client: Specify protocol version 2'\n  desc \"Only SSH protocol version 2 connections should be permitted. Version 1 of the protocol contains security vulnerabilities. Don't use legacy insecure SSHv1 connections anymore.\"\n  describe ssh_config do\n    its('Protocol') { should eq('2') }\n  end\nend\n",
           "source_location": {
@@ -2409,11 +2415,10 @@
           "id": "ssh-05",
           "title": "Client: Disable batch mode",
           "desc": "Avoid batch mode in the default configuration.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-05' do\n  impact 1.0\n  title 'Client: Disable batch mode'\n  desc 'Avoid batch mode in the default configuration.'\n  describe ssh_config do\n    its('BatchMode') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2434,11 +2439,10 @@
           "id": "ssh-06",
           "title": "Client: Check Host IPs",
           "desc": "Make sure that SSH checks the host IP address in the known_hosts file, to avoid DNS spoofing effects.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-06' do\n  impact 1.0\n  title 'Client: Check Host IPs'\n  desc 'Make sure that SSH checks the host IP address in the known_hosts file, to avoid DNS spoofing effects.'\n  describe ssh_config do\n    its('CheckHostIP') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -2459,11 +2463,10 @@
           "id": "ssh-07",
           "title": "Client: Ask when checking host keys",
           "desc": "Don't automatically add new hosts keys to the list of known hosts.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-07' do\n  impact 1.0\n  title 'Client: Ask when checking host keys'\n  desc \"Don't automatically add new hosts keys to the list of known hosts.\"\n  describe ssh_config do\n    its('StrictHostKeyChecking') { should match(/ask|yes/) }\n  end\nend\n",
           "source_location": {
@@ -2484,11 +2487,10 @@
           "id": "ssh-08",
           "title": "Client: Check for secure ssh ciphers",
           "desc": "Configure a list of ciphers to the best secure ciphers (avoid older and weaker ciphers)",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-08' do\n  impact 1.0\n  title 'Client: Check for secure ssh ciphers'\n  desc 'Configure a list of ciphers to the best secure ciphers (avoid older and weaker ciphers)'\n  describe ssh_config do\n    its('Ciphers') { should eq(ssh_crypto.valid_ciphers) }\n  end\nend\n",
           "source_location": {
@@ -2509,11 +2511,10 @@
           "id": "ssh-09",
           "title": "Client: Check for secure ssh Key-Exchange Algorithm",
           "desc": "Configure a list of Key-Exchange Algorithms (Kexs) to the best secure Kexs (avoid older and weaker Key-Exchange Algorithm)",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-09' do\n  impact 1.0\n  title 'Client: Check for secure ssh Key-Exchange Algorithm'\n  desc 'Configure a list of Key-Exchange Algorithms (Kexs) to the best secure Kexs (avoid older and weaker Key-Exchange Algorithm)'\n  describe ssh_config do\n    its('KexAlgorithms') { should eq(ssh_crypto.valid_kexs) }\n  end\nend\n",
           "source_location": {
@@ -2534,11 +2535,10 @@
           "id": "ssh-10",
           "title": "Client: Check for secure ssh Message Authentication Codes",
           "desc": "Configure a list of Message Authentication Codes (MACs) to the best secure MACs (avoid older and weaker Message Authentication Codes)",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-10' do\n  impact 1.0\n  title 'Client: Check for secure ssh Message Authentication Codes'\n  desc 'Configure a list of Message Authentication Codes (MACs) to the best secure MACs (avoid older and weaker Message Authentication Codes)'\n  describe ssh_config do\n    its('MACs') { should eq(ssh_crypto.valid_macs) }\n  end\nend\n",
           "source_location": {
@@ -2559,11 +2559,10 @@
           "id": "ssh-11",
           "title": "Client: Disable agent forwarding",
           "desc": "Prevent agent forwarding by default, as it can be used in a limited way to enable attacks.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-11' do\n  impact 1.0\n  title 'Client: Disable agent forwarding'\n  desc 'Prevent agent forwarding by default, as it can be used in a limited way to enable attacks.'\n  describe ssh_config do\n    its('ForwardAgent') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2584,11 +2583,10 @@
           "id": "ssh-12",
           "title": "Client: Disable X11Forwarding",
           "desc": "Prevent X11 forwarding by default, as it can be used in a limited way to enable attacks.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-12' do\n  impact 1.0\n  title 'Client: Disable X11Forwarding'\n  desc 'Prevent X11 forwarding by default, as it can be used in a limited way to enable attacks.'\n  describe ssh_config do\n    its('ForwardX11') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2609,11 +2607,10 @@
           "id": "ssh-13",
           "title": "Client: Disable HostbasedAuthentication",
           "desc": "This option is a weak way for authentication and provide attacker more ways to enter the system.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-13' do\n  impact 1.0\n  title 'Client: Disable HostbasedAuthentication'\n  desc 'This option is a weak way for authentication and provide attacker more ways to enter the system.'\n  describe ssh_config do\n    its('HostbasedAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2634,11 +2631,10 @@
           "id": "ssh-14",
           "title": "Client: Disable rhosts-based authentication",
           "desc": "Avoid rhosts-based authentication, as it opens more ways for an attacker to enter a system.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-14' do\n  impact 1.0\n  title 'Client: Disable rhosts-based authentication'\n  desc 'Avoid rhosts-based authentication, as it opens more ways for an attacker to enter a system.'\n  describe ssh_config do\n    its('RhostsRSAAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2659,11 +2655,10 @@
           "id": "ssh-15",
           "title": "Client: Enable RSA authentication",
           "desc": "Make sure RSA authentication is used by default.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-15' do\n  impact 1.0\n  title 'Client: Enable RSA authentication'\n  desc 'Make sure RSA authentication is used by default.'\n  describe ssh_config do\n    its('RSAAuthentication') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -2684,11 +2679,10 @@
           "id": "ssh-16",
           "title": "Client: Disable password-based authentication",
           "desc": "Avoid password-based authentications.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-16' do\n  impact 1.0\n  title 'Client: Disable password-based authentication'\n  desc 'Avoid password-based authentications.'\n  describe ssh_config do\n    its('PasswordAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2709,11 +2703,10 @@
           "id": "ssh-17",
           "title": "Client: Disable GSSAPIAuthentication",
           "desc": "If you do not use GSSAPI authentication then disable it.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-17' do\n  impact 1.0\n  title 'Client: Disable GSSAPIAuthentication'\n  desc 'If you do not use GSSAPI authentication then disable it.'\n  describe ssh_config do\n    its('GSSAPIAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2734,11 +2727,10 @@
           "id": "ssh-18",
           "title": "Client: Disable GSSAPIDelegateCredentials",
           "desc": "If you do not use GSSAPI authentication then disable it.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-18' do\n  impact 1.0\n  title 'Client: Disable GSSAPIDelegateCredentials'\n  desc 'If you do not use GSSAPI authentication then disable it.'\n  describe ssh_config do\n    its('GSSAPIDelegateCredentials') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2759,11 +2751,10 @@
           "id": "ssh-19",
           "title": "Client: Disable tunnels",
           "desc": "Avoid using SSH tunnels.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-19' do\n  impact 1.0\n  title 'Client: Disable tunnels'\n  desc 'Avoid using SSH tunnels.'\n  describe ssh_config do\n    its('Tunnel') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2784,11 +2775,10 @@
           "id": "ssh-20",
           "title": "Client: Do not permit local commands",
           "desc": "Do not permit any local command execution.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-20' do\n  impact 1.0\n  title 'Client: Do not permit local commands'\n  desc 'Do not permit any local command execution.'\n  describe ssh_config do\n    its('PermitLocalCommand') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2809,11 +2799,10 @@
           "id": "ssh-21",
           "title": "Client: Do not allow Roaming",
           "desc": "Workaround for SSH Client Bug CVE-2016-0777 and CVE-2016-0778",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'ssh-21' do\n  impact 1.0\n  title 'Client: Do not allow Roaming'\n  desc 'Workaround for SSH Client Bug CVE-2016-0777 and CVE-2016-0778'\n  describe ssh_config do\n    its('UseRoaming') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -2834,11 +2823,10 @@
           "id": "sshd-01",
           "title": "Server: Check for secure ssh ciphers",
           "desc": "Configure a list of ciphers to the best secure ciphers (avoid older and weaker ciphers)",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-01' do\n  impact 1.0\n  title 'Server: Check for secure ssh ciphers'\n  desc 'Configure a list of ciphers to the best secure ciphers (avoid older and weaker ciphers)'\n  describe sshd_config do\n    its('Ciphers') { should eq(ssh_crypto.valid_ciphers) }\n  end\nend\n",
           "source_location": {
@@ -2859,11 +2847,10 @@
           "id": "sshd-02",
           "title": "Server: Check for secure ssh Key-Exchange Algorithm",
           "desc": "Configure a list of Key-Exchange Algorithms (Kexs) to the best secure Kexs (avoid older and weaker Key-Exchange Algorithm)",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-02' do\n  impact 1.0\n  title 'Server: Check for secure ssh Key-Exchange Algorithm'\n  desc 'Configure a list of Key-Exchange Algorithms (Kexs) to the best secure Kexs (avoid older and weaker Key-Exchange Algorithm)'\n  describe sshd_config do\n    its('KexAlgorithms') { should eq(ssh_crypto.valid_kexs) }\n  end\nend\n",
           "source_location": {
@@ -2884,11 +2871,10 @@
           "id": "sshd-03",
           "title": "Server: Check for secure ssh Message Authentication Codes",
           "desc": "Configure a list of Message Authentication Codes (MACs) to the best secure MACs (avoid older and weaker Message Authentication Codes)",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-03' do\n  impact 1.0\n  title 'Server: Check for secure ssh Message Authentication Codes'\n  desc 'Configure a list of Message Authentication Codes (MACs) to the best secure MACs (avoid older and weaker Message Authentication Codes)'\n  describe sshd_config do\n    its('MACs') { should eq(ssh_crypto.valid_macs) }\n  end\nend\n",
           "source_location": {
@@ -2909,11 +2895,10 @@
           "id": "sshd-04",
           "title": "Server: Check SSH folder owner, group and permissions.",
           "desc": "The SSH folder should owned by root, only be writable by owner and readable by others.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-04' do\n  impact 1.0\n  title 'Server: Check SSH folder owner, group and permissions.'\n  desc 'The SSH folder should owned by root, only be writable by owner and readable by others.'\n  describe file('/etc/ssh') do\n    it { should exist }\n    it { should be_directory }\n    it { should be_owned_by 'root' }\n    it { should be_grouped_into os.darwin? ? 'wheel' : 'root' }\n    it { should be_executable }\n    it { should be_readable.by('owner') }\n    it { should be_readable.by('group') }\n    it { should be_readable.by('other') }\n    it { should be_writable.by('owner') }\n    it { should_not be_writable.by('group') }\n    it { should_not be_writable.by('other') }\n  end\nend\n",
           "source_location": {
@@ -2954,7 +2939,7 @@
             {
               "status": "passed",
               "code_desc": "File /etc/ssh should be readable by owner",
-              "run_time": 8.6e-05,
+              "run_time": 0.000086,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -2966,7 +2951,7 @@
             {
               "status": "passed",
               "code_desc": "File /etc/ssh should be readable by other",
-              "run_time": 7.3e-05,
+              "run_time": 0.000073,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -2978,13 +2963,13 @@
             {
               "status": "passed",
               "code_desc": "File /etc/ssh should not be writable by group",
-              "run_time": 8.5e-05,
+              "run_time": 0.000085,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/ssh should not be writable by other",
-              "run_time": 7.8e-05,
+              "run_time": 0.000078,
               "start_time": "2018-06-27T15:02:28+01:00"
             }
           ]
@@ -2993,11 +2978,10 @@
           "id": "sshd-05",
           "title": "Server: Check sshd_config owner, group and permissions.",
           "desc": "The sshd_config should owned by root, only be writable/readable by owner and not be executable.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-05' do\n  impact 1.0\n  title 'Server: Check sshd_config owner, group and permissions.'\n  desc 'The sshd_config should owned by root, only be writable/readable by owner and not be executable.'\n\n  describe file('/etc/ssh/sshd_config') do\n    it { should exist }\n    it { should be_file }\n    it { should be_owned_by 'root' }\n    it { should be_grouped_into os.darwin? ? 'wheel' : 'root' }\n    it { should_not be_executable }\n    it { should be_readable.by('owner') }\n    it { should_not be_readable.by('group') }\n    it { should_not be_readable.by('other') }\n    it { should be_writable.by('owner') }\n    it { should_not be_writable.by('group') }\n    it { should_not be_writable.by('other') }\n  end\nend\n",
           "source_location": {
@@ -3038,7 +3022,7 @@
             {
               "status": "passed",
               "code_desc": "File /etc/ssh/sshd_config should be readable by owner",
-              "run_time": 9.8e-05,
+              "run_time": 0.000098,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
@@ -3058,19 +3042,19 @@
             {
               "status": "passed",
               "code_desc": "File /etc/ssh/sshd_config should be writable by owner",
-              "run_time": 7.9e-05,
+              "run_time": 0.000079,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/ssh/sshd_config should not be writable by group",
-              "run_time": 9.6e-05,
+              "run_time": 0.000096,
               "start_time": "2018-06-27T15:02:28+01:00"
             },
             {
               "status": "passed",
               "code_desc": "File /etc/ssh/sshd_config should not be writable by other",
-              "run_time": 7.5e-05,
+              "run_time": 0.000075,
               "start_time": "2018-06-27T15:02:28+01:00"
             }
           ]
@@ -3079,11 +3063,10 @@
           "id": "sshd-06",
           "title": "Server: Do not permit root-based login or do not allow password and keyboard-interactive authentication",
           "desc": "Reduce the potential risk to gain full privileges access of the system because of weak password and keyboard-interactive authentication, do not allow logging in as the root user or with password authentication.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-06' do\n  impact 1.0\n  title 'Server: Do not permit root-based login or do not allow password and keyboard-interactive authentication'\n  desc 'Reduce the potential risk to gain full privileges access of the system because of weak password and keyboard-interactive authentication, do not allow logging in as the root user or with password authentication.'\n  describe sshd_config do\n    its('PermitRootLogin') { should match(/no|without-password/) }\n  end\nend\n",
           "source_location": {
@@ -3104,11 +3087,10 @@
           "id": "sshd-07",
           "title": "Server: Specify the listen ssh Port",
           "desc": "Always specify which port the SSH server should listen to. Prevent unexpected settings.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-07' do\n  impact 1.0\n  title 'Server: Specify the listen ssh Port'\n  desc 'Always specify which port the SSH server should listen to. Prevent unexpected settings.'\n  describe sshd_config do\n    its('Port') { should eq('22') }\n  end\nend\n",
           "source_location": {
@@ -3129,11 +3111,10 @@
           "id": "sshd-08",
           "title": "Server: Specify the AddressFamily to your need",
           "desc": "OpenSSH should be configured to the network family. Set it to inet if you use IPv4 only. For IPv6 only set it to inet6.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-08' do\n  impact 1.0\n  title 'Server: Specify the AddressFamily to your need'\n  desc 'OpenSSH should be configured to the network family. Set it to inet if you use IPv4 only. For IPv6 only set it to inet6.'\n  describe sshd_config do\n    its('AddressFamily') { should match(/inet|inet6|any/) }\n  end\nend\n",
           "source_location": {
@@ -3154,11 +3135,10 @@
           "id": "sshd-09",
           "title": "Server: Specify ListenAddress",
           "desc": "Limit the SSH server to listen to a specific address. Don't let it listen on all interfaces to avoid logins from unexpected sources.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-09' do\n  impact 1.0\n  title 'Server: Specify ListenAddress'\n  desc \"Limit the SSH server to listen to a specific address. Don't let it listen on all interfaces to avoid logins from unexpected sources.\"\n  describe sshd_config do\n    its('ListenAddress') { should match(/.*/) }\n  end\nend\n",
           "source_location": {
@@ -3179,11 +3159,10 @@
           "id": "sshd-10",
           "title": "Server: Specify protocol version 2",
           "desc": "Only SSH protocol version 2 connections should be permitted. Version 1 of the protocol contains security vulnerabilities. Don't use legacy insecure SSHv1 connections anymore.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-10' do\n  impact 1.0\n  title 'Server: Specify protocol version 2'\n  desc \"Only SSH protocol version 2 connections should be permitted. Version 1 of the protocol contains security vulnerabilities. Don't use legacy insecure SSHv1 connections anymore.\"\n  describe sshd_config do\n    its('Protocol') { should eq('2') }\n  end\nend\n",
           "source_location": {
@@ -3204,11 +3183,10 @@
           "id": "sshd-11",
           "title": "Server: Enable StrictModes",
           "desc": "Prevent the use of insecure home directory and key file permissions.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-11' do\n  impact 1.0\n  title 'Server: Enable StrictModes'\n  desc 'Prevent the use of insecure home directory and key file permissions.'\n  describe sshd_config do\n    its('StrictModes') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -3229,11 +3207,10 @@
           "id": "sshd-12",
           "title": "Server: Specify SyslogFacility to AUTH",
           "desc": "Logging should be set to go to the /var/log/auth.log facility by using the SysLog AUTH parameter. This will ensure that any problems around invalid logins or the like are forwarded to a central security file for auditing purposes",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-12' do\n  impact 1.0\n  title 'Server: Specify SyslogFacility to AUTH'\n  desc 'Logging should be set to go to the /var/log/auth.log facility by using the SysLog AUTH parameter. This will ensure that any problems around invalid logins or the like are forwarded to a central security file for auditing purposes'\n  describe sshd_config do\n    its('SyslogFacility') { should eq('AUTH') }\n  end\nend\n",
           "source_location": {
@@ -3254,11 +3231,10 @@
           "id": "sshd-13",
           "title": "Server: Specify LogLevel to VERBOSE",
           "desc": "Be verbose in logging, to allow analysis in case of unexpected behavior.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-13' do\n  impact 1.0\n  title 'Server: Specify LogLevel to VERBOSE'\n  desc 'Be verbose in logging, to allow analysis in case of unexpected behavior.'\n  describe sshd_config do\n    its('LogLevel') { should eq('VERBOSE') }\n  end\nend\n",
           "source_location": {
@@ -3279,11 +3255,10 @@
           "id": "sshd-14",
           "title": "Server: Specify SSH HostKeys",
           "desc": "Specify HostKey for protection against Man-In-The-Middle Attacks",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-14' do\n  impact 1.0\n  title 'Server: Specify SSH HostKeys'\n  desc 'Specify HostKey for protection against Man-In-The-Middle Attacks'\n  describe sshd_config do\n    its('HostKey') { should cmp ssh_crypto.valid_hostkeys }\n  end\nend\n",
           "source_location": {
@@ -3304,11 +3279,10 @@
           "id": "sshd-15",
           "title": "Server: Specify UseLogin to NO",
           "desc": "Disable legacy login mechanism and do not use login for interactive login sessions.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-15' do\n  impact 1.0\n  title 'Server: Specify UseLogin to NO'\n  desc 'Disable legacy login mechanism and do not use login for interactive login sessions.'\n  describe sshd_config do\n    its('UseLogin') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3329,11 +3303,10 @@
           "id": "sshd-16",
           "title": "Server: Use privilege separation",
           "desc": "UsePrivilegeSeparation is an option, when enabled will allow the OpenSSH server to run a small (necessary) amount of code as root and the of the code in a chroot jail environment. This enables ssh to deal incoming network traffic in an unprivileged child process to avoid privilege escalation by an attacker.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-16' do\n  impact 1.0\n  title 'Server: Use privilege separation'\n  desc 'UsePrivilegeSeparation is an option, when enabled will allow the OpenSSH server to run a small (necessary) amount of code as root and the of the code in a chroot jail environment. This enables ssh to deal incoming network traffic in an unprivileged child process to avoid privilege escalation by an attacker.'\n  describe sshd_config do\n    its('UsePrivilegeSeparation') { should eq(ssh_crypto.valid_privseparation) }\n  end\nend\n",
           "source_location": {
@@ -3354,11 +3327,10 @@
           "id": "sshd-17",
           "title": "Server: Disable PermitUserEnvironment",
           "desc": "Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-17' do\n  impact 1.0\n  title 'Server: Disable PermitUserEnvironment'\n  desc 'Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.'\n  describe sshd_config do\n    its('PermitUserEnvironment') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3379,11 +3351,10 @@
           "id": "sshd-18",
           "title": "Server: Specify LoginGraceTime",
           "desc": "The LoginGraceTime gives the user 30 seconds to accomplish a login. This could be used to conduct a Denial of Service (DoS) against a running SSH daemon.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-18' do\n  impact 1.0\n  title 'Server: Specify LoginGraceTime'\n  desc 'The LoginGraceTime gives the user 30 seconds to accomplish a login. This could be used to conduct a Denial of Service (DoS) against a running SSH daemon.'\n  describe sshd_config do\n    its('LoginGraceTime') { should eq('30s') }\n  end\nend\n",
           "source_location": {
@@ -3404,11 +3375,10 @@
           "id": "sshd-19",
           "title": "Server: Specify Limit for maximum authentication retries",
           "desc": "MaxAuthTries limits the user to three wrong attempts before the login attempt is denied. This avoid resource starvation attacks.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-19' do\n  impact 1.0\n  title 'Server: Specify Limit for maximum authentication retries'\n  desc 'MaxAuthTries limits the user to three wrong attempts before the login attempt is denied. This avoid resource starvation attacks.'\n  describe sshd_config do\n    its('MaxAuthTries') { should eq('2') }\n  end\nend\n",
           "source_location": {
@@ -3429,11 +3399,10 @@
           "id": "sshd-20",
           "title": "Server: Specify maximum sessions",
           "desc": "Specifies the maximum number of open sessions permitted per network connection. This could be used to conduct a Denial of Service (DoS) against a running SSH daemon.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-20' do\n  impact 1.0\n  title 'Server: Specify maximum sessions'\n  desc 'Specifies the maximum number of open sessions permitted per network connection. This could be used to conduct a Denial of Service (DoS) against a running SSH daemon.'\n  describe sshd_config do\n    its('MaxSessions') { should eq('10') }\n  end\nend\n",
           "source_location": {
@@ -3454,11 +3423,10 @@
           "id": "sshd-21",
           "title": "Server: Specify maximum startups",
           "desc": "Limit the number of concurrent unauthenticated sessions to prevent Denial of Service (DoS) against a running SSH daemon.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-21' do\n  impact 1.0\n  title 'Server: Specify maximum startups'\n  desc 'Limit the number of concurrent unauthenticated sessions to prevent Denial of Service (DoS) against a running SSH daemon.'\n  describe sshd_config do\n    its('MaxStartups') { should eq('10:30:100') }\n  end\nend\n",
           "source_location": {
@@ -3479,11 +3447,10 @@
           "id": "sshd-22",
           "title": "Server: Enable PubkeyAuthentication",
           "desc": "Prefer public key authentication mechanisms, because other methods are weaker (e.g. passwords).",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-22' do\n  impact 1.0\n  title 'Server: Enable PubkeyAuthentication'\n  desc 'Prefer public key authentication mechanisms, because other methods are weaker (e.g. passwords).'\n  describe sshd_config do\n    its('PubkeyAuthentication') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -3504,11 +3471,10 @@
           "id": "sshd-23",
           "title": "Server: Disable IgnoreRhosts",
           "desc": "Ignore legacy .rhosts configuration, because rhosts are a weak way to authenticate systems and provide attacker more ways to enter the system.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-23' do\n  impact 1.0\n  title 'Server: Disable IgnoreRhosts'\n  desc 'Ignore legacy .rhosts configuration, because rhosts are a weak way to authenticate systems and provide attacker more ways to enter the system.'\n  describe sshd_config do\n    its('IgnoreRhosts') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -3529,11 +3495,10 @@
           "id": "sshd-24",
           "title": "Server: Enable IgnoreUserKnownHosts",
           "desc": "This option is a weak way for authentication and provide attacker more ways to enter the system.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-24' do\n  impact 1.0\n  title 'Server: Enable IgnoreUserKnownHosts'\n  desc 'This option is a weak way for authentication and provide attacker more ways to enter the system.'\n  describe sshd_config do\n    its('IgnoreUserKnownHosts') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -3554,11 +3519,10 @@
           "id": "sshd-25",
           "title": "Server: Disable HostbasedAuthentication",
           "desc": "This option is a weak way for authentication and provide attacker more ways to enter the system.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-25' do\n  impact 1.0\n  title 'Server: Disable HostbasedAuthentication'\n  desc 'This option is a weak way for authentication and provide attacker more ways to enter the system.'\n  describe sshd_config do\n    its('HostbasedAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3579,11 +3543,10 @@
           "id": "sshd-27",
           "title": "Server: Disable password-based authentication",
           "desc": "Avoid password-based authentications.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-27' do\n  impact 1.0\n  title 'Server: Disable password-based authentication'\n  desc 'Avoid password-based authentications.'\n  describe sshd_config do\n    its('PasswordAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3604,11 +3567,10 @@
           "id": "sshd-28",
           "title": "Server: Disable PermitEmptyPasswords",
           "desc": "Accounts should be protected and users should be accountable. For this reason the usage of empty passwords should never be allowed.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-28' do\n  impact 1.0\n  title 'Server: Disable PermitEmptyPasswords'\n  desc 'Accounts should be protected and users should be accountable. For this reason the usage of empty passwords should never be allowed.'\n  describe sshd_config do\n    its('PermitEmptyPasswords') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3629,11 +3591,10 @@
           "id": "sshd-29",
           "title": "Server: Disable ChallengeResponseAuthentication",
           "desc": "Avoid challenge-response and password-based authentications.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-29' do\n  impact 1.0\n  title 'Server: Disable ChallengeResponseAuthentication'\n  desc 'Avoid challenge-response and password-based authentications.'\n  describe sshd_config do\n    its('ChallengeResponseAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3653,11 +3614,10 @@
           "id": "sshd-30",
           "title": "Server: Disable Kerberos",
           "desc": "Avoid kerberos authentication.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-30' do\n  impact 1.0\n  title 'Server: Disable Kerberos'\n  desc 'Avoid kerberos authentication.'\n  describe sshd_config do\n    its('KerberosAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3678,11 +3638,10 @@
           "id": "sshd-31",
           "title": "Server: Disable Kerberos or Local Password",
           "desc": "Avoid kerberos authentication because it use password-based authentication as fallback.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-31' do\n  impact 1.0\n  title 'Server: Disable Kerberos or Local Password'\n  desc 'Avoid kerberos authentication because it use password-based authentication as fallback.'\n  describe sshd_config do\n    its('KerberosOrLocalPasswd') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3703,11 +3662,10 @@
           "id": "sshd-32",
           "title": "Server: Enable KerberosTicketCleanup",
           "desc": "Specifies whether to automatically destroy the user's ticket cache file on logout.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-32' do\n  impact 1.0\n  title 'Server: Enable KerberosTicketCleanup'\n  desc \"Specifies whether to automatically destroy the user's ticket cache file on logout.\"\n  describe sshd_config do\n    its('KerberosTicketCleanup') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -3728,11 +3686,10 @@
           "id": "sshd-33",
           "title": "Server: Disable GSSAPIAuthentication",
           "desc": "If you do not use GSSAPI authentication then disable it.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-33' do\n  impact 1.0\n  title 'Server: Disable GSSAPIAuthentication'\n  desc 'If you do not use GSSAPI authentication then disable it.'\n  describe sshd_config do\n    its('GSSAPIAuthentication') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3753,11 +3710,10 @@
           "id": "sshd-34",
           "title": "Server: Enable GSSAPICleanupCredentials",
           "desc": "Automatically destroy the user's credentials cache on logout.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-34' do\n  impact 1.0\n  title 'Server: Enable GSSAPICleanupCredentials'\n  desc \"Automatically destroy the user's credentials cache on logout.\"\n  describe sshd_config do\n    its('GSSAPICleanupCredentials') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -3778,11 +3734,10 @@
           "id": "sshd-35",
           "title": "Server: Disable TCPKeepAlive",
           "desc": "Avoid the TCPKeepAlive messages to see if the client is still alive, because they are sent over unencrypted connection and are spoofable.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-35' do\n  impact 1.0\n  title 'Server: Disable TCPKeepAlive'\n  desc 'Avoid the TCPKeepAlive messages to see if the client is still alive, because they are sent over unencrypted connection and are spoofable.'\n  describe sshd_config do\n    its('TCPKeepAlive') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3803,11 +3758,10 @@
           "id": "sshd-36",
           "title": "Server: Set a client alive interval",
           "desc": "ClientAlive messages are sent over encrypted connection and are not spoofable.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-36' do\n  impact 1.0\n  title 'Server: Set a client alive interval'\n  desc 'ClientAlive messages are sent over encrypted connection and are not spoofable.'\n  describe sshd_config do\n    its('ClientAliveInterval') { should eq('600') }\n  end\nend\n",
           "source_location": {
@@ -3828,11 +3782,10 @@
           "id": "sshd-37",
           "title": "Server: Configure a few client alive counters",
           "desc": "This indicates the total number of checkalive message sent by the ssh server without getting any response from the ssh client. ClientAlive messages are sent over encrypted connection and are not spoofable.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-37' do\n  impact 1.0\n  title 'Server: Configure a few client alive counters'\n  desc 'This indicates the total number of checkalive message sent by the ssh server without getting any response from the ssh client. ClientAlive messages are sent over encrypted connection and are not spoofable.'\n  describe sshd_config do\n    its('ClientAliveCountMax') { should eq('3') }\n  end\nend\n",
           "source_location": {
@@ -3853,11 +3806,10 @@
           "id": "sshd-38",
           "title": "Server: Disable tunnels",
           "desc": "Avoid to use tunnels.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-38' do\n  impact 1.0\n  title 'Server: Disable tunnels'\n  desc 'Avoid to use tunnels.'\n  describe sshd_config do\n    its('PermitTunnel') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3878,11 +3830,10 @@
           "id": "sshd-39",
           "title": "Server: Disable TCP forwarding",
           "desc": "If you use TCP forwarding in an uncontrolled manner then you can bypass the firewalls",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-39' do\n  impact 1.0\n  title 'Server: Disable TCP forwarding'\n  desc 'If you use TCP forwarding in an uncontrolled manner then you can bypass the firewalls'\n  describe sshd_config do\n    its('AllowTcpForwarding') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3903,11 +3854,10 @@
           "id": "sshd-40",
           "title": "Server: Disable Agent forwarding",
           "desc": "Users with the ability to bypass file permissions on the remote host (for the agent's UNIX-domain socket) can access the local agent through the forwarded connection. An attacker cannot obtain key material from the agent, however they can perform operations on the keys that enable them to authenticate using the identities loaded into the agent.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-40' do\n  impact 1.0\n  title 'Server: Disable Agent forwarding'\n  desc \"Users with the ability to bypass file permissions on the remote host (for the agent's UNIX-domain socket) can access the local agent through the forwarded connection. An attacker cannot obtain key material from the agent, however they can perform operations on the keys that enable them to authenticate using the identities loaded into the agent.\"\n  describe sshd_config do\n    its('AllowAgentForwarding') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3928,11 +3878,10 @@
           "id": "sshd-41",
           "title": "Server: Disable gateway ports",
           "desc": "Prevent remote hosts from connecting to forwarded ports on the node.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-41' do\n  impact 1.0\n  title 'Server: Disable gateway ports'\n  desc 'Prevent remote hosts from connecting to forwarded ports on the node.'\n  describe sshd_config do\n    its('GatewayPorts') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3953,11 +3902,10 @@
           "id": "sshd-42",
           "title": "Server: Disable X11Forwarding",
           "desc": "Prevent X11 forwarding by default, as it can be used in a limited way to enable attacks.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-42' do\n  impact 1.0\n  title 'Server: Disable X11Forwarding'\n  desc 'Prevent X11 forwarding by default, as it can be used in a limited way to enable attacks.'\n  describe sshd_config do\n    its('X11Forwarding') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -3978,11 +3926,10 @@
           "id": "sshd-43",
           "title": "Server: Enable X11UseLocalhost",
           "desc": "SSH daemon should bind the X11 forwarding server to the loopback address. This prevents remote hosts from connecting to the proxy display and reduce the attack surface",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-43' do\n  impact 1.0\n  title 'Server: Enable X11UseLocalhost'\n  desc 'SSH daemon should bind the X11 forwarding server to the loopback address. This prevents remote hosts from connecting to the proxy display and reduce the attack surface'\n  describe sshd_config do\n    its('X11UseLocalhost') { should eq('yes') }\n  end\nend\n",
           "source_location": {
@@ -4003,11 +3950,10 @@
           "id": "sshd-44",
           "title": "Server: Disable PrintMotd",
           "desc": "This specifies that the SSH daemon itself should not read and display the message of the day file.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-44' do\n  impact 1.0\n  title 'Server: Disable PrintMotd'\n  desc 'This specifies that the SSH daemon itself should not read and display the message of the day file.'\n  describe sshd_config do\n    its('PrintMotd') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -4027,11 +3973,10 @@
           "id": "sshd-45",
           "title": "Server: PrintLastLog",
           "desc": "This tells the SSH daemon to print out information about the last time you logged in.",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-45' do\n  impact 1.0\n  title 'Server: PrintLastLog'\n  desc 'This tells the SSH daemon to print out information about the last time you logged in.'\n  describe sshd_config do\n    its('PrintLastLog') { should eq('no') }\n  end\nend\n",
           "source_location": {
@@ -4052,11 +3997,10 @@
           "id": "sshd-46",
           "title": "Server: Banner",
           "desc": "Specifies a banner file to serve before authentication succeeds",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-46' do\n  impact 1.0\n  title 'Server: Banner'\n  desc 'Specifies a banner file to serve before authentication succeeds'\n  describe sshd_config do\n    its('Banner') { should eq('none') }\n  end\nend\n",
           "source_location": {
@@ -4077,11 +4021,10 @@
           "id": "sshd-47",
           "title": "Server: DebianBanner",
           "desc": "Specifies whether to include OS distribution in version information",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-47' do\n  impact 1.0\n  title 'Server: DebianBanner'\n  desc 'Specifies whether to include OS distribution in version information'\n  case os[:family]\n  when 'debian' then\n    describe sshd_config do\n      its('DebianBanner') { should eq('no') }\n    end\n  else\n    describe file(sshd_config.path) do\n      its('content') { should_not match(/DebianBanner/) }\n    end\n  end\nend\n",
           "source_location": {
@@ -4102,11 +4045,10 @@
           "id": "sshd-48",
           "title": "Server: DH primes",
           "desc": "Verifies if strong DH primes are used in /etc/ssh/moduli",
-          "impact": 1.0,
-          "refs": [
-
-          ],
+          "impact": 1,
+          "refs": [],
           "tags": {
+            "focus_area": "linux"
           },
           "code": "control 'sshd-48' do\n  impact 1.0\n  title 'Server: DH primes'\n  desc 'Verifies if strong DH primes are used in /etc/ssh/moduli'\n  describe command(\"test $(awk '$5 < 2047 && $5 ~ /^[0-9]+$/ { print $5 }' /etc/ssh/moduli | uniq | wc -c) -eq 0\") do\n    its('exit_status') { should eq 0 }\n    its('stdout') { should eq '' }\n    its('stderr') { should eq '' }\n  end\nend\n",
           "source_location": {
@@ -4129,7 +4071,7 @@
             {
               "status": "passed",
               "code_desc": "Command test $(awk '$5 < 2047 && $5 ~ /^[0-9]+$/ { print $5 }' /etc/ssh/moduli | uniq | wc -c) -eq 0 stderr should eq \"\"",
-              "run_time": 7.7e-05,
+              "run_time": 0.000077,
               "start_time": "2018-06-27T15:02:28+01:00"
             }
           ]

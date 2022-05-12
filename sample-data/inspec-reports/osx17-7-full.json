@@ -36,7 +36,7 @@
             "line": 69
           },
           "refs": [],
-          "tags": {},
+          "tags": {"focus_area":"test-ubuntu"},
           "waiver_data": {
             "expiration_date": "1977-06-01",
             "justification": "Necessity",
@@ -70,7 +70,7 @@
             "line": 29
           },
           "refs": [],
-          "tags": {},
+          "tags": {"focus_area":"test-ubuntu"},
           "waiver_data": {
             "expiration_date": "2025-06-01",
             "justification": "Whimsy",
@@ -96,7 +96,7 @@
           "descriptions": [],
           "impact": 0.8,
           "refs": [],
-          "tags": {},
+          "tags": {"focus_area":"test-ubuntu"},
           "code": "control 'pro2-con1' do\n  impact 0.8\n  title 'Profile 2 - Control 1'\n  describe file('/etc/hosts11111') do\n    its('mode') { should eq 0644 }\n  end\nend\n",
           "source_location": {
             "line": 1,

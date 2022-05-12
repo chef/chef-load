@@ -4218,6 +4218,7 @@
 
           ],
           "tags": {
+
           },
           "code": "control \"xccdf_org.cisecurity.benchmarks_rule_13.19_Check_for_Presence_of_User_.forward_Files\" do\n  title \"Check for Presence of User .forward Files\"\n  desc  \"\n    The .forward file specifies an email address to forward the user's mail to.\n    \n    Rationale: Use of the .forward file poses a security risk in that sensitive data may be inadvertently transferred outside the organization. The .forward file also poses a risk as it can be used to execute commands that may perform unintended actions.\n  \"\n  impact 1.0\n  describe bash(\"egrep -v \\\"^\\\\+\\\" /etc/passwd | cut -f6 -d: | sort -u | while read D; do ls $D/.forward 2&gt;/dev/null; done\") do\n    its(\"stdout\") { should_not match(/.+/) }\n  end\nend\n",
           "source_location": {
