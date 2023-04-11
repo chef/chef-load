@@ -45,6 +45,8 @@ func apiRequest(nodeClient chef.Client, nodeName, chefVersion, method, url strin
 		}
 	}
 
+log.WithFields(log.Fields{"method": method, "url": url, "bodyJSON": bodyJSON}).Info("CALLING nodeClient with")
+fmt.Println("CALLING: nodeClient.NewRequest(method=", method, ", url=", url, ", bodyJSON=", bodyJSON, ")")
 	req, _ := nodeClient.NewRequest(method, url, bodyJSON)
 	req.Header.Set("X-Ops-Server-Api-Version", "1")
 	req.Header.Set("X-Chef-Version", chefVersion)
