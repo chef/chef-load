@@ -9,7 +9,7 @@ pkg_deps=(core/glibc)
 pkg_build_deps=(
     core/bash
     core/make
-    core/go
+    core/go1_24/1.24.4/20250619055529
 )
 pkg_binds_optional=(
   [automate]="port"
