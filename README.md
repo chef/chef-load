@@ -73,6 +73,16 @@ policy_name  = "base"
 policy_group = "production"
 ```
 
+To simulate a fleet spread across multiple policies within the same policy group, use the `policyfiles` list instead of `policy_name`. Each simulated chef-client run randomly picks one name from the list — all nodes share the same `policy_group`. This mirrors how `run_lists` works for legacy nodes. All listed policies must exist in the configured `policy_group` on the Chef Server.
+
+```toml
+load_mode    = "policyfile"
+policy_group = "production"
+policyfiles  = [ "base", "webserver", "database" ]
+```
+
+When `policyfiles` is non-empty, `policy_name` is ignored.
+
 For `"mixed"` mode, `policyfile_percentage` (default `0.5`) controls what fraction of simulated nodes use the policyfile API. Nodes are assigned deterministically by node number so the split is stable across runs.
 
 ```toml
@@ -81,6 +91,8 @@ policy_name           = "base"
 policy_group          = "production"
 policyfile_percentage = 0.3   # 30% policyfile, 70% legacy
 ```
+
+`policyfiles` works in `"mixed"` mode too — policyfile-assigned nodes will pick a policy name randomly from the list while legacy-assigned nodes continue to use `run_list`/`run_lists`.
 
 #### Compliance phase simulation
 

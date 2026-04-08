@@ -95,10 +95,11 @@ type Config struct {
 	//   "legacy"     – traditional run-list/roles/environments (original behaviour)
 	//   "policyfile" – all nodes use the policyfile API
 	//   "mixed"      – a fraction of nodes use policyfile (see PolicyfilePercentage)
-	LoadMode             string  `mapstructure:"load_mode"`
-	PolicyName           string  `mapstructure:"policy_name"`
-	PolicyGroup          string  `mapstructure:"policy_group"`
-	PolicyfilePercentage float64 `mapstructure:"policyfile_percentage"`
+	LoadMode             string           `mapstructure:"load_mode"`
+	PolicyName           string           `mapstructure:"policy_name"`
+	PolicyGroup          string           `mapstructure:"policy_group"`
+	Policyfiles          []string         `mapstructure:"policyfiles"`
+	PolicyfilePercentage float64          `mapstructure:"policyfile_percentage"`
 
 	// Compliance phase simulation settings.
 	// EnableCompliancePhase simulates the built-in chef-client compliance phase
@@ -149,6 +150,7 @@ func Default() Config {
 		LoadMode:                     "policyfile",
 		PolicyName:                   "",
 		PolicyGroup:                  "",
+		Policyfiles:                  make([]string, 0),
 		PolicyfilePercentage:         0.5,
 		EnableCompliancePhase:        false,
 		CompliancePhasePercentage:    1.0,
@@ -345,13 +347,24 @@ func PrintSampleConfig() {
 # load_mode = "policyfile"
 
 # policy_name is the name of the policyfile policy to simulate.
-# Required when load_mode is "policyfile" or "mixed" and run_chef_client is true.
+# Required when load_mode is "policyfile" or "mixed", run_chef_client is true,
+# and policyfiles is empty.
 # policy_name = ""
 
 # policy_group is the policy group to use when fetching the policyfile from the
 # Chef Server (GET policy_groups/<group>/policies/<name>).
 # Required when load_mode is "policyfile" or "mixed" and run_chef_client is true.
+# When policyfiles is set, all listed policy names are fetched from this group.
 # policy_group = ""
+
+# policyfiles is an optional list of policy names. When provided, each simulated
+# chef-client run randomly picks one name from the list — all nodes use the same
+# policy_group. This mirrors how run_lists works for legacy nodes and is useful
+# when your fleet runs several different policies within the same policy group.
+# If this value is non-empty, policy_name is ignored.
+# All listed policies must exist in the configured policy_group on the Chef Server.
+#
+# policyfiles = [ "base", "webserver", "database" ]
 
 # policyfile_percentage sets what fraction (0.0-1.0) of simulated nodes use the
 # policyfile API when load_mode = "mixed". Nodes are assigned deterministically

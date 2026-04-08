@@ -45,6 +45,11 @@ func TestDefault_CompliancePhasePercentage(t *testing.T) {
 	assert.Equal(t, 1.0, cfg.CompliancePhasePercentage)
 }
 
+func TestDefault_Policyfiles(t *testing.T) {
+	cfg := Default()
+	assert.Empty(t, cfg.Policyfiles, "policyfiles should default to an empty slice")
+}
+
 func TestDefault_PolicyNameAndGroup(t *testing.T) {
 	cfg := Default()
 	assert.Empty(t, cfg.PolicyName)
@@ -158,4 +163,49 @@ func TestCompliancePhaseGate_EnabledHalfNodes(t *testing.T) {
 func TestCompliancePhaseGate_ZeroNodes(t *testing.T) {
 	// Guard against divide-by-zero: NumNodes == 0 must never fire.
 	assert.False(t, runCompliancePhaseFor(false, true, 0, 0, 1.0))
+}
+
+// --- policyfiles random selection logic ---
+// selectPolicyfileForTest mirrors the selection logic in ChefClientRun.
+func selectPolicyfileForTest(policyName string, policyfiles []string, idx int) string {
+	activeName := policyName
+	if len(policyfiles) > 0 {
+		activeName = policyfiles[idx%len(policyfiles)]
+	}
+	return activeName
+}
+
+func TestSelectPolicyfile_EmptyListUsesScalar(t *testing.T) {
+	assert.Equal(t, "base", selectPolicyfileForTest("base", nil, 0))
+}
+
+func TestSelectPolicyfile_SingleEntryAlwaysPicked(t *testing.T) {
+	entries := []string{"web"}
+	for i := 0; i < 5; i++ {
+		assert.Equal(t, "web", selectPolicyfileForTest("ignored", entries, i))
+	}
+}
+
+func TestSelectPolicyfile_MultipleEntriesAllReachable(t *testing.T) {
+	entries := []string{"base", "webserver", "database"}
+	seen := map[string]bool{}
+	for i := 0; i < len(entries); i++ {
+		seen[selectPolicyfileForTest("", entries, i)] = true
+	}
+	assert.True(t, seen["base"], "base should be reachable")
+	assert.True(t, seen["webserver"], "webserver should be reachable")
+	assert.True(t, seen["database"], "database should be reachable")
+}
+
+func TestSelectPolicyfile_ScalarIgnoredWhenListNonEmpty(t *testing.T) {
+	name := selectPolicyfileForTest("scalar_name", []string{"override"}, 0)
+	assert.Equal(t, "override", name)
+}
+
+func TestSelectPolicyfile_AllNodesShareSamePolicyGroup(t *testing.T) {
+	// The policy_group is always taken from config; only the name varies.
+	// This test documents that assumption: the helper only returns a name.
+	entries := []string{"base", "webserver"}
+	assert.Equal(t, "base", selectPolicyfileForTest("", entries, 0))
+	assert.Equal(t, "webserver", selectPolicyfileForTest("", entries, 1))
 }

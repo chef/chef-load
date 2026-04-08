@@ -88,14 +88,24 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		usePolicyfile = float64(nodeNumber)/float64(config.NumNodes) < config.PolicyfilePercentage
 	}
 
+	// When multiple policyfiles are configured, pick one at random for this run.
+	// This mirrors how run_lists works for legacy nodes — each simulated run
+	// gets a randomly selected policy name from the pool. All names are fetched
+	// from the same policy_group; policy_name is ignored when the list is set.
+	activePolicyName := config.PolicyName
+	activePolicyGroup := config.PolicyGroup
+	if len(config.Policyfiles) > 0 {
+		activePolicyName = config.Policyfiles[rand.Intn(len(config.Policyfiles))]
+	}
+
 	// For policyfile nodes update nodeDetails to carry the real policy identity
 	// (used in compliance reports sent to Automate) and set the correct
 	// expanded_run_list id for the data-collector run_converge message.
 	if usePolicyfile {
-		nodeDetails.policyName = config.PolicyName
-		nodeDetails.policyGroup = config.PolicyGroup
+		nodeDetails.policyName = activePolicyName
+		nodeDetails.policyGroup = activePolicyGroup
 		// For policyfile nodes chef-client sets chef_environment to the policy group.
-		nodeDetails.environment = config.PolicyGroup
+		nodeDetails.environment = activePolicyGroup
 		expandedRunListID = "_policy_node"
 	} else {
 		expandedRunListID = chefEnvironment
@@ -156,7 +166,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		if res != nil && res.StatusCode == 404 {
 			// Create the node with the correct identity for the run mode.
 			if usePolicyfile {
-				node = chef.Node{Name: nodeName, PolicyName: config.PolicyName, PolicyGroup: config.PolicyGroup}
+				node = chef.Node{Name: nodeName, PolicyName: activePolicyName, PolicyGroup: activePolicyGroup}
 			} else {
 				node = chef.Node{Name: nodeName, Environment: chefEnvironment}
 			}
@@ -172,10 +182,10 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 
 	// Apply node identity fields based on the run mode.
 	if usePolicyfile {
-		node.PolicyName = config.PolicyName
-		node.PolicyGroup = config.PolicyGroup
+		node.PolicyName = activePolicyName
+		node.PolicyGroup = activePolicyGroup
 		// chef-client sets chef_environment to the policy group for policyfile nodes.
-		node.Environment = config.PolicyGroup
+		node.Environment = activePolicyGroup
 	} else {
 		node.Environment = chefEnvironment
 	}
@@ -185,14 +195,14 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			// --- Policyfile API flow ---
 			// Fetch the policyfile document from the Chef Server.
 			// This replaces run-list expansion + environment fetch.
-			policy, _ = fetchPolicy(nodeClient, nodeName, config.ChefVersion, config.PolicyGroup, config.PolicyName, requests)
+			policy, _ = fetchPolicy(nodeClient, nodeName, config.ChefVersion, activePolicyGroup, activePolicyName, requests)
 
 			// Set policyfile-specific automatic attributes on the node so that the
 			// node object saved to the server (PUT nodes/<name>) and the data
 			// collector run_converge message carry the correct metadata.
-			node.AutomaticAttributes["policy_name"] = config.PolicyName
-			node.AutomaticAttributes["policy_group"] = config.PolicyGroup
-			node.AutomaticAttributes["chef_environment"] = config.PolicyGroup
+			node.AutomaticAttributes["policy_name"] = activePolicyName
+			node.AutomaticAttributes["policy_group"] = activePolicyGroup
+			node.AutomaticAttributes["chef_environment"] = activePolicyGroup
 			node.AutomaticAttributes["policy_revision"] = policy.RevisionID
 			node.AutomaticAttributes["roles"] = []string{}
 			node.AutomaticAttributes["recipes"] = policyRunListRecipes(policy.RunList)
