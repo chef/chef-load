@@ -1,8 +1,14 @@
 ## Description
 
-chef-load is a tool that simulates Chef Client API load on a [Chef Server](https://www.chef.io/chef/) and/or a [Chef Automate server](https://www.chef.io/chef://www.chef.io/automate/).
+chef-load is a tool that simulates Chef Client API load on a [Chef Server](https://www.chef.io/chef/) and/or a [Chef Automate server](https://www.chef.io/automate/).
 
 It is designed to be easy to use yet powerfully flexible and accurate in its simulation of the chef-client run.
+
+It supports three load modes:
+
+* **`policyfile`** (default) — all nodes follow the policyfile API flow (`GET policy_groups/<group>/policies/<name>` / `GET cookbook_artifacts/<name>/<identifier>`), matching Chef Infra Client runs with `PolicyName`/`PolicyGroup` set.
+* **`legacy`** — all nodes follow the traditional run-list/roles/environments flow (original behaviour).
+* **`mixed`** — a configurable fraction of nodes use the policyfile flow; the remainder use the legacy flow.
 
 It works well at this point but there is always room for improvement so please provide feedback.
 
@@ -57,6 +63,36 @@ chef-load logs all API requests in the file specified by the `log_file` setting 
 Make sure `chef-load.toml` has appropriate settings for applying load to your Chef Server,
 Automate Server or both.
 
+#### Policyfile settings
+
+When `load_mode` is `"policyfile"` or `"mixed"`, set the target policy:
+
+```toml
+load_mode    = "policyfile"
+policy_name  = "base"
+policy_group = "production"
+```
+
+For `"mixed"` mode, `policyfile_percentage` (default `0.5`) controls what fraction of simulated nodes use the policyfile API. Nodes are assigned deterministically by node number so the split is stable across runs.
+
+```toml
+load_mode             = "mixed"
+policy_name           = "base"
+policy_group          = "production"
+policyfile_percentage = 0.3   # 30% policyfile, 70% legacy
+```
+
+#### Compliance phase simulation
+
+chef-load can simulate the built-in compliance phase introduced in Chef Infra Client 17+. When enabled, an `inspec_report` message is sent to the data collector at the end of each simulated chef-client run, linked to the run via `run_uuid` (matching actual chef-client behaviour).
+
+```toml
+enable_compliance_phase    = true
+compliance_phase_percentage = 1.0  # fraction of nodes that report compliance
+```
+
+If `compliance_status_json_file` is set, that file's content is used as the report body. Otherwise a minimal synthetic report is sent representing a node with no InSpec profiles configured.
+
 #### Chef API client
 
 The client defined by "client_name" in the chef-load configuration file needs to be an admin user of the Chef Server organization.
@@ -67,6 +103,25 @@ Run chef-load using only the configuration file.
 
 ```
 chef-load start --config chef-load.toml
+```
+
+You can override the load mode and policyfile settings on the command line:
+
+```
+# policyfile mode (default)
+chef-load start --config chef-load.toml --load_mode policyfile --policy_name base --policy_group production
+
+# legacy (run-list/roles/environments) mode
+chef-load start --config chef-load.toml --load_mode legacy
+
+# mixed mode — 40% policyfile, 60% legacy
+chef-load start --config chef-load.toml --load_mode mixed --policy_name base --policy_group production --policyfile_percentage 0.4
+```
+
+Enable compliance phase simulation:
+
+```
+chef-load start --config chef-load.toml --enable_compliance_phase --compliance_phase_percentage 0.5
 ```
 
 You can use the `--node_name_prefix` command line option to set the prefix for the node names. This
@@ -126,6 +181,16 @@ WantedBy=default.target
 ## API Request Profile
 
 chef-load prints an API request profile when it receives a `USR1` signal and when it is terminated.
+
+The URLs shown in the profile differ by load mode. In **policyfile** mode you will see requests like:
+
+```
+GET  /organizations/<org>/policy_groups/<group>/policies/<name>
+GET  /organizations/<org>/cookbook_artifacts/<name>/<identifier>
+POST /data-collector/v0/   (run_start, run_converge, and optionally inspec_report)
+```
+
+In **legacy** mode the profile looks like the example below (roles, environments, cookbook_versions).
 
 ```
 root@ip-172-31-17-147:~# ./chef-load start --config chef-load.toml --nodes 60 --interval 1 --node_name_prefix foo
@@ -209,7 +274,7 @@ chef-load's configuration file has the following settings to specify the path to
 
 * ohai_json_file
 * converge_status_json_file
-* compliance_status_json_file
+* compliance_status_json_file — also used as the body of `inspec_report` messages when `enable_compliance_phase = true`
 * compliance_sample_reports_dir
 
 The chef-load GitHub repo's ["sample-data" directory](https://github.com/jeremiahsnapp/chef-load/tree/master/sample-data) has a file for each type of data that can be used.
