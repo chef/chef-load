@@ -53,6 +53,8 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		reportingAvailable     = true
 		dataCollectorAvailable = true
 		expandedRunList        []string
+		expandedRunListID      string
+		policy                 PolicyDocument
 		node                   chef.Node
 		nodeDetails            = NodeDetails{
 			name:        nodeName,
@@ -62,13 +64,42 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			recipes:     recipes,
 			nodeUUID:    nodeUUID,
 			sourceFqdn:  chefServerFQDN,
-			fqdn:        node.Name,
+			// fqdn is the node's own hostname; use nodeName as the best
+			// available value at construction time (node hasn't been fetched yet).
+			fqdn:        nodeName,
 			orgName:     orgName,
 			policyGroup: "hello_policy_group",
 			policyName:  "hello_policy_name",
 			chefTags:    []string{"tag1", "tag2", "tag3"},
 		}
 	)
+
+	// Determine whether this node slot should simulate a policyfile-based
+	// chef-client run.  Three load modes are supported:
+	//   "legacy"     – traditional run-list/roles/environments (original behaviour)
+	//   "policyfile" – every node uses the policyfile API
+	//   "mixed"      – a deterministic fraction of node slots use policyfile;
+	//                  the rest follow the traditional path.
+	usePolicyfile := false
+	switch config.LoadMode {
+	case "policyfile":
+		usePolicyfile = true
+	case "mixed":
+		usePolicyfile = float64(nodeNumber)/float64(config.NumNodes) < config.PolicyfilePercentage
+	}
+
+	// For policyfile nodes update nodeDetails to carry the real policy identity
+	// (used in compliance reports sent to Automate) and set the correct
+	// expanded_run_list id for the data-collector run_converge message.
+	if usePolicyfile {
+		nodeDetails.policyName = config.PolicyName
+		nodeDetails.policyGroup = config.PolicyGroup
+		// For policyfile nodes chef-client sets chef_environment to the policy group.
+		nodeDetails.environment = config.PolicyGroup
+		expandedRunListID = "_policy_node"
+	} else {
+		expandedRunListID = chefEnvironment
+	}
 	// Notify orchestrator when done.  THere's probably a cleaner way to
 	// do this.
 	closer := func() {
@@ -123,7 +154,12 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			}
 		}
 		if res != nil && res.StatusCode == 404 {
-			node = chef.Node{Name: nodeName, Environment: chefEnvironment}
+			// Create the node with the correct identity for the run mode.
+			if usePolicyfile {
+				node = chef.Node{Name: nodeName, PolicyName: config.PolicyName, PolicyGroup: config.PolicyGroup}
+			} else {
+				node = chef.Node{Name: nodeName, Environment: chefEnvironment}
+			}
 			_, err = apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "nodes", node, nil, nil, requests)
 			if err != nil {
 				node = chef.Node{Name: nodeName}
@@ -132,24 +168,56 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	} else {
 		node = chef.Node{Name: nodeName}
 	}
-	node.Environment = chefEnvironment
 	node.AutomaticAttributes = ohaiJSON
 
-	if config.RunChefClient {
-		// Expand run_list
-		numLists := len(runLists)
-		rl := runList
-		if numLists > 0 {
-			rl = runLists[rand.Intn(numLists)]
-		}
-		expandedRunList = rl.expand(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, requests)
-		apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "environments/"+chefEnvironment, nil, nil, nil, requests)
+	// Apply node identity fields based on the run mode.
+	if usePolicyfile {
+		node.PolicyName = config.PolicyName
+		node.PolicyGroup = config.PolicyGroup
+		// chef-client sets chef_environment to the policy group for policyfile nodes.
+		node.Environment = config.PolicyGroup
+	} else {
+		node.Environment = chefEnvironment
+	}
 
-		// Notify Reporting of run start
-		if config.EnableReporting {
-			res, _ := reportingRunStart(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, requests)
-			if res != nil && res.StatusCode == 404 {
-				reportingAvailable = false
+	if config.RunChefClient {
+		if usePolicyfile {
+			// --- Policyfile API flow ---
+			// Fetch the policyfile document from the Chef Server.
+			// This replaces run-list expansion + environment fetch.
+			policy, _ = fetchPolicy(nodeClient, nodeName, config.ChefVersion, config.PolicyGroup, config.PolicyName, requests)
+
+			// Set policyfile-specific automatic attributes on the node so that the
+			// node object saved to the server (PUT nodes/<name>) and the data
+			// collector run_converge message carry the correct metadata.
+			node.AutomaticAttributes["policy_name"] = config.PolicyName
+			node.AutomaticAttributes["policy_group"] = config.PolicyGroup
+			node.AutomaticAttributes["chef_environment"] = config.PolicyGroup
+			node.AutomaticAttributes["policy_revision"] = policy.RevisionID
+			node.AutomaticAttributes["roles"] = []string{}
+			node.AutomaticAttributes["recipes"] = policyRunListRecipes(policy.RunList)
+
+			// The node's run_list is derived directly from the policy's run_list.
+			expandedRunList = policy.RunList
+
+			// Reporting is not supported for policyfile-based chef-client runs.
+		} else {
+			// --- Traditional roles/environments flow ---
+			// Expand run_list (resolving roles through the Chef Server).
+			numLists := len(runLists)
+			rl := runList
+			if numLists > 0 {
+				rl = runLists[rand.Intn(numLists)]
+			}
+			expandedRunList = rl.expand(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, requests)
+			apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "environments/"+chefEnvironment, nil, nil, nil, requests)
+
+			// Notify Reporting of run start.
+			if config.EnableReporting {
+				res, _ := reportingRunStart(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, requests)
+				if res != nil && res.StatusCode == 404 {
+					reportingAvailable = false
+				}
 			}
 		}
 	}
@@ -179,23 +247,34 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		}
 	}
 
+	var dlCookbookFileChance = config.DownloadCookbooksScaleFactor
+	var doDownload = false
+	if config.DownloadCookbooks == "first" && firstRun {
+		doDownload = true
+		dlCookbookFileChance = 1.0
+	}
+
 	if config.RunChefClient {
-		// Request resolved expanded runlist from the server
-		ckbks := solveRunListDependencies(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, expandedRunList, requests)
-		// Download cookbooks
-		var dlCookbookFileChance = config.DownloadCookbooksScaleFactor
-		var doDownload = false
-		if config.DownloadCookbooks == "first" && firstRun {
-			doDownload = true
-			dlCookbookFileChance = 1.0
-		}
+		if usePolicyfile {
+			// --- Policyfile cookbook resolution ---
+			// Fetch each cookbook artifact manifest from cookbook_artifacts/<name>/<identifier>.
+			// This replaces the POST environments/<env>/cookbook_versions call used by the
+			// traditional flow.  File downloads are gated by the same download_cookbooks
+			// and download_cookbooks_scale_factor settings as the traditional path.
+			resolveAndDownloadPolicyfileCookbooks(
+				&nodeClient, nodeName, config.ChefVersion,
+				policy, doDownload, dlCookbookFileChance, requests)
+		} else {
+			// --- Traditional cookbook resolution ---
+			// Request resolved cookbook versions from environments/<env>/cookbook_versions.
+			ckbks := solveRunListDependencies(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, expandedRunList, requests)
+			if doDownload || config.DownloadCookbooks == "always" {
+				ckbks.download(&nodeClient, nodeName, config.ChefVersion, dlCookbookFileChance, requests)
+			}
 
-		if doDownload || config.DownloadCookbooks == "always" {
-			ckbks.download(&nodeClient, nodeName, config.ChefVersion, dlCookbookFileChance, requests)
-		}
-
-		for _, apiGetRequest := range apiGetRequests {
-			apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", apiGetRequest, nil, nil, nil, requests)
+			for _, apiGetRequest := range apiGetRequests {
+				apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", apiGetRequest, nil, nil, nil, requests)
+			}
 		}
 	} else {
 		expandedRunList = runList.toStringSlice()
@@ -203,7 +282,13 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 
 	time.Sleep(time.Duration(sleepDuration) * time.Second)
 
-	node.RunList = runList.toStringSlice()
+	// For policyfile nodes the node's run_list comes from the policy document.
+	// For traditional nodes it comes from the configured run_list.
+	if usePolicyfile {
+		node.RunList = expandedRunList
+	} else {
+		node.RunList = runList.toStringSlice()
+	}
 
 	// Ensure that at least an empty set of tags is set for the node's normal attributes
 	if node.NormalAttributes == nil {
@@ -222,15 +307,23 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			apiRequest(nodeClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests)
 		}
 
-		// Notify Reporting of run end
-		if config.EnableReporting && reportingAvailable {
+		// Reporting is only supported for traditional (non-policyfile) runs.
+		if !usePolicyfile && config.EnableReporting && reportingAvailable {
 			reportingRunStop(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, endTime, runList, requests)
 		}
 	}
 
+	// For the data collector run_converge message, policyfile nodes report their
+	// run_list as the policy's recipe list (already fully expanded).  Traditional
+	// nodes use the config run_list.
+	convergeRunList := runList
+	if usePolicyfile {
+		convergeRunList = parseRunList(expandedRunList)
+	}
+
 	// Notify Data Collector of run end
-	runStopBody := dataCollectorRunStop(config, node, nodeName, chefServerFQDN, orgName, status, runList,
-		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
+	runStopBody := dataCollectorRunStop(config, node, nodeName, chefServerFQDN, orgName, status, convergeRunList,
+		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, expandedRunListID)
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(dataCollectorClient, nodeName, runStopBody)
 	} else if dataCollectorAvailable {
@@ -248,9 +341,28 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		apiRequest(nodeClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests)
 	}
 
-	// Notify Data Collector of compliance report
-	if len(complianceJSON) != 0 {
-		complianceReportBody := dataCollectorComplianceReport(nodeDetails, reportUUID, endTime, complianceJSON)
+	// Notify Data Collector of compliance report.
+	//
+	// The compliance phase fires when:
+	//   1. A compliance_status_json_file was loaded (legacy file-gated behaviour), OR
+	//   2. enable_compliance_phase is true AND this node slot falls within the
+	//      compliance_phase_percentage fraction of the pool.
+	//
+	// This mirrors chef-client's built-in compliance phase (Chef Infra Client 17+)
+	// which runs InSpec at the end of every converge and sends an inspec_report
+	// message linked to the CCR via run_uuid.
+	runCompliancePhase := len(complianceJSON) != 0 ||
+		(config.EnableCompliancePhase && config.NumNodes > 0 &&
+			float64(nodeNumber) < float64(config.NumNodes)*config.CompliancePhasePercentage)
+
+	if runCompliancePhase {
+		compBody := complianceJSON
+		if len(compBody) == 0 {
+			// No file provided — use a minimal synthetic InSpec report that
+			// represents a compliance phase run with no profiles configured.
+			compBody = syntheticComplianceReport()
+		}
+		complianceReportBody := dataCollectorComplianceReport(nodeDetails, reportUUID, runUUID, endTime, compBody)
 		if config.DataCollectorURL != "" {
 			chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
 		} else {

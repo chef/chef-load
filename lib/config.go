@@ -89,6 +89,29 @@ type Config struct {
 	Matrix                       *Matrix    `mapstructure:"matrix"`
 	SkipClientCreation           bool       `mapstructure:"skip_client_creation"`
 	NodeReplacementRate          float64    `mapstructure:"node_replacement_rate"`
+
+	// Policyfile simulation settings.
+	// LoadMode controls which API flow nodes simulate:
+	//   "legacy"     – traditional run-list/roles/environments (original behaviour)
+	//   "policyfile" – all nodes use the policyfile API
+	//   "mixed"      – a fraction of nodes use policyfile (see PolicyfilePercentage)
+	LoadMode             string  `mapstructure:"load_mode"`
+	PolicyName           string  `mapstructure:"policy_name"`
+	PolicyGroup          string  `mapstructure:"policy_group"`
+	PolicyfilePercentage float64 `mapstructure:"policyfile_percentage"`
+
+	// Compliance phase simulation settings.
+	// EnableCompliancePhase simulates the built-in chef-client compliance phase
+	// (Chef Infra Client 17+) by sending an inspec_report message to the data
+	// collector at the end of each simulated chef-client run.
+	// When false (default), compliance reports are only sent if
+	// compliance_status_json_file is set (legacy behaviour).
+	EnableCompliancePhase    bool    `mapstructure:"enable_compliance_phase"`
+	// CompliancePhasePercentage controls what fraction (0.0–1.0) of simulated
+	// nodes run the compliance phase when enable_compliance_phase is true.
+	// Use 1.0 to enable it for every node or a smaller value to simulate
+	// an environment where only some nodes have the compliance phase configured.
+	CompliancePhasePercentage float64 `mapstructure:"compliance_phase_percentage"`
 }
 
 func Default() Config {
@@ -123,6 +146,12 @@ func Default() Config {
 		SleepTimeOnFailure:           5,
 		SkipClientCreation:           false,
 		NodeReplacementRate:          0.0,
+		LoadMode:                     "policyfile",
+		PolicyName:                   "",
+		PolicyGroup:                  "",
+		PolicyfilePercentage:         0.5,
+		EnableCompliancePhase:        false,
+		CompliancePhasePercentage:    1.0,
 		Matrix: &Matrix{
 			Simulation: Simulation{
 				Days:          1,
@@ -306,6 +335,44 @@ func PrintSampleConfig() {
 # which will force every chef-client run to be from a new node/client.
 
 # node_replacement_rate = 0.0
+
+# load_mode controls which chef-client API flow is simulated for each node.
+# Options are:
+#   "legacy"     - traditional run-list/roles/environments-based chef-client run (original behaviour)
+#   "policyfile" - all nodes use the policyfile API (policy_groups/<group>/policies/<name>)
+#   "mixed"      - a fraction of nodes (policyfile_percentage) use the policyfile API;
+#                  the remainder use the traditional run-list/roles/environments flow
+# load_mode = "policyfile"
+
+# policy_name is the name of the policyfile policy to simulate.
+# Required when load_mode is "policyfile" or "mixed" and run_chef_client is true.
+# policy_name = ""
+
+# policy_group is the policy group to use when fetching the policyfile from the
+# Chef Server (GET policy_groups/<group>/policies/<name>).
+# Required when load_mode is "policyfile" or "mixed" and run_chef_client is true.
+# policy_group = ""
+
+# policyfile_percentage sets what fraction (0.0-1.0) of simulated nodes use the
+# policyfile API when load_mode = "mixed". Nodes are assigned deterministically
+# so that exactly this fraction of the node pool runs the policyfile flow.
+# Ignored when load_mode is "legacy" or "policyfile".
+# policyfile_percentage = 0.5
+
+# enable_compliance_phase simulates the built-in compliance phase introduced in
+# Chef Infra Client 17+. When true, an inspec_report message is sent to the
+# data collector at the end of each simulated chef-client run, linked to the
+# CCR via run_uuid (matching actual chef-client behaviour).
+# If compliance_status_json_file is set, that file's content is used as the
+# report body; otherwise a minimal synthetic report is sent representing a node
+# with no InSpec profiles configured.
+# enable_compliance_phase = false
+
+# compliance_phase_percentage controls what fraction (0.0-1.0) of simulated
+# nodes run the compliance phase when enable_compliance_phase is true.
+# Set to 1.0 (default) to enable compliance on all nodes, or a smaller value
+# to model an environment where only a subset of nodes have profiles assigned.
+# compliance_phase_percentage = 1.0
 
 # Send data to the Chef server's Reporting service
 # enable_reporting = false

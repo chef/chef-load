@@ -68,6 +68,12 @@ func init() {
 	rootCmd.PersistentFlags().Float64P("download_cookbooks_scale_factor", "C", 1.0, "What probability (0.0 - 1.0) that any given cookbook will need to be downloaded")
 	rootCmd.PersistentFlags().BoolP("skip_client_creation", "S", false, "Skips creation of client during each node's initial chef-client run")
 	rootCmd.PersistentFlags().Float64P("node_replacement_rate", "R", 0.0, "How frequently (0.0 - 1.0) are new nodes generated and old ones no longer run. Default 0.0")
+	rootCmd.PersistentFlags().StringP("load_mode", "m", "policyfile", "Load mode: 'legacy' (recipes/roles/environments), 'policyfile', or 'mixed'")
+	rootCmd.PersistentFlags().String("policy_name", "", "Policyfile policy name used when load_mode is 'policyfile' or 'mixed'")
+	rootCmd.PersistentFlags().String("policy_group", "", "Policyfile policy group used when load_mode is 'policyfile' or 'mixed'")
+	rootCmd.PersistentFlags().Float64("policyfile_percentage", 0.5, "Fraction (0.0-1.0) of nodes using policyfile when load_mode is 'mixed'")
+	rootCmd.PersistentFlags().Bool("enable_compliance_phase", false, "Simulate the chef-client built-in compliance phase (sends inspec_report after each CCR)")
+	rootCmd.PersistentFlags().Float64("compliance_phase_percentage", 1.0, "Fraction (0.0-1.0) of nodes that run the compliance phase when enable_compliance_phase is true")
 	viper.BindPFlags(rootCmd.PersistentFlags())
 }
 

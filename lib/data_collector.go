@@ -172,9 +172,14 @@ func dataCollectorRunStart(config *Config, nodeName, chefServerFQDN, orgName str
 }
 
 // TODO: (@afiune) Refactor this so we dont pass so many arguments
+// expandedRunListID is the value used for the "id" field of the expanded_run_list
+// object in the run_converge data collector message.  For traditional
+// environment/role-based runs this should be the chef environment name
+// (e.g. "_default").  For policyfile-based runs it must be "_policy_node".
 func dataCollectorRunStop(config *Config, node chef.Node, nodeName, chefServerFQDN, orgName, status string,
 	runList, expandedRunList runList, runUUID, nodeUUID uuid.UUID,
-	startTime, endTime time.Time, convergeJSON map[string]interface{}) interface{} {
+	startTime, endTime time.Time, convergeJSON map[string]interface{},
+	expandedRunListID string) interface{} {
 
 	convergedRunList := []interface{}{}
 	convergedExpandedRunListMap := map[string]interface{}{}
@@ -206,7 +211,7 @@ func dataCollectorRunStop(config *Config, node chef.Node, nodeName, chefServerFQ
 		}
 
 		convergedExpandedRunListMap = map[string]interface{}{
-			"id":       config.ChefEnvironment,
+			"id":       expandedRunListID,
 			"run_list": expandedRunListItemsInterface,
 		}
 	}
@@ -239,13 +244,30 @@ func dataCollectorRunStop(config *Config, node chef.Node, nodeName, chefServerFQ
 	return body
 }
 
-func dataCollectorComplianceReport(node NodeDetails, reportUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}) interface{} {
+// syntheticComplianceReport returns a minimal but structurally valid InSpec
+// JSON report body for use when the compliance phase is enabled but no
+// compliance_status_json_file has been provided.  It matches the shape
+// produced by InSpec's json-automate reporter with no profiles configured,
+// which is what a freshly bootstrapped node with compliance phase enabled
+// but no profiles assigned would send.
+func syntheticComplianceReport() map[string]interface{} {
+	return map[string]interface{}{
+		"version":    "6.0.0",
+		"statistics": map[string]interface{}{"duration": 0.001},
+		"profiles":   []interface{}{},
+	}
+}
+
+func dataCollectorComplianceReport(node NodeDetails, reportUUID, runUUID uuid.UUID, endTime time.Time, complianceJSON map[string]interface{}) interface{} {
 	body := complianceJSON
 	body["type"] = "inspec_report"
 	body["node_name"] = node.name
 	body["environment"] = node.environment
 	body["report_uuid"] = reportUUID
 	body["node_uuid"] = node.nodeUUID
+	// run_uuid links this compliance report back to the chef-client CCR that
+	// triggered it, matching what chef-client's compliance phase sends.
+	body["run_uuid"] = runUUID
 	body["roles"] = node.roles
 	body["recipes"] = node.recipes
 	body["end_time"] = endTime.Format(DateTimeFormat)
