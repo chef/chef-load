@@ -410,7 +410,7 @@ chef-load - a tool that simulates Chef Client API load on a Chef Server and/or a
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
 | **Author:**          | Jeremiah Snapp (<jeremiah@chef.io>)
-| **Copyright:**       | Copyright 2016-2017, Chef Software, Inc.
+| **Copyright:**       | Copyright 2026 Progress Software Corporation, Inc.
 | **License:**         | Apache License, Version 2.0
 
 ```
