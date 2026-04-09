@@ -92,22 +92,22 @@ type Config struct {
 
 	// Policyfile simulation settings.
 	// LoadMode controls which API flow nodes simulate:
-	//   "legacy"     – traditional run-list/roles/environments (original behaviour)
+	//   "legacy"     – traditional run-list/roles/environments (original behavior)
 	//   "policyfile" – all nodes use the policyfile API
 	//   "mixed"      – a fraction of nodes use policyfile (see PolicyfilePercentage)
-	LoadMode             string           `mapstructure:"load_mode"`
-	PolicyName           string           `mapstructure:"policy_name"`
-	PolicyGroup          string           `mapstructure:"policy_group"`
-	Policyfiles          []string         `mapstructure:"policyfiles"`
-	PolicyfilePercentage float64          `mapstructure:"policyfile_percentage"`
+	LoadMode             string   `mapstructure:"load_mode"`
+	PolicyName           string   `mapstructure:"policy_name"`
+	PolicyGroup          string   `mapstructure:"policy_group"`
+	Policyfiles          []string `mapstructure:"policyfiles"`
+	PolicyfilePercentage float64  `mapstructure:"policyfile_percentage"`
 
 	// Compliance phase simulation settings.
 	// EnableCompliancePhase simulates the built-in chef-client compliance phase
 	// (Chef Infra Client 17+) by sending an inspec_report message to the data
 	// collector at the end of each simulated chef-client run.
 	// When false (default), compliance reports are only sent if
-	// compliance_status_json_file is set (legacy behaviour).
-	EnableCompliancePhase    bool    `mapstructure:"enable_compliance_phase"`
+	// compliance_status_json_file is set (legacy behavior).
+	EnableCompliancePhase bool `mapstructure:"enable_compliance_phase"`
 	// CompliancePhasePercentage controls what fraction (0.0–1.0) of simulated
 	// nodes run the compliance phase when enable_compliance_phase is true.
 	// Use 1.0 to enable it for every node or a smaller value to simulate
@@ -116,12 +116,12 @@ type Config struct {
 }
 
 func Default() Config {
-	return Config{
+	return Config{ //nolint:gosec
 		RunChefClient:                false,
 		LogFile:                      "/var/log/chef-load/chef-load.log",
 		ChefServerURL:                "",
 		DataCollectorURL:             "",
-		DataCollectorToken:           "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506",
+		DataCollectorToken:           "93a49a4f2482c64126f7b6015e6b0f30284287ee4054ff8807fb63d9cbd1c506", //nolint:gosec
 		OhaiJSONFile:                 "",
 		ConvergeStatusJSONFile:       "",
 		ComplianceStatusJSONFile:     "",
@@ -340,7 +340,7 @@ func PrintSampleConfig() {
 
 # load_mode controls which chef-client API flow is simulated for each node.
 # Options are:
-#   "legacy"     - traditional run-list/roles/environments-based chef-client run (original behaviour)
+#   "legacy"     - traditional run-list/roles/environments-based chef-client run (original behavior)
 #   "policyfile" - all nodes use the policyfile API (policy_groups/<group>/policies/<name>)
 #   "mixed"      - a fraction of nodes (policyfile_percentage) use the policyfile API;
 #                  the remainder use the traditional run-list/roles/environments flow
@@ -375,7 +375,7 @@ func PrintSampleConfig() {
 # enable_compliance_phase simulates the built-in compliance phase introduced in
 # Chef Infra Client 17+. When true, an inspec_report message is sent to the
 # data collector at the end of each simulated chef-client run, linked to the
-# CCR via run_uuid (matching actual chef-client behaviour).
+# CCR via run_uuid (matching actual chef-client behavior).
 # If compliance_status_json_file is set, that file's content is used as the
 # report body; otherwise a minimal synthetic report is sent representing a node
 # with no InSpec profiles configured.

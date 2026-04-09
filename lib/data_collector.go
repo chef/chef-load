@@ -20,11 +20,10 @@ package chef_load
 // Cheers! https://github.com/go-chef/chef/blob/master/http.go
 
 import (
+	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
@@ -90,7 +89,7 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	}
 
 	// Create an HTTP Request
-	req, err := http.NewRequest("POST", dcc.URL.String(), bodyJSON)
+	req, err := http.NewRequestWithContext(context.Background(), "POST", dcc.URL.String(), bodyJSON)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +106,7 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 	// Do request
 	t0 := time.Now()
 	res, err := dcc.Client.Do(req)
-	request_time := time.Now().Sub(t0)
+	requestTime := time.Since(t0)
 	statusCode := 999
 	if res != nil {
 		defer res.Body.Close()
@@ -120,14 +119,14 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		"url":                  req.URL.String(),
 		"status_code":          statusCode,
 		"headers":              req.Header,
-		"request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000,
+		"request_time_seconds": float64(requestTime.Nanoseconds()/1e6) / 1000,
 	}).Info("API Request")
 
 	//logger.Infof(req.)
 
 	if res != nil {
-		if !(res.StatusCode >= 200 && res.StatusCode <= 299) {
-			return res, errors.New(fmt.Sprintf("POST %s: %s", dcc.URL.String(), res.Status))
+		if res.StatusCode < 200 || res.StatusCode > 299 {
+			return res, fmt.Errorf("POST %s: %s", dcc.URL.String(), res.Status)
 		}
 	}
 
@@ -135,13 +134,13 @@ func (dcc *DataCollectorClient) Update(nodeName string, body interface{}) (*http
 		return res, err
 	}
 
-	ioutil.ReadAll(res.Body)
+	_, _ = io.ReadAll(res.Body)
 	return res, err
 }
 
 func chefAutomateSendMessage(client *DataCollectorClient, nodeName string, body interface{}) (int, error) {
 	code := 999
-	res, err := client.Update(nodeName, body)
+	res, err := client.Update(nodeName, body) //nolint:bodyclose
 	if res != nil {
 		code = res.StatusCode
 	}
@@ -176,13 +175,13 @@ func dataCollectorRunStart(config *Config, nodeName, chefServerFQDN, orgName str
 // object in the run_converge data collector message.  For traditional
 // environment/role-based runs this should be the chef environment name
 // (e.g. "_default").  For policyfile-based runs it must be "_policy_node".
-func dataCollectorRunStop(config *Config, node chef.Node, nodeName, chefServerFQDN, orgName, status string,
+func dataCollectorRunStop(_ *Config, node chef.Node, nodeName, chefServerFQDN, orgName, status string,
 	runList, expandedRunList runList, runUUID, nodeUUID uuid.UUID,
 	startTime, endTime time.Time, convergeJSON map[string]interface{},
 	expandedRunListID string) interface{} {
 
 	convergedRunList := []interface{}{}
-	convergedExpandedRunListMap := map[string]interface{}{}
+	var convergedExpandedRunListMap map[string]interface{}
 	if convergeJSON["run_list"] != nil && convergeJSON["expanded_run_list"] != nil {
 		convergedRunList = convergeJSON["run_list"].([]interface{})
 		convergedExpandedRunListMap = convergeJSON["expanded_run_list"].(map[string]interface{})

@@ -36,7 +36,7 @@ type role struct {
 
 func roleRunListFor(nodeClient *chef.Client, nodeName, chefVersion, roleName, chefEnvironment string, requests chan *request) runList {
 	var r role
-	apiRequest(*nodeClient, nodeName, chefVersion, "GET", "roles/"+roleName, nil, &r, nil, requests)
+	_, _ = apiRequest(*nodeClient, nodeName, chefVersion, "GET", "roles/"+roleName, nil, &r, nil, requests) //nolint:bodyclose
 
 	var roleRunList runList
 	envRunList, envRunListExists := r.EnvRunLists[chefEnvironment]

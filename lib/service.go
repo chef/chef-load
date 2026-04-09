@@ -65,10 +65,10 @@ func Start(config *Config) {
 	logger.Formatter = UTCFormatter{&log.JSONFormatter{}}
 	logger.SetNoLock()
 
-	if err := os.MkdirAll(path.Dir(config.LogFile), 0755); err != nil {
+	if err := os.MkdirAll(path.Dir(config.LogFile), 0755); err != nil { //nolint:gosec
 		log.WithField("error", err).Fatal("Failed to create directory")
 	}
-	file, err := os.OpenFile(config.LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(config.LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //nolint:gosec
 	if err == nil {
 		logger.Out = file
 	} else {
@@ -134,7 +134,11 @@ func Start(config *Config) {
 			for {
 				for i := 1; i <= config.NumNodes; i++ {
 					nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-					go livenessPing(nodeName, chefServerURL, dataCollectorClient)
+					go func() {
+						if _, err := livenessPing(nodeName, chefServerURL, dataCollectorClient); err != nil {
+							log.WithField("error", err).Warn("livenessPing failed")
+						}
+					}()
 					time.Sleep(delayBetweenLivenessAgentPing)
 				}
 			}
@@ -153,7 +157,11 @@ func Start(config *Config) {
 			// Never stop sending actions
 			for {
 				for i := 1; i <= config.NumActions; i++ {
-					go chefAction(config, randomActionType(), dataCollectorClient)
+					go func() {
+						if _, err := chefAction(randomActionType(), dataCollectorClient); err != nil {
+							log.WithField("error", err).Warn("chefAction failed")
+						}
+					}()
 					time.Sleep(delayBetweenActions)
 				}
 			}
@@ -184,14 +192,14 @@ func Start(config *Config) {
 		select {
 		case n := <-ccrCompletion:
 			timeout = false
-			if !config.SkipClientCreation && rand.Float64() < config.NodeReplacementRate {
+			if !config.SkipClientCreation && rand.Float64() < config.NodeReplacementRate { //nolint:gosec
 				nodes[n] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx), FirstRun: true}
 				nodeNameIdx++
 			}
 			// confirming that throttle effect ensures we have a maximum of NumNodes concurrent CCRs happening
 			// log.Printf("[node %s] starting CCR. Elapsed since most recent CCR on any node: %s", nodes[n].NodeName, time.Since(lastRunStart))
 			// lastRunStart = time.Now()
-			go ChefClientRun(config, nodes[n].NodeName, nodes[n].FirstRun, requests, ccrCompletion, uint32(n))
+			go ChefClientRun(config, nodes[n].NodeName, nodes[n].FirstRun, requests, ccrCompletion, uint32(n)) //nolint:gosec
 			nodes[n].FirstRun = false
 		case <-time.After(time.Millisecond * 100):
 			fmt.Println("All clients busy, waiting for one to complete before next run. Server may be responding slowly")

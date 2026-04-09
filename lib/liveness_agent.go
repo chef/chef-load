@@ -18,9 +18,7 @@
 package chef_load
 
 import (
-	"errors"
 	"fmt"
-	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
@@ -63,25 +61,25 @@ func GenerateLivenessData(config *Config, requests chan *request) error {
 		"nodes": config.NumNodes,
 	}).Info("Generating liveness agent data")
 
-	rand.Seed(time.Now().UTC().UnixNano())
-
 	dataCollectorClient, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   config.DataCollectorToken,
 		URL:     config.DataCollectorURL,
 		SkipSSL: true,
 	}, requests)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
+		return fmt.Errorf("error creating DataCollectorClient: %+v", err)
 	}
 
 	chefServerURL, err := url.ParseRequestURI(config.ChefServerURL)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Error parsing ChefServer URL: %+v \n", err))
+		return fmt.Errorf("error parsing ChefServer URL: %+v", err)
 	}
 
 	for i := 1; i <= config.NumNodes; i++ {
 		nodeName := config.NodeNamePrefix + "-" + strconv.Itoa(i)
-		livenessPing(nodeName, chefServerURL, dataCollectorClient)
+		if _, err := livenessPing(nodeName, chefServerURL, dataCollectorClient); err != nil {
+			log.WithField("error", err).Warn("livenessPing failed")
+		}
 	}
 	return nil
 }

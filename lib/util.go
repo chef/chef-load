@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
@@ -53,7 +52,7 @@ func apiRequest(nodeClient chef.Client, nodeName, chefVersion, method, url strin
 	}
 	t0 := time.Now()
 	res, err := nodeClient.Do(req, v)
-	request_time := time.Now().Sub(t0)
+	requestTime := time.Since(t0)
 	statusCode := 999
 	if res != nil {
 		defer res.Body.Close()
@@ -71,14 +70,14 @@ func apiRequest(nodeClient chef.Client, nodeName, chefVersion, method, url strin
 		"method":               req.Method,
 		"url":                  req.URL.String(),
 		"status_code":          statusCode,
-		"request_time_seconds": float64(request_time.Nanoseconds()/1e6) / 1000,
+		"request_time_seconds": float64(requestTime.Nanoseconds()/1e6) / 1000,
 	}).Info("API Request")
 
 	if err != nil {
 		return res, err
 	}
 
-	ioutil.ReadAll(res.Body)
+	_, _ = io.ReadAll(res.Body)
 	return res, err
 }
 
@@ -98,7 +97,7 @@ func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client 
 }
 
 func getPrivateKey(privateKeyPath string) string {
-	fileContent, err := ioutil.ReadFile(privateKeyPath)
+	fileContent, err := os.ReadFile(privateKeyPath) //nolint:gosec
 	if err != nil {
 		log.WithField("error", err).Errorf("Could not read private key %s", privateKeyPath)
 	}
@@ -127,7 +126,7 @@ func parseJSONFile(jsonFile string) map[string]interface{} {
 type amountOfRequests map[request]uint64
 
 var bookshelfRE = regexp.MustCompile("/bookshelf/.*")
-var nodeRE = regexp.MustCompile("(/nodes/.*-)\\d+(/.*)?")
+var nodeRE = regexp.MustCompile(`(/nodes/.*-)\d+(/.*)?`)
 var rolesRE = regexp.MustCompile("/roles/.*")
 
 func (a amountOfRequests) addRequest(req request) {

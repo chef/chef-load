@@ -57,7 +57,7 @@ type PolicyDocument struct {
 func fetchPolicy(nodeClient chef.Client, nodeName, chefVersion, policyGroup, policyName string, requests chan *request) (PolicyDocument, error) {
 	var policy PolicyDocument
 	url := "policy_groups/" + policyGroup + "/policies/" + policyName
-	_, err := apiRequest(nodeClient, nodeName, chefVersion, "GET", url, nil, &policy, nil, requests)
+	_, err := apiRequest(nodeClient, nodeName, chefVersion, "GET", url, nil, &policy, nil, requests) //nolint:bodyclose
 	return policy, err
 }
 
@@ -101,7 +101,7 @@ func resolveAndDownloadPolicyfileCookbooks(
 	for name, lock := range policy.CookbookLocks {
 		var ckbk cookbook
 		url := "cookbook_artifacts/" + name + "/" + lock.Identifier
-		apiRequest(*nodeClient, nodeName, chefVersion, "GET", url, nil, &ckbk, nil, requests)
+		_, _ = apiRequest(*nodeClient, nodeName, chefVersion, "GET", url, nil, &ckbk, nil, requests) //nolint:bodyclose
 		if doDownload {
 			ckbk.download(nodeClient, nodeName, chefVersion, downloadProbability, requests)
 		}

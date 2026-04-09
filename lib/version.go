@@ -23,7 +23,7 @@ package chef_load
 // 2) TODO: SHA (The git sha from HEAD)
 // 3) TODO: Built time (Time we built our binary)
 //
-// We pass all these parameters throught the linker:
+// We pass all these parameters through the linker:
 // => go build -ldflags "-X config.VERSION=x.x.x -X config.SHA=SHA" ...
 //
 // where 'x.x.x' is the version from the VERSION file

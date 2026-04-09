@@ -22,7 +22,6 @@ package chef_load
 // to the data-collector endpoint
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -42,11 +41,8 @@ func GenerateData(config *Config) error {
 	)
 
 	go func() {
-		for {
-			select {
-			case req := <-requests:
-				numRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
-			}
+		for req := range requests {
+			numRequests.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
 		}
 	}()
 
@@ -54,24 +50,32 @@ func GenerateData(config *Config) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		GenerateComplianceData(config, requests)
+		if err := GenerateComplianceData(config, requests); err != nil {
+			log.WithField("error", err).Warn("GenerateComplianceData failed")
+		}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		GenerateChefActions(config, requests)
+		if err := GenerateChefActions(config, requests); err != nil {
+			log.WithField("error", err).Warn("GenerateChefActions failed")
+		}
 	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		GenerateCCRs(config, requests)
+		if err := GenerateCCRs(config, requests); err != nil {
+			log.WithField("error", err).Warn("GenerateCCRs failed")
+		}
 	}()
 	if config.LivenessAgent {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			GenerateLivenessData(config, requests)
+			if err := GenerateLivenessData(config, requests); err != nil {
+				log.WithField("error", err).Warn("GenerateLivenessData failed")
+			}
 		}()
 	}
 
@@ -86,15 +90,15 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 	var (
 		chefClient   chef.Client
 		channels     []<-chan int
-		ccrsPerDay   int64 = 1
+		ccrsPerDay   int64
 		ccrsTotal    int64 = 1
-		c            int64 = 0
+		c            int64
 		ccrsIngested int64 = 0
 		ccrsRejected int64 = 0
-		batches      int   = 1
-		code         int   = 999
-		rejects      bool  = false
-		timeMarker         = time.Now()
+		batches            = 1
+		code         int
+		rejects      = false
+		timeMarker   = time.Now()
 	)
 
 	// Calculate how many chef-client runs we need to trigger
@@ -121,13 +125,11 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 		"goroutines":   config.Threads,
 	}).Info("Generating chef-client runs")
 
-	rand.Seed(time.Now().UTC().UnixNano())
-
 	// Lets try to use a smaller number of goroutines
 	if config.NumNodes > config.Threads {
 		// If the number of nodes is bigger than the channel
 		// size, lets calculate how many batches we need to run
-		batches = int(config.NumNodes / config.Threads)
+		batches = config.NumNodes / config.Threads
 		if config.NumNodes%config.Threads != 0 {
 			batches++
 		}
@@ -177,7 +179,7 @@ func GenerateCCRs(config *Config, requests chan *request) (err error) {
 						"total_ccrs":                      ccrsTotal * int64(config.NumNodes),
 						"total_ccrs_ingested":             (c * int64(config.NumNodes)) + int64(j*config.Threads) + ccrsIngested,
 						"sleep":                           fmt.Sprintf("%ds", config.SleepTimeOnFailure),
-						"time_elapsed_since_last_failure": time.Now().Sub(timeMarker),
+						"time_elapsed_since_last_failure": time.Since(timeMarker),
 						"ccr_ingested_since_last_failure": ccrsIngested,
 						"ccr_rejected_since_last_failure": ccrsRejected,
 						"goroutines":                      config.Threads,
@@ -242,21 +244,21 @@ func merge(cs ...<-chan int) <-chan int {
 func getRandom(kind string) string {
 	switch kind {
 	case "environment":
-		return environments[rand.Intn(len(environments))]
+		return environments[rand.Intn(len(environments))] //nolint:gosec
 	case "organization":
-		return organizations[rand.Intn(len(organizations))]
+		return organizations[rand.Intn(len(organizations))] //nolint:gosec
 	case "role":
-		return roles[rand.Intn(len(roles))]
+		return roles[rand.Intn(len(roles))] //nolint:gosec
 	case "platform":
-		return platforms[rand.Intn(len(platforms))]
+		return platforms[rand.Intn(len(platforms))] //nolint:gosec
 	case "source_fqdn":
-		return sourceFqdns[rand.Intn(len(sourceFqdns))]
+		return sourceFqdns[rand.Intn(len(sourceFqdns))] //nolint:gosec
 	case "status":
-		return ccrStatus[rand.Intn(len(ccrStatus))]
+		return ccrStatus[rand.Intn(len(ccrStatus))] //nolint:gosec
 	case "cookbook":
-		return randCookbooks[rand.Intn(len(randCookbooks))]
+		return randCookbooks[rand.Intn(len(randCookbooks))] //nolint:gosec
 	case compEnvironments:
-		return complianceEnv[rand.Intn(len(complianceEnv))]
+		return complianceEnv[rand.Intn(len(complianceEnv))] //nolint:gosec
 	default:
 		return ""
 	}
@@ -265,25 +267,25 @@ func getRandom(kind string) string {
 func getRandomStringArray(kind string) []string {
 	switch kind {
 	case compRecipes:
-		return complianceRecipes[rand.Intn(len(complianceRecipes))]
+		return complianceRecipes[rand.Intn(len(complianceRecipes))] //nolint:gosec
 	case compRoles:
-		return complianceRoles[rand.Intn(len(complianceRoles))]
+		return complianceRoles[rand.Intn(len(complianceRoles))] //nolint:gosec
 	default:
 		return []string{}
 	}
 }
 
 func genRandomResourcesTree() []interface{} {
-	resourcesSize := rand.Intn(8)
+	resourcesSize := rand.Intn(8) //nolint:gosec
 	randResources := make([]interface{}, resourcesSize)
 	for i := 0; i < resourcesSize; i++ {
-		randResources[i] = resources[rand.Intn(len(resources))]
+		randResources[i] = resources[rand.Intn(len(resources))] //nolint:gosec
 	}
 	return randResources
 }
 
 func genRandomRunList() ([]string, []string) {
-	runListSize := rand.Intn(3) + 1
+	runListSize := rand.Intn(3) + 1 //nolint:gosec
 	runList := make([]string, runListSize)
 	recipeList := make([]string, runListSize)
 	for i := 0; i < runListSize; i++ {
@@ -295,7 +297,7 @@ func genRandomRunList() ([]string, []string) {
 }
 
 func genRandomAttributes() map[string]interface{} {
-	attrSize := rand.Intn(10) + 1
+	attrSize := rand.Intn(10) + 1 //nolint:gosec
 	randAttributes := make(map[string]interface{}, attrSize)
 	for i := 0; i < attrSize; i++ {
 		k := randAttributeMapKey(attributes)
@@ -306,12 +308,12 @@ func genRandomAttributes() map[string]interface{} {
 
 func genRandomTags() []string {
 	const instances = 3
-	tagsSize := rand.Intn(10) + 1
+	tagsSize := rand.Intn(10) + 1 //nolint:gosec
 	ts := make([]string, tagsSize)
-	perm := rand.Perm(len(tags))
+	perm := rand.Perm(len(tags)) //nolint:gosec
 	for i := range ts {
 		tag := tags[perm[i]]
-		instance := rand.Intn(instances)
+		instance := rand.Intn(instances) //nolint:gosec
 		ts[i] = fmt.Sprintf("%s%d", tag, instance)
 	}
 
@@ -324,13 +326,13 @@ func genStartEndTime(config *Config) (time.Time, time.Time) {
 		eTime time.Time
 	)
 	if config.DaysBack > 0 {
-		hours := rand.Intn(config.DaysBack) * 24
+		hours := rand.Intn(config.DaysBack) * 24 //nolint:gosec
 		historyDuration, _ := time.ParseDuration(fmt.Sprintf("%dh", hours))
 		sTime = time.Now().UTC().Add(-historyDuration).UTC()
 	} else {
 		sTime = time.Now().UTC()
 	}
-	minutes := rand.Intn(60)
+	minutes := rand.Intn(60) //nolint:gosec
 	randDuration, _ := time.ParseDuration(fmt.Sprintf("%dm", minutes))
 	eTime = sTime.Add(randDuration).UTC()
 
@@ -338,8 +340,8 @@ func genStartEndTime(config *Config) (time.Time, time.Time) {
 }
 
 func randAttributeMapKey(m map[string]interface{}) string {
-	i := rand.Intn(len(m))
-	for k, _ := range m {
+	i := rand.Intn(len(m)) //nolint:gosec
+	for k := range m {
 		if i == 0 {
 			return k
 		}
@@ -398,11 +400,11 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 		if config.ChefServerCreatesClientKey {
 			clientBody["create_key"] = config.ChefServerCreatesClientKey
 		}
-		apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "clients", clientBody, nil, nil, requests)
+		_, _ = apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "clients", clientBody, nil, nil, requests) //nolint:bodyclose
 
-		res, _ := apiRequest(chefClient, nodeName, config.ChefVersion, "GET", "nodes/"+nodeName, nil, &node, nil, requests)
+		res, _ := apiRequest(chefClient, nodeName, config.ChefVersion, "GET", "nodes/"+nodeName, nil, &node, nil, requests) //nolint:bodyclose
 		if res != nil && res.StatusCode == 404 {
-			apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "nodes", node, nil, nil, requests)
+			_, _ = apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "nodes", node, nil, nil, requests) //nolint:bodyclose
 		}
 	}
 
@@ -411,11 +413,11 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 		expandedRunList = runList.expand(&chefClient, nodeName, config.ChefVersion, node.Environment, requests)
 
 		// TODO Check error?
-		apiRequest(chefClient, nodeName, config.ChefVersion, "GET", "environments/"+node.Environment, nil, nil, nil, requests)
+		apiRequest(chefClient, nodeName, config.ChefVersion, "GET", "environments/"+node.Environment, nil, nil, nil, requests) //nolint:bodyclose,errcheck,gosec
 
 		// Notify Reporting of run start
 		if config.EnableReporting {
-			res, _ := reportingRunStart(chefClient, nodeName, config.ChefVersion, runUUID, startTime, requests)
+			res, _ := reportingRunStart(chefClient, nodeName, config.ChefVersion, runUUID, startTime, requests) //nolint:bodyclose
 			if res != nil && res.StatusCode == 404 {
 				reportingAvailable = false
 			}
@@ -428,16 +430,16 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 		SkipSSL: true,
 	}, requests)
 	if err != nil {
-		return 999, errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
+		return 999, fmt.Errorf("error creating DataCollectorClient: %+v", err)
 	}
 
 	// Notify Data Collector of run start
 	runStartBody := dataCollectorRunStart(config, nodeName, chefServerFQDN, orgName, runUUID, nodeUUID, startTime)
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(dataCollectorClient, nodeName, runStartBody)
+		_, _ = chefAutomateSendMessage(dataCollectorClient, nodeName, runStartBody)
 	} else {
 		// TODO Check error?
-		apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", runStartBody, nil, nil, requests)
+		_, _ = apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", runStartBody, nil, nil, requests) //nolint:bodyclose
 	}
 
 	if config.RunChefClient {
@@ -453,11 +455,11 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	}
 
 	if config.RunChefClient {
-		apiRequest(chefClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests)
+		_, _ = apiRequest(chefClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests) //nolint:bodyclose
 
 		// Notify Reporting of run end
 		if config.EnableReporting && reportingAvailable {
-			reportingRunStop(chefClient, nodeName, config.ChefVersion, runUUID, startTime, endTime, runList, requests)
+			_, _ = reportingRunStop(chefClient, nodeName, config.ChefVersion, runUUID, startTime, endTime, runList, requests) //nolint:bodyclose
 		}
 	}
 
@@ -465,9 +467,9 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	runStopBody := dataCollectorRunStop(config, node, nodeName, chefServerFQDN, orgName, status, runList,
 		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, node.Environment)
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(dataCollectorClient, nodeName, runStopBody)
+		_, _ = chefAutomateSendMessage(dataCollectorClient, nodeName, runStopBody)
 	} else if dataCollectorAvailable {
-		apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", runStopBody, nil, nil, requests)
+		_, _ = apiRequest(chefClient, nodeName, config.ChefVersion, "POST", "data-collector", runStopBody, nil, nil, requests) //nolint:bodyclose
 	}
 
 	// Send an Update Action that we just ran a CCR and the node updated itself
@@ -478,7 +480,7 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 	if config.DataCollectorURL != "" {
 		code, err = chefAutomateSendMessage(dataCollectorClient, ccrAction.String(), ccrAction)
 	} else if dataCollectorAvailable {
-		apiRequest(chefClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests)
+		_, _ = apiRequest(chefClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests) //nolint:bodyclose
 	}
 
 	// TODO: (@afiune) Notify Data Collector of compliance report

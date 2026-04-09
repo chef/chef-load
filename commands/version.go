@@ -20,13 +20,14 @@ package commands
 import (
 	"fmt"
 
-	chef_load "github.com/chef/chef-load/lib"
 	"github.com/spf13/cobra"
+
+	chef_load "github.com/chef/chef-load/lib"
 )
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: fmt.Sprintf("Display the chef-load version"),
+	Short: "Display the chef-load version",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("chef-load", chef_load.VERSION)
 	},

@@ -225,7 +225,7 @@ func TestDataCollectorRunStop_ConvergeJSONOverridesRunList(t *testing.T) {
 		"run_list": []interface{}{},
 	}
 	convergeJSON := map[string]interface{}{
-		"run_list":         overrideRL,
+		"run_list":          overrideRL,
 		"expanded_run_list": overrideERL,
 	}
 

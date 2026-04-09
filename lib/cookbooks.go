@@ -51,8 +51,8 @@ type cookbooks map[string]cookbook
 // Note that go-chef provides the ability to download cookbooks, but we've kept our custom implementation
 // since that has our modifications to only download a percentage of total files
 func (ckbkFile cookbookFile) download(nodeClient *chef.Client, nodeName, chefVersion string, fileDlProbability float64, requests chan *request) {
-	if rand.Float64() < fileDlProbability {
-		apiRequest(*nodeClient, nodeName, chefVersion, "GET", ckbkFile.URL, nil, nil, nil, requests)
+	if rand.Float64() < fileDlProbability { //nolint:gosec
+		_, _ = apiRequest(*nodeClient, nodeName, chefVersion, "GET", ckbkFile.URL, nil, nil, nil, requests) //nolint:bodyclose
 	}
 }
 

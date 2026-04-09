@@ -1,3 +1,5 @@
+# chef-load
+
 ## Description
 
 chef-load is a tool that simulates Chef Client API load on a [Chef Server](https://www.chef.io/chef/) and/or a [Chef Automate server](https://www.chef.io/automate/).
@@ -26,15 +28,17 @@ Make sure the maximum number of open file descriptors is set to `unlimited`. Thi
 
 Prebuilt chef-load binary files are available on chef-load's "Releases" page.
 
-https://github.com/jeremiahsnapp/chef-load/releases
+<https://github.com/jeremiahsnapp/chef-load/releases>
 
 ### Install via Habitat
 
 Follow these steps to install the latest version of chef-load from the habitat depot in the `chef` origin:
 
-1. Install Habitat: https://www.habitat.sh/docs/install-habitat/
+1. Install Habitat: <https://www.habitat.sh/docs/install-habitat/>
+
 2. Install and link chef-load binary
-```
+
+```bash
 hab pkg install chef/chef-load
 hab pkg binlink chef/chef-load chef-load
 ```
@@ -44,17 +48,19 @@ hab pkg binlink chef/chef-load chef-load
 Follow these steps to install onto EC2, the latest version of chef-load from the habitat depot in the `chef` origin:
 
 1. From the root of chef-load, run: `vagrant up; vagrant ssh;`
+
 2. Install and link chef-load binary
-```
+
+```bash
 hab pkg install chef/chef-load
 hab pkg binlink chef/chef-load chef-load
 ```
 
-### Generate a chef-load configuration file.  
+### Generate a chef-load configuration file
 
 The configuration file uses [TOML syntax](https://github.com/toml-lang/toml) and documents a lot of the flexibility of chef-load so please read it.
 
-```
+```bash
 chef-load init > chef-load.toml
 ```
 
@@ -113,13 +119,13 @@ The client defined by "client_name" in the chef-load configuration file needs to
 
 Run chef-load using only the configuration file.
 
-```
+```bash
 chef-load start --config chef-load.toml
 ```
 
 You can override the load mode and policyfile settings on the command line:
 
-```
+```bash
 # policyfile mode (default)
 chef-load start --config chef-load.toml --load_mode policyfile --policy_name base --policy_group production
 
@@ -132,7 +138,7 @@ chef-load start --config chef-load.toml --load_mode mixed --policy_name base --p
 
 Enable compliance phase simulation:
 
-```
+```bash
 chef-load start --config chef-load.toml --enable_compliance_phase --compliance_phase_percentage 0.5
 ```
 
@@ -140,7 +146,7 @@ You can use the `--node_name_prefix` command line option to set the prefix for t
 enables easily running multiple instances of chef-load without affecting each others' nodes.
 For example, a value of "chef-load" will result in nodes named "chef-load-1", "chef-load-2", etc.
 
-```
+```bash
 chef-load start --config chef-load.toml --node_name_prefix chef-load-a
 
 # in another terminal you can run the following to create another instance of chef-load
@@ -157,11 +163,11 @@ Examples:
 * 1800 nodes & 600 actions / 30 minute interval = 60 chef-client runs & 20 actions per minute
 * 1800 nodes & 600 actions / 60 minute interval = 30 chef-client runs & 10 actions per minute
 
-```
+```bash
 chef-load start --config chef-load.toml --nodes 1800 --actions 500
 ```
 
-```
+```bash
 chef-load start --config chef-load.toml --nodes 1800 --actions 500 --interval 60
 ```
 
@@ -171,7 +177,7 @@ _NOTE: Every chef-client run will automatically trigger a node update action, pl
 
 Here is a working example of a systemd service file for chef-load. Notice that it is able to set `LimitNOFILE` to unlimited to avoid running out of file descriptors.
 
-```
+```ini
 [Unit]
 Description=Chef load testing tool
 After=network.target
@@ -196,7 +202,7 @@ chef-load prints an API request profile when it receives a `USR1` signal and whe
 
 The URLs shown in the profile differ by load mode. In **policyfile** mode you will see requests like:
 
-```
+```text
 GET  /organizations/<org>/policy_groups/<group>/policies/<name>
 GET  /organizations/<org>/cookbook_artifacts/<name>/<identifier>
 POST /data-collector/v0/   (run_start, run_converge, and optionally inspec_report)
@@ -204,7 +210,7 @@ POST /data-collector/v0/   (run_start, run_converge, and optionally inspec_repor
 
 In **legacy** mode the profile looks like the example below (roles, environments, cookbook_versions).
 
-```
+```text
 root@ip-172-31-17-147:~# ./chef-load start --config chef-load.toml --nodes 60 --interval 1 --node_name_prefix foo
 2017-08-30T20:25:37Z Starting chef-load with 60 nodes distributed evenly across a 1 minute interval
 2017-08-30T20:25:37Z All API requests will be logged in /var/log/chef-load/chef-load.log
@@ -238,7 +244,7 @@ Total API Requests: 1149
 
 The `-profile-logs` option will read the specified chef-load log files and print an API request profile. If chef-load receives a `USR1` signal or is terminated before it finishes reading the log files then it will print an API request profile for the data that it read up to that point in time.
 
-```
+```text
 root@ip-172-31-17-147:~# ./chef-load start --profile-logs  /var/log/chef-load/*
 2017-08-31T15:04:42Z Reading log file /var/log/chef-load/chef-load.log
 2017-08-31T15:04:43Z Reading log file /var/log/chef-load/chef-load.log.1
@@ -291,24 +297,25 @@ chef-load's configuration file has the following settings to specify the path to
 
 The chef-load GitHub repo's ["sample-data" directory](https://github.com/jeremiahsnapp/chef-load/tree/master/sample-data) has a file for each type of data that can be used.
 
-#### Get the compliance sample inspec reports
-The samples are located in the chef-load GitHub repo listed above inside of a subdirectory named "inspec-reports".  These are currently used for the generate action (back filling dates)
+### Get the compliance sample inspec reports
 
-#### Create your own sample ohai JSON file
+The samples are located in the chef-load GitHub repo listed above inside of a subdirectory named "inspec-reports". These are currently used for the generate action (back filling dates)
+
+### Create your own sample ohai JSON file
 
 An ohai JSON file can be created by running "ohai > example-ohai.json".
 
-#### Create sample compliance status JSON file
+### Create sample compliance status JSON file
 
 A compliance status JSON file can be created by adding the "json-file" reporter to a node's "audit" cookbook's attribute. The next Chef Client run will save the compliance status report in the "/var/chef/cache/cookbooks/audit/" directory.
 
 Alternatively, you can simply run the "inspec exec" command along with the "--format json" option to execute inspec profiles against a node. The resultant JSON file can be used with the compliance_status_json_file chef-load option.
 
-#### Create sample converge status JSON file
+### Create sample converge status JSON file
 
 You can copy the following code to a file named capture-converge-status.rb in any cookbook's "libraries" directory and it will cause the next Chef Client run to save the converge status JSON data to "/tmp/converge-status.json" on the node. Once you capture the data you can remove the code from the cookbook.
 
-```
+```ruby
 class Chef
   class DataCollector
     class Reporter < EventDispatch::Base
@@ -329,25 +336,25 @@ Chef-load can also be used to generate a subset of data into a Chef Automate ser
 
 ### Generate Nodes (chef-client runs)
 
-```
+```bash
 chef-load generate --nodes 60 --data_collector_url "https://automate.example.org/data-collector/v0/"
 ```
 
 ### Generate Chef Actions
 
-```
+```bash
 chef-load generate --actions 60 --data_collector_url "https://automate.example.org/data-collector/v0/"
 ```
 
 ### Generate both Chef Actions and Nodes (chef-client runs)
 
-```
+```bash
 chef-load generate -n 60 -a 60 --data_collector_url "https://automate.example.org/data-collector/v0/"
 ```
 
 ### Generate data using a config file
 
-```
+```bash
 chef-load generate --config chef-load.toml
 ```
 
@@ -355,43 +362,46 @@ chef-load generate --config chef-load.toml
 
 ### Natively with Go
 
-To build chef-load you must have Go installed.  
-Ref: https://golang.org/dl/
+To build chef-load you must have Go installed.
+Ref: <https://golang.org/dl/>
 
 Get and install chef-load
 
-```
+```bash
 go get github.com/chef/chef-load
 ```
 
-It is easy to cross-compile chef-load for other platforms.  
-Options for $GOOS and $GOARCH are listed in the following link.  
-Ref: https://golang.org/doc/install/source#environment
+It is easy to cross-compile chef-load for other platforms.
+Options for `$GOOS` and `$GOARCH` are listed in the following link.
+Ref: <https://golang.org/doc/install/source#environment>
 
 The following command will create a chef-load executable file for linux amd64 in `$PWD/bin`:
 
-```
+```bash
 make bin
 ```
 
 You can also set the OS and arch:
-```
+
+```bash
 make bin GOOS=$GOOS GOARCH=$GOARCH
 ```
 
 ### Natively with Habitat
 
-To build chef-load using habitat you have to first, install Habitat: https://www.habitat.sh/docs/install-habitat/
+To build chef-load using habitat you have to first, install Habitat: <https://www.habitat.sh/docs/install-habitat/>
 
-Get and install chef-load
-```
-$ git clone https://github.com/chef/chef-load
+Get and install chef-load:
+
+```bash
+git clone https://github.com/chef/chef-load
 ```
 
 Enter the Habitat studio and build chef-load:
-```
-$ cd chef-load
-$ hab studio enter
+
+```bash
+cd chef-load
+hab studio enter
 [1][default:/src:0]# build
 
    -- truncated-output --
@@ -409,11 +419,11 @@ chef-load - a tool that simulates Chef Client API load on a Chef Server and/or a
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
-| **Author:**          | Jeremiah Snapp (<jeremiah@chef.io>)
-| **Copyright:**       | Copyright 2026 Progress Software Corporation, Inc.
-| **License:**         | Apache License, Version 2.0
+| **Author:**          | Jeremiah Snapp (<jeremiah@chef.io>) |
+| **Copyright:**       | Copyright 2026 Progress Software Corporation, Inc. |
+| **License:**         | Apache License, Version 2.0 |
 
-```
+```text
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

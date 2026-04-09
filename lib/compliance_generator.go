@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"net"
 	"strings"
-
 	"time"
 
 	"github.com/google/uuid"
@@ -59,22 +58,20 @@ func generateNodeName(nodeNamePrefix string) string {
 }
 
 func generateIpAddress() string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 	return fmt.Sprintf("%d.%d.%d.%d", r.Intn(255), r.Intn(255), r.Intn(255), r.Intn(255))
 }
 
 func generateSourcFqdn() string {
-	rand.Seed(time.Now().UnixNano())
 	data := []string{
 		"chefserver1.foo.bar",
 		"alex.kung.foo.arm.bar",
 		"rick.kung.foo.arm.bar",
 	}
-	return data[rand.Intn(len(data))]
+	return data[rand.Intn(len(data))] //nolint:gosec
 }
 
 func generateChefOrgs() string {
-	rand.Seed(time.Now().UnixNano())
 	data := []string{
 		"org1",
 		"org2",
@@ -87,11 +84,10 @@ func generateChefOrgs() string {
 		"org9",
 		"org10",
 	}
-	return data[rand.Intn(len(data))]
+	return data[rand.Intn(len(data))] //nolint:gosec
 }
 
 func generateChefTags() []string {
-	rand.Seed(time.Now().UnixNano())
 	data := []string{
 		"tag1",
 		"tag2",
@@ -105,30 +101,28 @@ func generateChefTags() []string {
 		"tag10",
 	}
 	//shuffle the list of tags and then return a random number of them
-	rand.Shuffle(len(data), func(i, j int) { data[i], data[j] = data[j], data[i] })
-	return data[0:rand.Intn(len(data))]
+	rand.Shuffle(len(data), func(i, j int) { data[i], data[j] = data[j], data[i] }) //nolint:gosec
+	return data[0:rand.Intn(len(data))]                                             //nolint:gosec
 }
 
 func generatePolicyGroup() string {
-	rand.Seed(time.Now().UnixNano())
 	data := []string{
 		"policy.group1",
 		"policy.group2",
 		"policy.group3",
 		"policy.group4",
 	}
-	return data[rand.Intn(len(data))]
+	return data[rand.Intn(len(data))] //nolint:gosec
 }
 
 func generatePolicyName() string {
-	rand.Seed(time.Now().UnixNano())
 	data := []string{
 		"policy.name1",
 		"policy.name2",
 		"policy.name3",
 		"policy.name4",
 	}
-	return data[rand.Intn(len(data))]
+	return data[rand.Intn(len(data))] //nolint:gosec
 }
 
 func generateNodes(nodeNamePrefix string, platforms []Platform, nodesCount int) (nodes []NodeDetails) {
@@ -147,7 +141,7 @@ func generateNodes(nodeNamePrefix string, platforms []Platform, nodesCount int) 
 			chefTags:    generateChefTags(),
 			policyGroup: generatePolicyGroup(),
 			policyName:  generatePolicyName(),
-			platform:    platforms[rand.Intn(len(platforms))].Name,
+			platform:    platforms[rand.Intn(len(platforms))].Name, //nolint:gosec
 		}
 		node.fqdn = node.name
 		node.nodeUUID = uuid.NewMD5(uuid.NameSpaceDNS, []byte(node.name))
@@ -184,7 +178,7 @@ func loadSampleReport(config *Config, platform string, format string) map[string
 	return complianceJSON
 }
 
-//func generate_reports(nodes []NodeDetails, platforms []string, simulation, handler) {
+// func generate_reports(nodes []NodeDetails, platforms []string, simulation, handler) {
 func generateReports(config *Config, nodes []NodeDetails, requests chan *request) {
 	endTime := time.Now().UTC()
 
@@ -218,7 +212,7 @@ func generateReports(config *Config, nodes []NodeDetails, requests chan *request
 			complianceReportBody := dataCollectorComplianceReport(node, reportUUID, uuid.Nil, reportEndTime, report)
 
 			if config.DataCollectorURL != "" {
-				chefAutomateSendMessage(dataCollectorClient, node.name, complianceReportBody)
+				_, _ = chefAutomateSendMessage(dataCollectorClient, node.name, complianceReportBody)
 			}
 
 			if scanIndex > 0 && scanIndex%500 == 0 {

@@ -2,5 +2,7 @@
   // MD013 - Line length: not enforced; long URLs in docs are unavoidable.
   "MD013": false,
   // MD033 - Inline HTML: allow HTML in markdown for badges and tables.
-  "MD033": false
+  "MD033": false,
+  // Ignore third-party vendor files — they are not owned by this project.
+  "ignores": ["vendor/**"]
 }

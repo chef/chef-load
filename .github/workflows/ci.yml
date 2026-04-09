@@ -6,8 +6,30 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: Fmt / Vet / Test / Build
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@v3.1.1
+        with:
+          config_file: .yamllint.yml
+          file_or_dir: .
+          strict: true
+  markdownlint:
+    name: markdownlint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Run markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@v19.1.0
+        with:
+          globs: "**/*.md"
+
+  golangci-lint:
+    name: golangci-lint
     runs-on: ubuntu-latest
 
     steps:
@@ -16,9 +38,20 @@ jobs:
       - uses: actions/setup-go@v5.4.0
         with:
           go-version-file: go.mod
-          cache: true
+          # golangci-lint manages its own cache; disable setup-go's to avoid
+          # double-caching.
+          cache: false
 
-      # Ensure go.mod and go.sum are tidy (no uncommitted dependency changes).
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v7.0.0
+        with:
+          version: latest
+          args: --timeout 5m
+
+  tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
       - name: Check go.mod is tidy
         run: |
           go mod tidy
@@ -26,8 +59,14 @@ jobs:
             echo "go.mod or go.sum is not tidy — run 'go mod tidy' and commit the result."
             exit 1
           fi
-
-      # Require consistent formatting.
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: go.mod
+          cache: true
       - name: Check formatting
         run: |
           unformatted=$(gofmt -l .)
@@ -38,15 +77,35 @@ jobs:
             exit 1
           fi
 
-      # Static analysis.
+  vet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: go.mod
+          cache: true
       - name: Vet
         run: go vet ./...
 
-      # Unit tests. -race catches data races; -count=1 disables result caching
-      # so tests always run in CI.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: go.mod
+          cache: true
       - name: Unit tests
         run: go test -mod=vendor -race -count=1 -timeout 5m ./...
 
-      # Verify the binary compiles without errors.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: go.mod
+          cache: true
       - name: Build
         run: GO111MODULE=on CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -mod=vendor -o bin/ ./

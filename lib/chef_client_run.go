@@ -76,7 +76,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 
 	// Determine whether this node slot should simulate a policyfile-based
 	// chef-client run.  Three load modes are supported:
-	//   "legacy"     – traditional run-list/roles/environments (original behaviour)
+	//   "legacy"     – traditional run-list/roles/environments (original behavior)
 	//   "policyfile" – every node uses the policyfile API
 	//   "mixed"      – a deterministic fraction of node slots use policyfile;
 	//                  the rest follow the traditional path.
@@ -95,7 +95,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	activePolicyName := config.PolicyName
 	activePolicyGroup := config.PolicyGroup
 	if len(config.Policyfiles) > 0 {
-		activePolicyName = config.Policyfiles[rand.Intn(len(config.Policyfiles))]
+		activePolicyName = config.Policyfiles[rand.Intn(len(config.Policyfiles))] //nolint:gosec
 	}
 
 	// For policyfile nodes update nodeDetails to carry the real policy identity
@@ -154,10 +154,10 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			if config.ChefServerCreatesClientKey {
 				clientBody["create_key"] = config.ChefServerCreatesClientKey
 			}
-			apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "clients", clientBody, nil, nil, requests)
+			_, _ = apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "clients", clientBody, nil, nil, requests) //nolint:bodyclose
 		}
 
-		res, err := apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "nodes/"+nodeName, nil, &node, nil, requests)
+		res, err := apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "nodes/"+nodeName, nil, &node, nil, requests) //nolint:bodyclose
 		if err != nil {
 			if res != nil && res.StatusCode != 404 {
 				node = chef.Node{Name: nodeName}
@@ -170,7 +170,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			} else {
 				node = chef.Node{Name: nodeName, Environment: chefEnvironment}
 			}
-			_, err = apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "nodes", node, nil, nil, requests)
+			_, err = apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "nodes", node, nil, nil, requests) //nolint:bodyclose
 			if err != nil {
 				node = chef.Node{Name: nodeName}
 			}
@@ -217,14 +217,14 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			numLists := len(runLists)
 			rl := runList
 			if numLists > 0 {
-				rl = runLists[rand.Intn(numLists)]
+				rl = runLists[rand.Intn(numLists)] //nolint:gosec
 			}
 			expandedRunList = rl.expand(&nodeClient, nodeName, config.ChefVersion, chefEnvironment, requests)
-			apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "environments/"+chefEnvironment, nil, nil, nil, requests)
+			_, _ = apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", "environments/"+chefEnvironment, nil, nil, nil, requests) //nolint:bodyclose
 
 			// Notify Reporting of run start.
 			if config.EnableReporting {
-				res, _ := reportingRunStart(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, requests)
+				res, _ := reportingRunStart(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, requests) //nolint:bodyclose
 				if res != nil && res.StatusCode == 404 {
 					reportingAvailable = false
 				}
@@ -245,9 +245,9 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	// Notify Data Collector of run start
 	runStartBody := dataCollectorRunStart(config, nodeName, "", orgName, runUUID, nodeUUID, startTime)
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(dataCollectorClient, nodeName, runStartBody)
+		_, _ = chefAutomateSendMessage(dataCollectorClient, nodeName, runStartBody)
 	} else {
-		res, err := apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", runStartBody, nil, nil, requests)
+		res, err := apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", runStartBody, nil, nil, requests) //nolint:bodyclose
 		if err != nil {
 			if res != nil {
 				if res.StatusCode == 404 {
@@ -283,7 +283,7 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 			}
 
 			for _, apiGetRequest := range apiGetRequests {
-				apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", apiGetRequest, nil, nil, nil, requests)
+				apiRequest(nodeClient, nodeName, config.ChefVersion, "GET", apiGetRequest, nil, nil, nil, requests) //nolint:bodyclose,errcheck,gosec
 			}
 		}
 	} else {
@@ -313,13 +313,13 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	node.AutomaticAttributes["ohai_time"] = endTime.Unix()
 
 	if config.RunChefClient {
-		if rand.Float64() <= config.NodeSaveFrequency {
-			apiRequest(nodeClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests)
+		if rand.Float64() <= config.NodeSaveFrequency { //nolint:gosec
+			_, _ = apiRequest(nodeClient, nodeName, config.ChefVersion, "PUT", "nodes/"+nodeName, node, nil, nil, requests) //nolint:bodyclose
 		}
 
 		// Reporting is only supported for traditional (non-policyfile) runs.
 		if !usePolicyfile && config.EnableReporting && reportingAvailable {
-			reportingRunStop(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, endTime, runList, requests)
+			_, _ = reportingRunStop(nodeClient, nodeName, config.ChefVersion, runUUID, startTime, endTime, runList, requests) //nolint:bodyclose
 		}
 	}
 
@@ -335,9 +335,9 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	runStopBody := dataCollectorRunStop(config, node, nodeName, chefServerFQDN, orgName, status, convergeRunList,
 		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, expandedRunListID)
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(dataCollectorClient, nodeName, runStopBody)
+		_, _ = chefAutomateSendMessage(dataCollectorClient, nodeName, runStopBody)
 	} else if dataCollectorAvailable {
-		apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", runStopBody, nil, nil, requests)
+		_, _ = apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", runStopBody, nil, nil, requests) //nolint:bodyclose
 	}
 
 	// Send an Update Action that we just ran a CCR and the node updated itself
@@ -346,15 +346,15 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 	ccrAction.EntityName = nodeName
 	ccrAction.RequestorName = nodeName
 	if config.DataCollectorURL != "" {
-		chefAutomateSendMessage(dataCollectorClient, ccrAction.String(), ccrAction)
+		_, _ = chefAutomateSendMessage(dataCollectorClient, ccrAction.String(), ccrAction)
 	} else if dataCollectorAvailable {
-		apiRequest(nodeClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests)
+		_, _ = apiRequest(nodeClient, ccrAction.String(), config.ChefVersion, "POST", "data-collector", ccrAction, nil, nil, requests) //nolint:bodyclose
 	}
 
 	// Notify Data Collector of compliance report.
 	//
 	// The compliance phase fires when:
-	//   1. A compliance_status_json_file was loaded (legacy file-gated behaviour), OR
+	//   1. A compliance_status_json_file was loaded (legacy file-gated behavior), OR
 	//   2. enable_compliance_phase is true AND this node slot falls within the
 	//      compliance_phase_percentage fraction of the pool.
 	//
@@ -374,9 +374,9 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		}
 		complianceReportBody := dataCollectorComplianceReport(nodeDetails, reportUUID, runUUID, endTime, compBody)
 		if config.DataCollectorURL != "" {
-			chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
+			_, _ = chefAutomateSendMessage(dataCollectorClient, nodeName, complianceReportBody)
 		} else {
-			apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", complianceReportBody, nil, nil, requests)
+			_, _ = apiRequest(nodeClient, nodeName, config.ChefVersion, "POST", "data-collector", complianceReportBody, nil, nil, requests) //nolint:bodyclose
 		}
 	}
 }

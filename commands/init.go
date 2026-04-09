@@ -18,15 +18,14 @@
 package commands
 
 import (
-	"fmt"
+	"github.com/spf13/cobra"
 
 	chef_load "github.com/chef/chef-load/lib"
-	"github.com/spf13/cobra"
 )
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: fmt.Sprintf("Initialize chef-load configuration file"),
+	Short: "Initialize chef-load configuration file",
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO @afiune Instead of printing the config, write it to disk
 		// with the default config and tell the user that they can modify it

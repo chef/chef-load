@@ -18,10 +18,11 @@
 package commands
 
 import (
-	chef_load "github.com/chef/chef-load/lib"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	chef_load "github.com/chef/chef-load/lib"
 )
 
 var generateCmd = &cobra.Command{
@@ -36,7 +37,9 @@ var generateCmd = &cobra.Command{
 			}).Fatal("Could not load chef-load config file")
 		}
 
-		chef_load.GenerateData(config)
+		if err := chef_load.GenerateData(config); err != nil {
+			log.WithField("error", err).Fatal("GenerateData failed")
+		}
 	},
 }
 
@@ -45,5 +48,7 @@ func init() {
 	generateCmd.Flags().Int("days_back", 0, "The number days back for historical data")
 	generateCmd.Flags().Int("threads", 3000, "Number of simultaneous goroutines to spawn for historical data")
 	generateCmd.Flags().Int("sleep_time_on_failure", 5, "Time in seconds to sleep when a failure is detected for historical data")
-	viper.BindPFlags(generateCmd.Flags())
+	if err := viper.BindPFlags(generateCmd.Flags()); err != nil {
+		log.WithField("error", err).Fatal("Failed to bind generate flags")
+	}
 }
