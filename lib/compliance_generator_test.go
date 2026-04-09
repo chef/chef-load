@@ -99,4 +99,3 @@ func TestIntervalToString_Days(t *testing.T) {
 	assert.Equal(t, "7 day(s)", intervalToString(10080))
 	assert.Equal(t, "30 day(s)", intervalToString(43200))
 }
-
