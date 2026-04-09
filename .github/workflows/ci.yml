@@ -1,3 +1,4 @@
+---
 name: CI
 
 on:
@@ -69,7 +70,7 @@ jobs:
           cache: true
       - name: Check formatting
         run: |
-          unformatted=$(gofmt -l .)
+          unformatted=$(gofmt -l $(find . -name '*.go' -not -path './vendor/*'))
           if [ -n "$unformatted" ]; then
             echo "The following files are not gofmt-formatted:"
             echo "$unformatted"

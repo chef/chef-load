@@ -1,3 +1,4 @@
+---
 # golangci-lint configuration for chef-load.
 # Run with: golangci-lint run ./...
 # See: https://golangci-lint.run/usage/configuration/

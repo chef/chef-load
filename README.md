@@ -413,15 +413,15 @@ hab studio enter
 [2][default:/src:0]#
 ```
 
-# License
+## License
 
 chef-load - a tool that simulates Chef Client API load on a Chef Server and/or a Chef Automate server
 
-|                      |                                          |
-|:---------------------|:-----------------------------------------|
-| **Author:**          | Jeremiah Snapp (<jeremiah@chef.io>) |
+|                      |                                                    |
+|:---------------------|:---------------------------------------------------|
+| **Author:**          | Jeremiah Snapp (<jeremiah@chef.io>)                |
 | **Copyright:**       | Copyright 2026 Progress Software Corporation, Inc. |
-| **License:**         | Apache License, Version 2.0 |
+| **License:**         | Apache License, Version 2.0                        |
 
 ```text
 Licensed under the Apache License, Version 2.0 (the "License");

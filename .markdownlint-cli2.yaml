@@ -1,0 +1,7 @@
+---
+config:
+  line-length: false
+
+ignores:
+  # Ignore third-party vendor files — they are not owned by this project.
+  - "vendor/**"
