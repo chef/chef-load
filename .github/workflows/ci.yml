@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test:
+    name: Fmt / Vet / Test / Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      # Ensure go.mod and go.sum are tidy (no uncommitted dependency changes).
+      - name: Check go.mod is tidy
+        run: |
+          go mod tidy
+          if ! git diff --exit-code go.mod go.sum; then
+            echo "go.mod or go.sum is not tidy — run 'go mod tidy' and commit the result."
+            exit 1
+          fi
+
+      # Require consistent formatting.
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not gofmt-formatted:"
+            echo "$unformatted"
+            echo "Run 'gofmt -w .' to fix them."
+            exit 1
+          fi
+
+      # Static analysis.
+      - name: Vet
+        run: go vet ./...
+
+      # Unit tests. -race catches data races; -count=1 disables result caching
+      # so tests always run in CI.
+      - name: Unit tests
+        run: go test -mod=vendor -race -count=1 -timeout 5m ./...
+
+      # Verify the binary compiles without errors.
+      - name: Build
+        run: GO111MODULE=on CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -mod=vendor -o bin/ ./

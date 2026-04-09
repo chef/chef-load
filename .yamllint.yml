@@ -1,0 +1,14 @@
+---
+extends: default
+
+rules:
+  # Allow long lines (URLs in comments/values are unavoidable).
+  line-length:
+    max: 120
+    level: warning
+
+  # GitHub Actions workflows use 'on:' as a mapping key; yamllint would flag
+  # it as a truthy value without this override.
+  truthy:
+    allowed-values: ["true", "false", "on", "off"]
+    check-keys: false
