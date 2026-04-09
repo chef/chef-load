@@ -463,7 +463,7 @@ func randomChefClientRun(config *Config, chefClient chef.Client, nodeName string
 
 	// Notify Data Collector of run end
 	runStopBody := dataCollectorRunStop(config, node, nodeName, chefServerFQDN, orgName, status, runList,
-		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON)
+		parseRunList(expandedRunList), runUUID, nodeUUID, startTime, endTime, convergeJSON, node.Environment)
 	if config.DataCollectorURL != "" {
 		chefAutomateSendMessage(dataCollectorClient, nodeName, runStopBody)
 	} else if dataCollectorAvailable {

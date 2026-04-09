@@ -184,7 +184,7 @@ func Start(config *Config) {
 		select {
 		case n := <-ccrCompletion:
 			timeout = false
-			if rand.Float64() < config.NodeReplacementRate {
+			if !config.SkipClientCreation && rand.Float64() < config.NodeReplacementRate {
 				nodes[n] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx), FirstRun: true}
 				nodeNameIdx++
 			}

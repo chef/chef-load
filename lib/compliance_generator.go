@@ -215,7 +215,7 @@ func generateReports(config *Config, nodes []NodeDetails, requests chan *request
 			report := sampleReport
 			reportUUID := uuid.New()
 			reportEndTime := endTime.Add(time.Duration(-interval*scanIndex) * time.Minute)
-			complianceReportBody := dataCollectorComplianceReport(node, reportUUID, reportEndTime, report)
+			complianceReportBody := dataCollectorComplianceReport(node, reportUUID, uuid.Nil, reportEndTime, report)
 
 			if config.DataCollectorURL != "" {
 				chefAutomateSendMessage(dataCollectorClient, node.name, complianceReportBody)
