@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	chef_load "github.com/chef/chef-load/lib"
+	chef_load "github.com/chef/chef-load/v4/lib"
 )
 
 var startCmd = &cobra.Command{

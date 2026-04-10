@@ -20,7 +20,7 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	chef_load "github.com/chef/chef-load/lib"
+	chef_load "github.com/chef/chef-load/v4/lib"
 )
 
 var initCmd = &cobra.Command{
