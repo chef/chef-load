@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017-2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,7 +92,7 @@ func solveRunListDependencies(nodeClient *chef.Client, nodeName, chefVersion, ch
 	body := map[string][]string{"run_list": expandedRunList}
 
 	var ckbks cookbooks
-	apiRequest(*nodeClient, nodeName, chefVersion, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil, requests)
+	_, _ = apiRequest(*nodeClient, nodeName, chefVersion, "POST", "environments/"+chefEnvironment+"/cookbook_versions", body, &ckbks, nil, requests) //nolint:bodyclose
 	return ckbks
 }
 

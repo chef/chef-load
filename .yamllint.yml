@@ -1,0 +1,15 @@
+---
+extends: default
+
+# Ignore third-party vendor files — they are not owned by this project.
+ignore: |
+  vendor/
+
+rules:
+  line-length: false
+
+  # GitHub Actions workflows use 'on:' as a mapping key; yamllint would flag
+  # it as a truthy value without this override.
+  truthy:
+    allowed-values: ["true", "false", "on", "off"]
+    check-keys: false

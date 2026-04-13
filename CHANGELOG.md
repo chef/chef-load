@@ -1,4 +1,9 @@
-# chef-load Change Log 
+# chef-load Change Log
+
+## 4.0.0 (2026-04-09)
+
+* Added support for policyfile based load simulations
+* Added compliance phase reporting capability to load simulations
 
 ## 3.0.0 (2017-08-31)
 

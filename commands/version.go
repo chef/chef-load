@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,14 @@ package commands
 import (
 	"fmt"
 
-	chef_load "github.com/chef/chef-load/lib"
 	"github.com/spf13/cobra"
+
+	chef_load "github.com/chef/chef-load/v4/lib"
 )
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: fmt.Sprintf("Display the chef-load version"),
+	Short: "Display the chef-load version",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("chef-load", chef_load.VERSION)
 	},

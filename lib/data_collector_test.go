@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017-2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -225,7 +225,7 @@ func TestDataCollectorRunStop_ConvergeJSONOverridesRunList(t *testing.T) {
 		"run_list": []interface{}{},
 	}
 	convergeJSON := map[string]interface{}{
-		"run_list":         overrideRL,
+		"run_list":          overrideRL,
 		"expanded_run_list": overrideERL,
 	}
 

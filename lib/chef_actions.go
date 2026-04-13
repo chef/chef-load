@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017-2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
 package chef_load
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -146,11 +145,11 @@ func newRandomActionRequest(aType ActionType) *actionRequest {
 }
 
 func randomActionType() ActionType {
-	return ActionType(rand.Intn(len(actionTypeString)))
+	return ActionType(rand.Intn(len(actionTypeString))) //nolint:gosec
 }
 
 func randomTask() Task {
-	return Task(rand.Intn(len(tasksString)))
+	return Task(rand.Intn(len(tasksString))) //nolint:gosec
 }
 
 func (ar *actionRequest) SetTask(t Task) {
@@ -163,24 +162,24 @@ func (ar *actionRequest) SetEntityType(t ActionType) {
 }
 
 func randomEntityName() string {
-	return entityNameList[rand.Intn(len(entityNameList))]
+	return entityNameList[rand.Intn(len(entityNameList))] //nolint:gosec
 }
 
 func randomRequestorName() string {
-	return requestorNameList[rand.Intn(len(requestorNameList))]
+	return requestorNameList[rand.Intn(len(requestorNameList))] //nolint:gosec
 }
 
 func randomCookbookVersion() string {
-	return strconv.Itoa(rand.Intn(9)) + "." +
-		strconv.Itoa(rand.Intn(9)) + "." +
-		strconv.Itoa(rand.Intn(9)) + "."
+	return strconv.Itoa(rand.Intn(9)) + "." + //nolint:gosec
+		strconv.Itoa(rand.Intn(9)) + "." + //nolint:gosec
+		strconv.Itoa(rand.Intn(9)) + "." //nolint:gosec
 }
 
 // Get a random hour for the last week.
 func randomTime() time.Time {
-	numberOfMinutesBeforeNow := rand.Intn(7 * 24 * 60)
+	numberOfMinutesBeforeNow := rand.Intn(7 * 24 * 60) //nolint:gosec
 
-	numberOfNanosecondBeforeNow := time.Duration(time.Minute * time.Duration(numberOfMinutesBeforeNow))
+	numberOfNanosecondBeforeNow := time.Minute * time.Duration(numberOfMinutesBeforeNow)
 
 	return time.Now().Add(-numberOfNanosecondBeforeNow)
 }
@@ -244,25 +243,24 @@ func GenerateChefActions(config *Config, requests chan *request) error {
 		"random_data": config.RandomData,
 	}).Info("Generating chef actions")
 
-	rand.Seed(time.Now().UTC().UnixNano())
-
 	dataCollectorClient, err := NewDataCollectorClient(&DataCollectorConfig{
 		Token:   config.DataCollectorToken,
 		URL:     config.DataCollectorURL,
 		SkipSSL: true,
 	}, requests)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Error creating DataCollectorClient: %+v \n", err))
+		return fmt.Errorf("error creating DataCollectorClient: %+v", err)
 	}
 
 	for i := 1; i <= config.NumActions; i++ {
-		// TODO: Check the errors
-		chefAction(config, randomActionType(), dataCollectorClient)
+		if _, err := chefAction(randomActionType(), dataCollectorClient); err != nil {
+			log.WithField("error", err).Warn("chef action failed")
+		}
 	}
 	return nil
 }
 
-func chefAction(config *Config, aType ActionType, dataCollectorClient *DataCollectorClient) (int, error) {
+func chefAction(aType ActionType, dataCollectorClient *DataCollectorClient) (int, error) {
 	action := newRandomActionRequest(aType)
 	return chefAutomateSendMessage(dataCollectorClient, action.String(), action)
 }

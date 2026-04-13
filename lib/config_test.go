@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017-2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,7 +91,7 @@ func TestPrintSampleConfig_ContainsNewSettings(t *testing.T) {
 // The switch logic lives inside ChefClientRun but we can unit-test it by
 // extracting the same expression.
 
-func policyfileModeFor(loadMode string, nodeNumber uint32, numNodes int, pct float64) bool {
+func policyfileModeFor(loadMode string, nodeNumber uint32, numNodes int, pct float64) bool { //nolint:unparam
 	switch loadMode {
 	case "policyfile":
 		return true

@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,14 @@
 package commands
 
 import (
-	"fmt"
-
-	chef_load "github.com/chef/chef-load/lib"
 	"github.com/spf13/cobra"
+
+	chef_load "github.com/chef/chef-load/v4/lib"
 )
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: fmt.Sprintf("Initialize chef-load configuration file"),
+	Short: "Initialize chef-load configuration file",
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO @afiune Instead of printing the config, write it to disk
 		// with the default config and tell the user that they can modify it

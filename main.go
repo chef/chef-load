@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
 package main
 
 import (
-	"github.com/chef/chef-load/commands"
+	"github.com/chef/chef-load/v4/commands"
 )
 
 func main() {

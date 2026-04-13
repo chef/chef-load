@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,11 @@
 package commands
 
 import (
-	chef_load "github.com/chef/chef-load/lib"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	chef_load "github.com/chef/chef-load/v4/lib"
 )
 
 var startCmd = &cobra.Command{
@@ -43,5 +44,7 @@ var startCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(startCmd)
 	startCmd.Flags().Bool("profile-logs", false, "Generates API request profile from specified chef-load log files")
-	viper.BindPFlags(startCmd.Flags())
+	if err := viper.BindPFlags(startCmd.Flags()); err != nil {
+		log.WithField("error", err).Fatal("Failed to bind start flags")
+	}
 }

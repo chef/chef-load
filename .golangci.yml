@@ -1,0 +1,59 @@
+---
+# golangci-lint configuration for chef-load.
+# Run with: golangci-lint run ./...
+# See: https://golangci-lint.run/usage/configuration/
+
+version: "2"
+
+linters:
+  # Start from the default set (errcheck, govet, ineffassign, staticcheck, unused)
+  # and enable additional linters.
+  enable:
+    - bodyclose       # check for unclosed HTTP response bodies
+    - gosec           # security issues
+    - misspell        # catch common misspellings in comments and strings
+    - noctx           # detect HTTP requests sent without a context
+    - revive          # drop-in golint replacement
+    - unconvert       # remove unnecessary type conversions
+    - unparam         # detect unused function parameters
+
+  settings:
+    misspell:
+      locale: US
+    revive:
+      rules:
+        # Don't require exported-symbol doc comments in this project.
+        - name: exported
+          disabled: true
+
+  exclusions:
+    rules:
+      # Test files: relax security checks and return-error strictness.
+      - path: "_test\\.go"
+        linters: [gosec, errcheck]
+
+      # TLS InsecureSkipVerify: used when connecting to Chef Server / Automate
+      # with self-signed certificates; operator opting in via config.
+      - linters: [gosec]
+        text: "G402"
+
+      # G304: file path from config is trusted operator input, not user-supplied.
+      - linters: [gosec]
+        text: "G304"
+
+      # defer Close: returning errors from defer is not idiomatic Go.
+      - source: 'defer .*\.Close'
+        linters: [errcheck]
+
+      # fmt.Fprintf/Fprintln to open file handles: errors writing to local log
+      # files are non-actionable mid-run.
+      - source: 'fmt\.(Fprintf|Fprintln)\('
+        linters: [errcheck]
+
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/chef/chef-load

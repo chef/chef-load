@@ -1,4 +1,4 @@
-module github.com/chef/chef-load
+module github.com/chef/chef-load/v4
 
 go 1.24.0
 

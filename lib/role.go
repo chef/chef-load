@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2017-2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ type role struct {
 
 func roleRunListFor(nodeClient *chef.Client, nodeName, chefVersion, roleName, chefEnvironment string, requests chan *request) runList {
 	var r role
-	apiRequest(*nodeClient, nodeName, chefVersion, "GET", "roles/"+roleName, nil, &r, nil, requests)
+	_, _ = apiRequest(*nodeClient, nodeName, chefVersion, "GET", "roles/"+roleName, nil, &r, nil, requests) //nolint:bodyclose
 
 	var roleRunList runList
 	envRunList, envRunListExists := r.EnvRunLists[chefEnvironment]

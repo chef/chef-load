@@ -1,5 +1,5 @@
 //
-// Copyright:: Copyright 2018 Chef Software, Inc.
+// Copyright:: Copyright 2026 Progress Software Corporation, Inc.
 // License:: Apache License, Version 2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,9 +23,11 @@ import (
 	"os"
 	"strings"
 
-	chef_load "github.com/chef/chef-load/lib"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	chef_load "github.com/chef/chef-load/v4/lib"
 )
 
 var cfgFile string
@@ -74,7 +76,9 @@ func init() {
 	rootCmd.PersistentFlags().Float64("policyfile_percentage", 0.5, "Fraction (0.0-1.0) of nodes using policyfile when load_mode is 'mixed'")
 	rootCmd.PersistentFlags().Bool("enable_compliance_phase", false, "Simulate the chef-client built-in compliance phase (sends inspec_report after each CCR)")
 	rootCmd.PersistentFlags().Float64("compliance_phase_percentage", 1.0, "Fraction (0.0-1.0) of nodes that run the compliance phase when enable_compliance_phase is true")
-	viper.BindPFlags(rootCmd.PersistentFlags())
+	if err := viper.BindPFlags(rootCmd.PersistentFlags()); err != nil {
+		log.WithField("error", err).Fatal("Failed to bind root flags")
+	}
 }
 
 func initConfig() {
@@ -102,7 +106,7 @@ func configFromViper() (*chef_load.Config, error) {
 	}
 
 	if cfg.ChefServerURL == "" && cfg.DataCollectorURL == "" {
-		return nil, errors.New("You must set chef_server_url or data_collector_url or both")
+		return nil, errors.New("you must set chef_server_url or data_collector_url or both")
 	}
 
 	if cfg.ChefServerURL != "" {
@@ -111,7 +115,7 @@ func configFromViper() (*chef_load.Config, error) {
 			cfg.ChefServerURL = cfg.ChefServerURL + "/"
 		}
 		if cfg.ClientName == "" || cfg.ClientKey == "" {
-			return nil, errors.New("You must set client_name and client_key if chef_server_url is set")
+			return nil, errors.New("you must set client_name and client_key if chef_server_url is set")
 		}
 	}
 
