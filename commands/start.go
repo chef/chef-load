@@ -18,7 +18,7 @@
 package commands
 
 import (
-	chef_load "github.com/chef/chef-load/lib"
+	chef_load "github.com/chef/chef-load/v4/lib"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

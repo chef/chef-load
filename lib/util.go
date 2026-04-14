@@ -129,6 +129,8 @@ type amountOfRequests map[request]uint64
 var bookshelfRE = regexp.MustCompile("/bookshelf/.*")
 var nodeRE = regexp.MustCompile("(/nodes/.*-)\\d+(/.*)?")
 var rolesRE = regexp.MustCompile("/roles/.*")
+var cookbookArtifactRE = regexp.MustCompile("/cookbook_artifacts/[^/]+/[^/]+")
+var policyGroupRE = regexp.MustCompile("/policy_groups/[^/]+/policies/[^/]+")
 
 func (a amountOfRequests) addRequest(req request) {
 	// bookshelf/anything -> bookshelf/<...>
@@ -138,6 +140,10 @@ func (a amountOfRequests) addRequest(req request) {
 	// We may want to further aggregate based on object type
 	// roles/anything -> roles/<ROLENAME>
 	req.Url = rolesRE.ReplaceAllString(req.Url, "/roles/<ROLENAME>")
+	// cookbook_artifacts/<name>/<identifier> -> cookbook_artifacts/<NAME>/<IDENTIFIER>
+	req.Url = cookbookArtifactRE.ReplaceAllString(req.Url, "/cookbook_artifacts/<NAME>/<IDENTIFIER>")
+	// policy_groups/<group>/policies/<name> -> policy_groups/<GROUP>/policies/<NAME>
+	req.Url = policyGroupRE.ReplaceAllString(req.Url, "/policy_groups/<GROUP>/policies/<NAME>")
 	a[req]++
 }
 
