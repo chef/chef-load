@@ -74,6 +74,13 @@ func ChefClientRun(config *Config, nodeName string, firstRun bool, requests chan
 		}
 	)
 
+	// Guard against an empty ChefEnvironment (e.g. the key was omitted from the
+	// config file). An empty value produces the URL "environments//cookbook_versions"
+	// which the Chef Server rejects with 405 Method Not Allowed.
+	if chefEnvironment == "" {
+		chefEnvironment = "_default"
+	}
+
 	// Determine whether this node slot should simulate a policyfile-based
 	// chef-client run.  Three load modes are supported:
 	//   "legacy"     – traditional run-list/roles/environments (original behaviour)
