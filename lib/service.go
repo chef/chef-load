@@ -26,6 +26,8 @@ import (
 	"os/signal"
 	"path"
 	"strconv"
+	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -97,6 +99,10 @@ func Start(config *Config) {
 	}
 
 	var startTime = time.Now()
+	// activeCount tracks the number of active CCR runner slots. It is read by
+	// the SIGUSR1 handler and written by the burst/scale-down goroutines.
+	var activeCount int32
+
 	// This goroutine aggregates API requests and handles and handles interrupt
 	// to display a final report.
 	go func() {
@@ -109,9 +115,14 @@ func Start(config *Config) {
 				requestAggregator.addRequest(request{Method: req.Method, Url: req.Url, StatusCode: req.StatusCode})
 			case sig := <-sigs:
 				log.WithFields(log.Fields{"syscall": sig}).Info("Signal received")
+				if sig == syscall.SIGUSR1 {
+					log.Printf("Active node pool size: %d", atomic.LoadInt32(&activeCount))
+				}
 				printAPIRequestProfile(startTime, requestAggregator)
-				log.Info("Stopping chef-load")
-				os.Exit(0)
+				if sig != syscall.SIGUSR1 {
+					log.Info("Stopping chef-load")
+					os.Exit(0)
+				}
 			}
 		}
 	}()
@@ -161,22 +172,171 @@ func Start(config *Config) {
 	}
 	// Cleanup: split these sections into their own functions
 
-	// The Nodes (CCRs) goroutine
-	// var nodeNames = make([]string, config.NumNodes)
-	var ccrCompletion = make(chan int, config.NumNodes)
-	// var replaceNode = false
-	var nodeNameIdx = 0
+	// -----------------------------------------------------------------------
+	// Node pool initialisation (with optional pre-creation)
+	// -----------------------------------------------------------------------
 
-	// Create initial group of runs at the scheduled interval
-	var nodes = make([]runner, config.NumNodes)
-	for i := 0; i < config.NumNodes; i++ {
-		nodes[i] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx), FirstRun: true}
-		nodeNameIdx++
-		ccrCompletion <- i // trigger the first run for node 'i'
+	var (
+		nodesMu       sync.Mutex
+		ccrCompletion = make(chan int, config.NumNodes)
+		nodeNameIdx   = config.NumNodes // new names start beyond the pre-created range
+		nodes         = make([]runner, config.NumNodes)
+		fleetRecords  []NodeRecord // saved for elastic scale-down replacement
+	)
+
+	if config.PrecreateNodes && config.RunChefClient {
+		records, err := LoadOrPrecreate(config, requests)
+		if err != nil {
+			log.WithField("error", err).Warn("Pre-creation completed with errors; continuing with available records")
+		}
+		fleetRecords = records
+
+		for i := 0; i < config.NumNodes; i++ {
+			if i < len(records) {
+				nodes[i] = runner{NodeName: records[i].NodeName, FirstRun: false}
+			} else {
+				// Partial pre-creation: fall back to generated names.
+				nodes[i] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(i), FirstRun: false}
+			}
+		}
+		if len(records) > config.NumNodes {
+			nodeNameIdx = len(records)
+		}
+	} else {
+		// Original behaviour: generate names sequentially, all FirstRun=true.
+		nodeNameIdx = 0
+		for i := 0; i < config.NumNodes; i++ {
+			nodes[i] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx), FirstRun: true}
+			nodeNameIdx++
+		}
 	}
 
+	atomic.StoreInt32(&activeCount, int32(config.NumNodes))
+
+	// Trigger the first CCR for every node slot.
+	for i := 0; i < config.NumNodes; i++ {
+		ccrCompletion <- i
+	}
+
+	// -----------------------------------------------------------------------
+	// Realistic trickle goroutine
+	//
+	// When precreate_nodes is true and new_node_creates_per_minute > 0 (and
+	// elastic_burst_size == 0), periodically swap a random CCR slot for a
+	// brand-new node, simulating steady fleet provisioning at ~N nodes/min.
+	// -----------------------------------------------------------------------
+	if config.PrecreateNodes && config.NewNodeCreatesPerMinute > 0 && config.ElasticBurstSize == 0 {
+		tickInterval := time.Duration(float64(time.Minute) / float64(config.NewNodeCreatesPerMinute))
+		go func() {
+			ticker := time.NewTicker(tickInterval)
+			defer ticker.Stop()
+			for range ticker.C {
+				nodesMu.Lock()
+				n := rand.Intn(config.NumNodes)
+				newName := config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx)
+				rec := NewNodeRecord(newName, nodeNameIdx)
+				nodeNameIdx++
+				nodes[n] = runner{NodeName: newName, FirstRun: true}
+				nodesMu.Unlock()
+
+				go func(r NodeRecord) {
+					if appendErr := AppendNodeLog(config.NodeLogFile, []NodeRecord{r}); appendErr != nil {
+						log.WithField("error", appendErr).Warn("Could not append trickle node to log")
+					}
+				}(rec)
+			}
+		}()
+	}
+
+	// -----------------------------------------------------------------------
+	// Elastic burst goroutine
+	//
+	// When elastic_burst_size > 0, spin up a batch of new nodes on each tick.
+	// Respects elastic_max_nodes cap and optionally scales down after 2×
+	// burst interval when elastic_scale_down is true.
+	// -----------------------------------------------------------------------
+	if config.ElasticBurstSize > 0 {
+		go func() {
+			ticker := time.NewTicker(time.Duration(config.ElasticBurstInterval) * time.Minute)
+			defer ticker.Stop()
+			for range ticker.C {
+				burstSize := config.ElasticBurstSize
+
+				if config.ElasticMaxNodes > 0 {
+					current := int(atomic.LoadInt32(&activeCount))
+					remaining := config.ElasticMaxNodes - current
+					if remaining <= 0 {
+						log.Printf("Elastic burst: pool at cap (%d/%d), skipping burst",
+							current, config.ElasticMaxNodes)
+						continue
+					}
+					if burstSize > remaining {
+						burstSize = remaining
+					}
+				}
+
+				nodesMu.Lock()
+				burstSlots := make([]int, burstSize)
+				newRecords := make([]NodeRecord, burstSize)
+				for j := 0; j < burstSize; j++ {
+					newName := config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx)
+					newRecords[j] = NewNodeRecord(newName, nodeNameIdx)
+					nodeNameIdx++
+					n := rand.Intn(len(nodes))
+					burstSlots[j] = n
+					nodes[n] = runner{NodeName: newName, FirstRun: true}
+				}
+				newActive := atomic.AddInt32(&activeCount, int32(burstSize))
+				nodesMu.Unlock()
+
+				log.Printf("Elastic burst: +%d nodes, active pool: %d", burstSize, newActive)
+
+				go func(recs []NodeRecord) {
+					if appendErr := AppendNodeLog(config.NodeLogFile, recs); appendErr != nil {
+						log.WithField("error", appendErr).Warn("Could not append burst nodes to log")
+					}
+				}(newRecords)
+
+				if config.ElasticScaleDown {
+					retireDelay := time.Duration(config.ElasticBurstInterval*2) * time.Minute
+					retiredNames := make([]string, len(newRecords))
+					for k, r := range newRecords {
+						retiredNames[k] = r.NodeName
+					}
+					go func(slots []int, names []string) {
+						time.Sleep(retireDelay)
+						nodesMu.Lock()
+						fleetLen := len(fleetRecords)
+						for _, slot := range slots {
+							if fleetLen > 0 {
+								// Replace burst slot with a fleet node so the slot
+								// continues to run CCRs, simulating scale-down where
+								// replacement capacity already exists in the fleet.
+								nodes[slot] = runner{
+									NodeName: fleetRecords[rand.Intn(fleetLen)].NodeName,
+									FirstRun: false,
+								}
+							}
+						}
+						newActive := atomic.AddInt32(&activeCount, -int32(len(slots)))
+						nodesMu.Unlock()
+						log.Printf("Elastic scale-down: -%d nodes, active pool: %d",
+							len(slots), newActive)
+						go func() {
+							if markErr := MarkRetired(config.NodeLogFile, names); markErr != nil {
+								log.WithField("error", markErr).Warn("Could not mark nodes retired in log")
+							}
+						}()
+					}(burstSlots, retiredNames)
+				}
+			}
+		}()
+	}
+
+	// -----------------------------------------------------------------------
+	// Main CCR loop
+	// -----------------------------------------------------------------------
 	var timeout = false
-	//var lastRunStart = time.Now()
 	for {
 		if !timeout {
 			time.Sleep(delayBetweenConverges)
@@ -184,15 +344,16 @@ func Start(config *Config) {
 		select {
 		case n := <-ccrCompletion:
 			timeout = false
+			nodesMu.Lock()
 			if !config.SkipClientCreation && rand.Float64() < config.NodeReplacementRate {
 				nodes[n] = runner{NodeName: config.NodeNamePrefix + "-" + strconv.Itoa(nodeNameIdx), FirstRun: true}
 				nodeNameIdx++
 			}
-			// confirming that throttle effect ensures we have a maximum of NumNodes concurrent CCRs happening
-			// log.Printf("[node %s] starting CCR. Elapsed since most recent CCR on any node: %s", nodes[n].NodeName, time.Since(lastRunStart))
-			// lastRunStart = time.Now()
-			go ChefClientRun(config, nodes[n].NodeName, nodes[n].FirstRun, requests, ccrCompletion, uint32(n))
+			nodeName := nodes[n].NodeName
+			firstRun := nodes[n].FirstRun
 			nodes[n].FirstRun = false
+			nodesMu.Unlock()
+			go ChefClientRun(config, nodeName, firstRun, requests, ccrCompletion, uint32(n))
 		case <-time.After(time.Millisecond * 100):
 			fmt.Println("All clients busy, waiting for one to complete before next run. Server may be responding slowly")
 			timeout = true

@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	chef_load "github.com/chef/chef-load/lib"
@@ -74,6 +75,14 @@ func init() {
 	rootCmd.PersistentFlags().Float64("policyfile_percentage", 0.5, "Fraction (0.0-1.0) of nodes using policyfile when load_mode is 'mixed'")
 	rootCmd.PersistentFlags().Bool("enable_compliance_phase", false, "Simulate the chef-client built-in compliance phase (sends inspec_report after each CCR)")
 	rootCmd.PersistentFlags().Float64("compliance_phase_percentage", 1.0, "Fraction (0.0-1.0) of nodes that run the compliance phase when enable_compliance_phase is true")
+	rootCmd.PersistentFlags().Bool("precreate_nodes", true, "Pre-create all node client+node objects on the Chef Server before simulation")
+	rootCmd.PersistentFlags().String("node_log_file", "", "Path to the JSON node tracking file (defaults to <cwd>/chef-load-nodes.json)")
+	rootCmd.PersistentFlags().Int("precreate_workers", 50, "Number of concurrent goroutines for pre-creation (2 API requests per node)")
+	rootCmd.PersistentFlags().Int("new_node_creates_per_minute", 2, "Trickle rate of new node provisioning during simulation (non-elastic mode)")
+	rootCmd.PersistentFlags().Int("elastic_burst_size", 0, "Number of new nodes to add per elastic burst event (0 = disabled)")
+	rootCmd.PersistentFlags().Int("elastic_burst_interval", 10, "Minutes between elastic burst events")
+	rootCmd.PersistentFlags().Int("elastic_max_nodes", 0, "Cap on total active node pool size across bursts (0 = unlimited)")
+	rootCmd.PersistentFlags().Bool("elastic_scale_down", false, "Retire burst nodes after 2x burst interval (scale-down simulation)")
 	viper.BindPFlags(rootCmd.PersistentFlags())
 }
 
@@ -99,6 +108,15 @@ func configFromViper() (*chef_load.Config, error) {
 	cfg := chef_load.Default()
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err
+	}
+
+	// Resolve NodeLogFile default to <cwd>/chef-load-nodes.json if not set.
+	if cfg.NodeLogFile == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			cwd = "."
+		}
+		cfg.NodeLogFile = filepath.Join(cwd, "chef-load-nodes.json")
 	}
 
 	if cfg.ChefServerURL == "" && cfg.DataCollectorURL == "" {
