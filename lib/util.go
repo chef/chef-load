@@ -97,6 +97,22 @@ func getAPIClient(clientName, privateKeyPath, chefServerURL string) chef.Client 
 	return *client
 }
 
+// newChefAPIClient creates and returns a *chef.Client for use with go-chef
+// service methods (e.g. Search) that require a pointer receiver.
+func newChefAPIClient(config *Config) (*chef.Client, error) {
+	privateKey := getPrivateKey(config.ClientKey)
+	client, err := chef.NewClient(&chef.Config{
+		Name:    config.ClientName,
+		Key:     privateKey,
+		BaseURL: config.ChefServerURL,
+		SkipSSL: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
+}
+
 func getPrivateKey(privateKeyPath string) string {
 	fileContent, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {

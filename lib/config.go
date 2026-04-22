@@ -113,6 +113,33 @@ type Config struct {
 	// Use 1.0 to enable it for every node or a smaller value to simulate
 	// an environment where only some nodes have the compliance phase configured.
 	CompliancePhasePercentage float64 `mapstructure:"compliance_phase_percentage"`
+
+	// Node pre-creation and realistic simulation settings.
+	//
+	// PrecreateNodes controls whether all nodes are pre-created on the Chef
+	// Server before simulation begins. Defaults to true (opt-out).
+	PrecreateNodes bool `mapstructure:"precreate_nodes"`
+	// NodeLogFile is the path to the JSON file that tracks all pre-created
+	// nodes (node_name + node_uuid). Defaults to <cwd>/chef-load-nodes.json.
+	NodeLogFile string `mapstructure:"node_log_file"`
+	// PrecreateWorkers is the number of concurrent goroutines used during
+	// pre-creation (2 API requests per node). Default 50.
+	PrecreateWorkers int `mapstructure:"precreate_workers"`
+	// NewNodeCreatesPerMinute is the trickle rate of new node provisioning
+	// during the realistic simulation (non-elastic mode). Default 2.
+	NewNodeCreatesPerMinute int `mapstructure:"new_node_creates_per_minute"`
+	// ElasticBurstSize is the number of new nodes created per burst event.
+	// Set to 0 (default) to disable elastic scale mode.
+	ElasticBurstSize int `mapstructure:"elastic_burst_size"`
+	// ElasticBurstInterval is the number of minutes between burst events.
+	// Default 10.
+	ElasticBurstInterval int `mapstructure:"elastic_burst_interval"`
+	// ElasticMaxNodes caps the total active node pool size. 0 = unlimited.
+	ElasticMaxNodes int `mapstructure:"elastic_max_nodes"`
+	// ElasticScaleDown enables auto-scale-down after 2× ElasticBurstInterval.
+	// When true, burst nodes are retired from the active pool after the
+	// cooldown period (they remain on the Chef Server).
+	ElasticScaleDown bool `mapstructure:"elastic_scale_down"`
 }
 
 func Default() Config {
@@ -148,6 +175,14 @@ func Default() Config {
 		SkipClientCreation:           false,
 		NodeReplacementRate:          0.0,
 		LoadMode:                     "policyfile",
+		PrecreateNodes:               true,
+		NodeLogFile:                  "",
+		PrecreateWorkers:             50,
+		NewNodeCreatesPerMinute:      2,
+		ElasticBurstSize:             0,
+		ElasticBurstInterval:         10,
+		ElasticMaxNodes:              0,
+		ElasticScaleDown:             false,
 		PolicyName:                   "",
 		PolicyGroup:                  "",
 		Policyfiles:                  make([]string, 0),
@@ -386,6 +421,53 @@ func PrintSampleConfig() {
 # Set to 1.0 (default) to enable compliance on all nodes, or a smaller value
 # to model an environment where only a subset of nodes have profiles assigned.
 # compliance_phase_percentage = 1.0
+
+# -------------------------------------------------------------------------
+# Node pre-creation and realistic simulation settings
+# -------------------------------------------------------------------------
+
+# precreate_nodes controls whether all nodes are pre-created on the Chef Server
+# before simulation begins (creates both client + node objects).
+# Defaults to true (opt-out). Set to false to use the original behaviour where
+# nodes are created on-demand at their first chef-client run.
+# precreate_nodes = true
+
+# node_log_file is the path to the JSON file that tracks all pre-created nodes
+# (node_name + node_uuid). Used for resume support — on restart chef-load verifies
+# the nodes still exist via Chef Search before skipping pre-creation.
+# Defaults to <current working directory>/chef-load-nodes.json.
+# node_log_file = "/path/to/chef-load-nodes.json"
+
+# precreate_workers sets the number of concurrent goroutines used during the
+# pre-creation phase. Each goroutine sends 2 API requests per node
+# (POST clients + POST nodes). At 50 workers the pre-creation of 160k nodes
+# completes in approximately 10 minutes.
+# precreate_workers = 50
+
+# new_node_creates_per_minute controls the trickle rate of new node provisioning
+# during simulation (non-elastic mode). At each tick a random runner slot is
+# replaced with a new node whose first chef-client run creates the client object,
+# simulating a steady stream of newly-provisioned machines joining the fleet.
+# Ignored when elastic_burst_size > 0. Default 2.
+# new_node_creates_per_minute = 2
+
+# elastic_burst_size is the number of new nodes added to the active pool on each
+# burst event. Set to 0 (default) to disable elastic scale mode.
+# elastic_burst_size = 0
+
+# elastic_burst_interval is the number of minutes between burst events.
+# Default 10.
+# elastic_burst_interval = 10
+
+# elastic_max_nodes caps the total active node pool size across all burst events.
+# 0 (default) means unlimited growth.
+# elastic_max_nodes = 0
+
+# elastic_scale_down enables automatic scale-down after 2 x elastic_burst_interval
+# minutes. When true, burst nodes are retired from the active CCR pool after the
+# cooldown period (they remain on the Chef Server). Simulates auto-scaling
+# environments that scale-up then scale-down.
+# elastic_scale_down = false
 
 # Send data to the Chef server's Reporting service
 # enable_reporting = false
