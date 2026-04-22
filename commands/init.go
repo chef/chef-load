@@ -20,7 +20,7 @@ package commands
 import (
 	"fmt"
 
-	chef_load "github.com/chef/chef-load/lib"
+	chef_load "github.com/chef/chef-load/v4/lib"
 	"github.com/spf13/cobra"
 )
 

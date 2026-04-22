@@ -95,11 +95,11 @@ type Config struct {
 	//   "legacy"     – traditional run-list/roles/environments (original behaviour)
 	//   "policyfile" – all nodes use the policyfile API
 	//   "mixed"      – a fraction of nodes use policyfile (see PolicyfilePercentage)
-	LoadMode             string           `mapstructure:"load_mode"`
-	PolicyName           string           `mapstructure:"policy_name"`
-	PolicyGroup          string           `mapstructure:"policy_group"`
-	Policyfiles          []string         `mapstructure:"policyfiles"`
-	PolicyfilePercentage float64          `mapstructure:"policyfile_percentage"`
+	LoadMode             string   `mapstructure:"load_mode"`
+	PolicyName           string   `mapstructure:"policy_name"`
+	PolicyGroup          string   `mapstructure:"policy_group"`
+	Policyfiles          []string `mapstructure:"policyfiles"`
+	PolicyfilePercentage float64  `mapstructure:"policyfile_percentage"`
 
 	// Compliance phase simulation settings.
 	// EnableCompliancePhase simulates the built-in chef-client compliance phase
@@ -107,7 +107,7 @@ type Config struct {
 	// collector at the end of each simulated chef-client run.
 	// When false (default), compliance reports are only sent if
 	// compliance_status_json_file is set (legacy behaviour).
-	EnableCompliancePhase    bool    `mapstructure:"enable_compliance_phase"`
+	EnableCompliancePhase bool `mapstructure:"enable_compliance_phase"`
 	// CompliancePhasePercentage controls what fraction (0.0–1.0) of simulated
 	// nodes run the compliance phase when enable_compliance_phase is true.
 	// Use 1.0 to enable it for every node or a smaller value to simulate
