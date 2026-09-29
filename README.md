@@ -26,7 +26,7 @@ Make sure the maximum number of open file descriptors is set to `unlimited`. Thi
 
 Prebuilt chef-load binary files are available on chef-load's "Releases" page.
 
-https://github.com/jeremiahsnapp/chef-load/releases
+https://github.com/chef/chef-load/releases
 
 ### Install via Habitat
 
