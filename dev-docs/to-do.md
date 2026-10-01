@@ -12,3 +12,7 @@
 1. update copyright
 1. update habitat download to https://bldr.habitat.sh/#/pkgs/chef/chef-load 
 1. create a container version of this
+
+take a current NGINX trace and build a profile
+add jobs
+look at test frameworks like JMeter, gatling, k6

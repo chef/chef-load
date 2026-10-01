@@ -73,6 +73,10 @@
 - Call out any required proxy, certificate-authority, timeout, retry, or
   concurrency settings.
 
+  http://chef-ingest-service:3001/organizations/*/data-collector - ask Yadav (do I need the data_collector token? in request body or as header?)
+
+will also hit regular client endpoints: node/, runlist/
+
 ### 4.3 Default TOML file parameters
 
 Document the default TOML file in a reference table. For every parameter,
